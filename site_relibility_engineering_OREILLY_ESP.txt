@@ -58,3 +58,57 @@ No necesitas leer en un orden particular, aunque sugerimos al menos comenzar con
 Esperamos que esto sea al menos tan útil e interesante para ti como lo fue para nosotros reunirlo.
 
 — Los editores
+
+
+Parte I - Introducción
+
+Esta sección proporciona algunas orientaciones generales sobre qué es SRE y por qué es diferente de las prácticas más convencionales de la industria de TI.
+
+Ben Treynor Sloss, el vicepresidente senior que supervisa las operaciones técnicas en Google - y el originador del término "Ingeniería de Confiabilidad del Sitio" (SRE) - proporciona su visión sobre qué significa SRE, cómo funciona y cómo se compara con otras formas de hacer las cosas en la industria, en la Introducción.
+
+Proporcionamos una guía sobre el entorno de producción en Google en El entorno de producción en Google, desde la perspectiva de un SRE, como una forma de ayudarte a familiarizarte con la gran cantidad de nuevos términos y sistemas que vas a conocer en el resto del libro.
+
+Capítulo 1 - Introducción
+
+En este capítulo, Ben Treynor Sloss presenta su visión sobre qué es SRE y cómo funciona. También compara SRE con otras formas de hacer las cosas en la industria de TI y explica por qué SRE es diferente.
+
+El capítulo comienza con una definición de SRE y una explicación de cómo se originó el término. Luego, Treynor Sloss describe los principios clave de SRE, incluyendo la importancia de la confiabilidad, la escalabilidad y la eficiencia.
+
+También se discute la relación entre SRE y la ingeniería de software, y cómo SRE se enfoca en la operación y el mantenimiento de los sistemas en lugar de solo en su desarrollo. Treynor Sloss también destaca la importancia de la colaboración y la comunicación entre los equipos de SRE y otros equipos en la organización.
+
+Finalmente, el capítulo concluye con una discusión sobre los beneficios de SRE y cómo puede ayudar a las organizaciones a mejorar la confiabilidad y la eficiencia de sus sistemas.
+
+Capítulo 1 - Introducción
+
+Escrito por Benjamin Treynor Sloss
+Editado por Betsy Beyer
+
+La esperanza no es una estrategia.
+Dicho tradicional de SRE
+
+Es una verdad universalmente reconocida que los sistemas no se ejecutan solos. ¿Cómo, entonces, debería ejecutarse un sistema, particularmente un sistema de cómputo complejo que opera a gran escala?
+
+El enfoque de Sysadmin para la gestión de servicios
+Históricamente, las empresas han empleado administradores de sistemas para ejecutar sistemas de cómputo complejos.
+
+Este enfoque de administrador de sistemas, o sysadmin, implica ensamblar componentes de software existentes y desplegarlos para que trabajen juntos para producir un servicio. Los sysadmins luego son responsables de ejecutar el servicio y responder a eventos y actualizaciones a medida que ocurren. A medida que el sistema crece en complejidad y volumen de tráfico, generando un aumento correspondiente en eventos y actualizaciones, el equipo de sysadmins crece para absorber el trabajo adicional. Debido a que el papel de sysadmin requiere un conjunto de habilidades muy diferente al de los desarrolladores de productos, los desarrolladores y los sysadmins están divididos en equipos discretos: "desarrollo" y "operaciones" o "ops".
+
+El modelo de gestión de servicios de sysadmin tiene varias ventajas. Para las empresas que deciden cómo ejecutar y dotar de personal a un servicio, este enfoque es relativamente fácil de implementar: como un paradigma industrial familiar, hay muchos ejemplos de los que aprender y emular. Hay un talento disponible en todo el mundo. Hay una variedad de herramientas, componentes de software (de estantería o no) y empresas de integración disponibles para ayudar a ejecutar esos sistemas ensamblados, por lo que un equipo de sysadmins novatos no tiene que reinventar la rueda y diseñar un sistema desde cero.
+
+El enfoque de sysadmin y la división de desarrollo/ops que lo acompaña tienen una serie de desventajas y trampas. Estas se dividen en dos categorías: costos directos e indirectos.
+
+Los costos directos no son sutiles ni ambiguos. Ejecutar un servicio con un equipo que depende de la intervención manual para la gestión de cambios y el manejo de eventos se vuelve caro a medida que el servicio y/o el tráfico al servicio crecen, porque el tamaño del equipo debe escalar con la carga generada por el sistema.
+
+Los costos indirectos de la división de desarrollo/ops pueden ser sutiles, pero a menudo son más costosos para la organización que los costos directos. Estos costos surgen del hecho de que los dos equipos son muy diferentes en antecedentes, habilidades y incentivos. Utilizan un vocabulario diferente para describir situaciones; llevan diferentes suposiciones sobre riesgos y posibilidades de soluciones técnicas; tienen diferentes suposiciones sobre el nivel de estabilidad del producto objetivo. La división entre los grupos puede fácilmente convertirse en una de no solo incentivos, sino también comunicación, objetivos y eventualmente, confianza y respeto. Este resultado es una patología.
+
+Los equipos de operaciones tradicionales y sus contrapartes en el desarrollo de productos a menudo terminan en conflicto, más visible sobre cuán rápido se puede lanzar software a producción. En su núcleo, los equipos de desarrollo quieren lanzar nuevas características y verlas adoptadas por los usuarios. En su núcleo, los equipos de operaciones quieren asegurarse de que el servicio no se rompa mientras están sujetando la página. Debido a que la mayoría de las interrupciones son causadas por algún tipo de cambio, un lanzamiento de características nuevo, un lanzamiento de configuración nuevo o un tipo nuevo de tráfico de usuarios, los objetivos de los dos equipos están fundamentalmente en tensión.
+
+Ambos grupos entienden que es inaceptable expresar sus intereses en los términos más brutales posibles ("Queremos lanzar cualquier cosa, en cualquier momento, sin obstáculos" versus "No queremos cambiar nada en el sistema una vez que funciona"). Y porque su vocabulario y suposiciones de riesgo difieren, ambos grupos a menudo recurren a una forma familiar de guerra de trincheras para avanzar en sus intereses. El equipo de operaciones intenta salvaguardar el sistema en ejecución contra el riesgo de cambio introduciendo puertas de lanzamiento y cambio. Por El conflicto no es una parte inevitable de ofrecer un servicio de software. Google ha elegido ejecutar nuestros sistemas con un enfoque diferente: nuestros equipos de Ingeniería de Confiabilidad del Sitio (SRE) se centran en contratar ingenieros de software para ejecutar nuestros productos y crear sistemas para realizar el trabajo que normalmente sería realizado, a menudo de manera manual, por administradores de sistemas.
+
+¿Qué es exactamente la Ingeniería de Confiabilidad del Sitio, como se ha definido en Google? Mi explicación es simple: SRE es lo que sucede cuando se le pide a un ingeniero de software que diseñe un equipo de operaciones. Cuando me uní a Google en 2003 y me encargué de ejecutar un "Equipo de Producción" de siete ingenieros, toda mi vida hasta ese momento había sido ingeniería de software. Así que diseñé y gestioné el grupo de la manera en que querría que funcionara si yo mismo trabajara como SRE. Ese grupo ha madurado desde entonces para convertirse en el equipo de SRE de Google actual, que sigue siendo fiel a sus orígenes como lo imaginó un ingeniero de software de toda la vida.
+
+Un bloque de construcción fundamental del enfoque de Google para la gestión de servicios es la composición de cada equipo de SRE. En general, los SRE se pueden dividir en dos categorías principales.
+
+50-60% son ingenieros de software de Google, o más precisamente, personas que han sido contratadas a través del procedimiento estándar para ingenieros de software de Google. El otro 40-50% son candidatos que estaban muy cerca de las calificaciones de ingeniería de software de Google (es decir, 85-99% del conjunto de habilidades requeridas), y que además tenían un conjunto de habilidades técnicas que es útil para SRE pero es raro para la mayoría de los ingenieros de software. Por lejos, los conocimientos de internos del sistema UNIX y la experiencia en redes (Capa 1 a Capa 3) son los dos tipos más comunes de habilidades técnicas alternativas que buscamos.
+
+Común a todos los SRE es la creencia y la aptitud para desarrollar sistemas de software para resolver problemas complejos. Dentro de SRE, seguimos de cerca el progreso de carrera de ambos grupos, y hasta la fecha no hemos encontrado ninguna diferencia práctica en el rendimiento entre ingenieros de las dos vías. De hecho, el fondo diverso del equipo de SRE a menudo resulta en sistemas inteligentes y de alta calidad que son claramente el producto de la síntesis de varios conjuntos de habilidades.
