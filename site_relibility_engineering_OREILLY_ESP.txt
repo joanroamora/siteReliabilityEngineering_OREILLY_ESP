@@ -177,3 +177,172 @@ Indican que un humano necesita tomar acción, pero no de inmediato. El sistema n
 Registros (Logging)
 
 Nadie necesita mirar esta información, pero se registra para propósitos diagnósticos o forenses. La expectativa es que nadie lea los registros a menos que algo más los impulse a hacerlo.
+
+El resultado de nuestro enfoque para contratar a SRE (Site Reliability Engineers) es que terminamos con un equipo de personas que (a) rápidamente se aburrirán de realizar tareas manualmente, y (b) tienen las habilidades necesarias para escribir software que reemplace su trabajo manual anterior, incluso cuando la solución es complicada. Los SREs también terminan compartiendo un trasfondo académico e intelectual con el resto de la organización de desarrollo. Por lo tanto, el trabajo de SRE consiste fundamentalmente en realizar tareas que históricamente han sido realizadas por un equipo de operaciones, pero utilizando ingenieros con experiencia en software, y confiando en el hecho de que estos ingenieros están inherentemente predispuestos y tienen la capacidad de diseñar e implementar automatización con software para reemplazar el trabajo humano.
+
+Por diseño, es crucial que los equipos de SRE estén enfocados en la ingeniería. Sin una ingeniería constante, la carga operativa aumenta y los equipos necesitarán más personas solo para mantenerse al día con la carga de trabajo. Eventualmente, un grupo tradicional enfocado en operaciones se escala de manera lineal con el tamaño del servicio: si los productos respaldados por el servicio tienen éxito, la carga operativa crecerá con el tráfico. Eso significa contratar a más personas para realizar las mismas tareas una y otra vez.
+
+Para evitar este destino, el equipo encargado de gestionar un servicio necesita programar o se ahogará. Por lo tanto, Google establece un límite del 50% en el trabajo "operativo" agregado para todos los SREs: tickets, guardias, tareas manuales, etc. Este límite asegura que el equipo de SRE tenga suficiente tiempo en su agenda para hacer que el servicio sea estable y operable. Este límite es un techo; con el tiempo, si se les deja a su propio ritmo, el equipo de SRE debería terminar con muy poca carga operativa y dedicarse casi por completo a tareas de desarrollo, porque el servicio básicamente se ejecuta y repara solo: queremos sistemas que sean automáticos, no solo automatizados. En la práctica, la escala y las nuevas características mantienen a los SREs alerta.
+
+La regla general de Google es que un equipo de SRE debe dedicar el 50% restante de su tiempo a hacer desarrollo. Entonces, ¿cómo hacemos cumplir ese umbral? En primer lugar, tenemos que medir cómo se gasta el tiempo de los SRE. Con esa medición en mano, nos aseguramos de que los equipos que consistentemente dedican menos del 50% de su tiempo a trabajo de desarrollo cambien sus prácticas. A menudo, esto significa trasladar parte de la carga operativa de nuevo al equipo de desarrollo, o agregar personal al equipo sin asignarles responsabilidades operativas adicionales. Mantener conscientemente este equilibrio entre el trabajo operativo y de desarrollo nos permite asegurarnos de que los SREs tengan el ancho de banda para participar en una ingeniería creativa y autónoma, mientras retienen la sabiduría adquirida en el lado operativo de la gestión de un servicio.
+
+Hemos descubierto que el enfoque de los SRE de Google para operar sistemas a gran escala tiene muchas ventajas. Debido a que los SREs modifican directamente el código en su esfuerzo por hacer que los sistemas de Google se gestionen solos, los equipos de SRE se caracterizan por su rápida innovación y una gran aceptación del cambio. Tales equipos son relativamente económicos; apoyar el mismo servicio con un equipo orientado a operaciones requeriría un número significativamente mayor de personas. En cambio, el número de SREs necesarios para operar, mantener y mejorar un sistema escala de manera sublineal con el tamaño del sistema. Finalmente, no solo SRE elude la disfuncionalidad de la división entre desarrollo y operaciones, sino que esta estructura también mejora a nuestros equipos de desarrollo de productos: las transferencias fáciles entre los equipos de desarrollo de productos y SRE permiten entrenar a todo el grupo de manera cruzada y mejorar las habilidades de los desarrolladores que de otro modo podrían tener dificultades para aprender a construir un sistema distribuido de millones de núcleos.
+
+A pesar de estas ganancias netas, el modelo de SRE se caracteriza por su propio conjunto de desafíos. Un desafío constante que enfrenta Google es la contratación de SREs: no solo SRE compite por los mismos candidatos que el canal de contratación de desarrollo de productos, sino que el hecho de que establecemos un listón tan alto en términos de habilidades de codificación e ingeniería de sistemas significa que nuestra piscina de contratación es necesariamente pequeña. Como nuestra disciplina es relativamente nueva y única, no existe mucha información en la industria sobre cómo construir y gestionar un equipo de SRE (¡aunque esperamos que este libro avance en esa dirección!). Y una vez que un equipo de SRE está en su lugar, sus enfoques potencialmente poco ortodoxos para la gestión de servicios requieren un fuerte apoyo de la dirección. Por ejemplo, la decisión de detener lanzamientos durante el resto del trimestre una vez que se agota un presupuesto de errores podría no ser bien recibida por un equipo de desarrollo de productos a menos que esté ordenada por su dirección.
+
+¿DevOps o SRE?
+
+El término "DevOps" surgió en la industria a finales de 2008 y, al momento de escribir esto (principios de 2016), todavía está en un estado de cambio. Sus principios básicos —la participación de la función de TI en cada fase del diseño y desarrollo de un sistema, la fuerte dependencia de la automatización en lugar del esfuerzo humano, la aplicación de prácticas y herramientas de ingeniería a las tareas de operaciones— son consistentes con muchos de los principios y prácticas de SRE. Se podría ver a DevOps como una generalización de varios principios fundamentales de SRE a un rango más amplio de organizaciones, estructuras de gestión y personal. De manera equivalente, se podría ver a SRE como una implementación específica de DevOps con algunas extensiones idiosincráticas.
+
+Principios fundamentales de SRE
+
+Si bien los matices de los flujos de trabajo, las prioridades y las operaciones diarias varían de un equipo de SRE a otro, todos comparten un conjunto de responsabilidades básicas para los servicios que respaldan y adhieren a los mismos principios fundamentales. En general, un equipo de SRE es responsable de la disponibilidad, latencia, rendimiento, eficiencia, gestión de cambios, monitoreo, respuesta a emergencias y planificación de capacidad de sus servicios. Hemos codificado reglas de compromiso y principios sobre cómo los equipos de SRE interactúan con su entorno, no solo el entorno de producción, sino también los equipos de desarrollo de productos, los equipos de pruebas, los usuarios, y más. Esas reglas y prácticas de trabajo nos ayudan a mantener nuestro enfoque en el trabajo de ingeniería, en lugar del trabajo operativo.
+
+Asegurando un Enfoque Duradero en la Ingeniería
+
+Como ya se mencionó, Google limita el trabajo operativo para los SREs al 50% de su tiempo. El tiempo restante debe dedicarse a usar sus habilidades de codificación en proyectos. En la práctica, esto se logra monitoreando la cantidad de trabajo operativo realizado por los SREs y redirigiendo el exceso de trabajo operativo a los equipos de desarrollo de productos: reasignando errores y tickets a los gerentes de desarrollo, [re]integrando a los desarrolladores en las rotaciones de guardias, y así sucesivamente. La redirección termina cuando la carga operativa vuelve al 50% o menos. Esto también proporciona un mecanismo de retroalimentación efectivo, guiando a los desarrolladores a construir sistemas que no necesiten intervención manual. Este enfoque funciona bien cuando toda la organización —SRE y desarrollo por igual— entiende por qué existe el mecanismo de válvula de seguridad y apoya el objetivo de no tener eventos de desbordamiento porque el producto no genera suficiente carga operativa para requerirlo.
+
+Cuando se enfocan en el trabajo operativo, en promedio, los SREs deberían recibir un máximo de dos eventos por turno de guardia de 8 a 12 horas. Este volumen objetivo da al ingeniero de guardia suficiente tiempo para manejar el evento con precisión y rapidez, limpiar y restaurar el servicio normal, y luego realizar un análisis postmortem. Si ocurren más de dos eventos regularmente por turno de guardia, los problemas no pueden ser investigados a fondo y los ingenieros están lo suficientemente abrumados como para evitar que aprendan de estos eventos. Un escenario de fatiga de paginación tampoco mejorará con la escala. Por el contrario, si los SREs de guardia reciben consistentemente menos de un evento por turno, mantenerlos en alerta es una pérdida de su tiempo.
+
+Los postmortems deben redactarse para todos los incidentes significativos, independientemente de si activaron una alerta o no; los postmortems que no activaron una alerta son aún más valiosos, ya que probablemente señalan claras brechas en la monitorización. Esta investigación debe establecer en detalle lo que sucedió, encontrar todas las causas raíz del evento y asignar acciones para corregir el problema o mejorar cómo se aborda la próxima vez. Google opera bajo una cultura de postmortem sin culpa, con el objetivo de exponer fallas y aplicar ingeniería para corregir estas fallas, en lugar de evitarlas o minimizarlas.
+
+Perseguir la Máxima Velocidad de Cambio Sin Violar el SLO de un Servicio
+Los equipos de desarrollo de productos y SRE pueden disfrutar de una relación de trabajo productiva eliminando el conflicto estructural en sus respectivos objetivos. El conflicto estructural está entre la velocidad de innovación y la estabilidad del producto, y como se describió anteriormente, este conflicto a menudo se expresa de manera indirecta. En SRE, llevamos este conflicto al primer plano y luego lo resolvemos con la introducción de un presupuesto de errores.
+
+El presupuesto de errores surge de la observación de que el 100% es el objetivo de confiabilidad incorrecto para prácticamente todo (siendo los marcapasos y los frenos antibloqueo excepciones notables). En general, para cualquier servicio o sistema de software, el 100% no es el objetivo de confiabilidad correcto porque ningún usuario puede notar la diferencia entre un sistema que está disponible el 100% del tiempo y uno que está disponible el 99.999% del tiempo. Hay muchos otros sistemas en el camino entre el usuario y el servicio (su computadora portátil, su WiFi en casa, su ISP, la red eléctrica…) y esos sistemas, colectivamente, tienen una disponibilidad mucho menor al 99.999%. Por lo tanto, la diferencia marginal entre el 99.999% y el 100% se pierde en el ruido de otras indisponibilidades, y el usuario no recibe ningún beneficio del enorme esfuerzo requerido para agregar ese último 0.001% de disponibilidad.
+
+Si el 100% es el objetivo de confiabilidad incorrecto para un sistema, entonces, ¿cuál es el objetivo de confiabilidad correcto? En realidad, esta no es una pregunta técnica en absoluto, es una pregunta de producto, que debe tener en cuenta las siguientes consideraciones:
+
+¿Con qué nivel de disponibilidad estarán satisfechos los usuarios, dado cómo usan el producto?
+¿Qué alternativas tienen los usuarios que están insatisfechos con la disponibilidad del producto?
+¿Qué sucede con el uso que hacen los usuarios del producto a diferentes niveles de disponibilidad?
+El negocio o el equipo de producto debe establecer el objetivo de disponibilidad del sistema. Una vez que se establece ese objetivo, el presupuesto de errores es uno menos el objetivo de disponibilidad. Un servicio que tiene un 99.99% de disponibilidad tiene un 0.01% de indisponibilidad. Esa indisponibilidad permitida del 0.01% es el presupuesto de errores del servicio. Podemos gastar ese presupuesto en lo que queramos, siempre que no lo excedamos.
+
+Entonces, ¿cómo queremos gastar el presupuesto de errores? El equipo de desarrollo quiere lanzar funciones y atraer nuevos usuarios. Idealmente, gastaríamos todo nuestro presupuesto de errores asumiendo riesgos con las cosas que lanzamos para lanzarlas rápidamente. Este principio básico describe todo el modelo de presupuestos de errores. Tan pronto como las actividades de SRE se conceptualizan en este marco, liberar el presupuesto de errores a través de tácticas como lanzamientos por fases y experimentos del 1% puede optimizar los lanzamientos más rápidos.
+
+El uso de un presupuesto de errores resuelve el conflicto estructural de incentivos entre desarrollo y SRE. El objetivo de SRE ya no es "cero interrupciones"; más bien, los SREs y los desarrolladores de productos tienen como objetivo gastar el presupuesto de errores para obtener la máxima velocidad de funciones. Este cambio marca toda la diferencia. Una interrupción ya no es algo "malo"; es una parte esperada del proceso de innovación, y un evento que tanto los equipos de desarrollo como los de SRE gestionan en lugar de temer.
+
+Monitorización
+La monitorización es uno de los medios principales por los cuales los propietarios de un servicio mantienen el control de la salud y la disponibilidad de un sistema. Como tal, la estrategia de monitorización debe ser construida con cuidado. Un enfoque clásico y común de la monitorización es observar un valor o condición específica, y luego activar una alerta por correo electrónico cuando ese valor se excede o esa condición ocurre. Sin embargo, este tipo de alerta por correo electrónico no es una solución efectiva: un sistema que requiere que un humano lea un correo electrónico y decida si se necesita o no tomar algún tipo de acción en respuesta está fundamentalmente defectuoso. La monitorización nunca debe requerir que un humano interprete ninguna parte del dominio de alertas. En su lugar, el software debe hacer la interpretación, y los humanos solo deben ser notificados cuando necesitan tomar acción.
+
+Existen tres tipos de resultados válidos de monitorización:
+
+Alertas
+Indican que un humano necesita tomar acción de inmediato en respuesta a algo que está ocurriendo o que está a punto de ocurrir, para mejorar la situación.
+
+Tickets
+Indican que un humano necesita tomar acción, pero no de inmediato. El sistema no puede manejar la situación automáticamente, pero si un humano toma acción en unos días, no se producirá ningún daño.
+
+Registro (Logging)
+Nadie necesita revisar esta información, pero se registra para propósitos de diagnóstico o forenses. Se espera que nadie lea los registros a menos que algo más los impulse a hacerlo.
+
+Respuesta a Emergencias
+La confiabilidad es una función del tiempo medio hasta la falla (MTTF) y el tiempo medio de reparación (MTTR). La métrica más relevante para evaluar la efectividad de la respuesta a emergencias es qué tan rápido el equipo de respuesta puede devolver el sistema a su estado saludable, es decir, el MTTR.
+
+Los humanos añaden latencia. Incluso si un sistema experimenta más fallas, un sistema que puede evitar emergencias que requieran intervención humana tendrá mayor disponibilidad que un sistema que requiere intervención manual. Cuando los humanos son necesarios, hemos descubierto que pensar y registrar las mejores prácticas de antemano en un "manual de procedimientos" produce una mejora de aproximadamente 3x en el MTTR en comparación con la estrategia de "improvisar". El ingeniero de guardia que es un héroe todoterreno funciona, pero el ingeniero de guardia con experiencia, armado con un manual de procedimientos, funciona mucho mejor. Aunque ningún manual, por completo que sea, sustituye a ingenieros inteligentes capaces de pensar de manera improvisada, los pasos claros y exhaustivos para la resolución de problemas son valiosos cuando se responde a una alerta de alta prioridad o sensible al tiempo. Por lo tanto, Google SRE confía en los manuales de procedimientos para guardias, además de ejercicios como la "Rueda de la Desgracia," para preparar a los ingenieros a reaccionar ante eventos de guardia.
+
+Gestión de Cambios
+SRE ha descubierto que aproximadamente el 70% de las interrupciones son debidas a cambios en un sistema en vivo. Las mejores prácticas en este ámbito utilizan la automatización para lograr lo siguiente:
+
+Implementación de despliegues progresivos.
+Detección rápida y precisa de problemas.
+Reversión segura de cambios cuando surgen problemas.
+Este trío de prácticas minimiza eficazmente el número total de usuarios y operaciones expuestos a cambios defectuosos. Al eliminar a los humanos del proceso, estas prácticas evitan los problemas normales de fatiga, familiaridad/desdén e inatención a tareas altamente repetitivas. Como resultado, tanto la velocidad de lanzamiento como la seguridad aumentan.
+
+Pronóstico de Demanda y Planificación de Capacidad
+El pronóstico de demanda y la planificación de capacidad se pueden ver como garantizar que haya suficiente capacidad y redundancia para satisfacer la demanda proyectada futura con la disponibilidad requerida. No hay nada particularmente especial sobre estos conceptos, excepto que un número sorprendente de servicios y equipos no toman las medidas necesarias para asegurar que la capacidad requerida esté disponible en el momento necesario.
+
+La planificación de capacidad debe tener en cuenta tanto el crecimiento orgánico (que proviene de la adopción natural del producto y el uso por parte de los clientes) como el crecimiento inorgánico (que resulta de eventos como lanzamientos de características, campañas de marketing u otros cambios impulsados por el negocio).
+
+Varios pasos son obligatorios en la planificación de capacidad:
+
+Un pronóstico de demanda orgánica preciso, que se extienda más allá del tiempo de anticipación requerido para adquirir capacidad.
+Una incorporación precisa de fuentes de demanda inorgánica en el pronóstico de demanda.
+Pruebas de carga regulares del sistema para correlacionar la capacidad bruta (servidores, discos, etc.) con la capacidad del servicio.
+Dado que la capacidad es crítica para la disponibilidad, naturalmente sigue que el equipo de SRE debe estar a cargo de la planificación de capacidad, lo que significa que también deben estar a cargo de la provisión.
+
+Aprovisionamiento
+El aprovisionamiento combina tanto la gestión de cambios como la planificación de capacidad. En nuestra experiencia, el aprovisionamiento debe realizarse rápidamente y solo cuando sea necesario, ya que la capacidad es costosa. Este ejercicio también debe hacerse correctamente o la capacidad no funcionará cuando se necesite. Añadir nueva capacidad a menudo implica iniciar una nueva instancia o ubicación, hacer modificaciones significativas a los sistemas existentes (archivos de configuración, balanceadores de carga, redes), y validar que la nueva capacidad funcione y entregue resultados correctos. Por lo tanto, es una operación más arriesgada que el cambio de carga, que se realiza con frecuencia varias veces por hora, y debe tratarse con un grado correspondiente de precaución adicional.
+
+Eficiencia y Rendimiento
+El uso eficiente de los recursos es importante siempre que un servicio se preocupe por el dinero. Dado que SRE controla en última instancia el aprovisionamiento, también debe involucrarse en cualquier trabajo relacionado con la utilización, ya que la utilización es una función de cómo funciona un servicio determinado y cómo se aprovisiona. Se deduce que prestar mucha atención a la estrategia de aprovisionamiento de un servicio, y por lo tanto a su utilización, proporciona una palanca muy grande sobre los costos totales del servicio.
+
+El uso de recursos es una función de la demanda (carga), la capacidad y la eficiencia del software. Los SREs predicen la demanda, aprovisionan la capacidad y pueden modificar el software. Estos tres factores son una gran parte (aunque no la totalidad) de la eficiencia de un servicio. Los sistemas de software se vuelven más lentos a medida que se les añade carga. Una desaceleración en un servicio equivale a una pérdida de capacidad. En algún momento, un sistema que se ralentiza deja de servir, lo que corresponde a una lentitud infinita. Los SREs aprovisionan para cumplir con un objetivo de capacidad a una velocidad de respuesta específica, y por lo tanto están muy interesados en el rendimiento de un servicio. Los SREs y los desarrolladores de productos monitorearán y modificarán un servicio para mejorar su rendimiento, aumentando así la capacidad y mejorando la eficiencia.
+
+El Fin del Comienzo
+La Ingeniería de Fiabilidad del Sitio (SRE) representa una ruptura significativa con las mejores prácticas existentes en la industria para la gestión de servicios grandes y complicados. Motivada originalmente por la familiaridad—"como ingeniero de software, así es como querría invertir mi tiempo para realizar un conjunto de tareas repetitivas"—se ha convertido en mucho más: un conjunto de principios, un conjunto de prácticas, un conjunto de incentivos y un campo de esfuerzo dentro de la disciplina más amplia de la ingeniería de software. El resto del libro explora el Camino SRE en detalle.
+
+Capítulo 2 - El Entorno de Producción en Google, desde la Perspectiva de un SRE
+Escrito por JC van Winkel | Editado por Betsy Beyer
+
+Los centros de datos de Google son muy diferentes de la mayoría de los centros de datos convencionales y granjas de servidores a pequeña escala. Estas diferencias presentan tanto problemas adicionales como oportunidades. Este capítulo analiza los desafíos y oportunidades que caracterizan a los centros de datos de Google e introduce la terminología que se utiliza a lo largo del libro.
+
+Hardware
+La mayoría de los recursos de computación de Google se encuentran en centros de datos diseñados por Google con distribución de energía, refrigeración, redes y hardware de computación propietarios (ver [Bar13]). A diferencia de los centros de datos de colocación "estándar", el hardware de computación en un centro de datos diseñado por Google es el mismo en toda la infraestructura. Para eliminar la confusión entre el hardware del servidor y el software del servidor, utilizamos la siguiente terminología a lo largo del libro:
+
+Máquina: Una pieza de hardware (o quizás una máquina virtual).
+Servidor: Una pieza de software que implementa un servicio.
+Las máquinas pueden ejecutar cualquier servidor, por lo que no dedicamos máquinas específicas a programas de servidor específicos. No hay una máquina específica que ejecute nuestro servidor de correo, por ejemplo. En su lugar, la asignación de recursos se maneja mediante nuestro sistema operativo de clúster, Borg. Nos damos cuenta de que este uso de la palabra "servidor" es inusual. El uso común de la palabra confunde "binario que acepta conexión de red" con "máquina", pero diferenciar entre los dos es importante cuando se habla de computación en Google. Una vez que te acostumbras a nuestro uso del término "servidor", se vuelve más evidente por qué tiene sentido utilizar esta terminología especializada, no solo dentro de Google, sino también en el resto de este libro.
+
+La Figura 2-1 ilustra la topología de un centro de datos de Google:
+
+Decenas de máquinas se colocan en un rack.
+Los racks están colocados en una fila.
+Una o más filas forman un clúster.
+Generalmente, un edificio de centro de datos alberga múltiples clústeres.
+Múltiples edificios de centros de datos que están ubicados cerca uno del otro forman un campus.
+Figura 2-1. Ejemplo de topología de un campus de centro de datos de Google
+
+Las máquinas dentro de un centro de datos determinado necesitan poder comunicarse entre sí, por lo que creamos un conmutador virtual muy rápido con decenas de miles de puertos. Logramos esto conectando cientos de conmutadores construidos por Google en una red Clos [Clos53] llamada Júpiter [Sin15]. En su configuración más grande, Júpiter admite 1.3 Pbps de ancho de banda de bisección entre servidores.
+
+Los centros de datos están conectados entre sí a través de nuestra columna vertebral global.
+
+Red B4
+La red B4 [Jai13] es una arquitectura de red definida por software que utiliza el protocolo de comunicaciones de estándar abierto OpenFlow. B4 proporciona un ancho de banda masivo a un número modesto de sitios y utiliza la asignación de ancho de banda elástica para maximizar el ancho de banda promedio [Kum15].
+
+Software de Sistema que "Organiza" el Hardware
+Nuestro hardware debe ser controlado y administrado por software que pueda manejar una escala masiva. Las fallas de hardware son un problema notable que gestionamos con software. Dado el gran número de componentes de hardware en un clúster, las fallas de hardware ocurren con bastante frecuencia. En un solo clúster en un año típico, miles de máquinas fallan y miles de discos duros se rompen; cuando multiplicamos esto por el número de clústeres que operamos globalmente, estos números se vuelven bastante asombrosos. Por lo tanto, queremos abstraer estos problemas para que no afecten a los usuarios, y los equipos que ejecutan nuestros servicios tampoco quieren ser molestados por fallas de hardware. Cada campus de centro de datos tiene equipos dedicados a mantener el hardware y la infraestructura del centro de datos.
+
+Gestión de Máquinas
+Borg, ilustrado en la Figura 2-2, es un sistema operativo de clúster distribuido [Ver15], similar a Apache Mesos. Borg gestiona sus trabajos a nivel de clúster. Borg es responsable de ejecutar los trabajos de los usuarios, que pueden ser servidores que funcionan indefinidamente o procesos por lotes como un MapReduce [Dea04]. Los trabajos pueden consistir en más de una (y a veces miles de) tareas idénticas, tanto por razones de confiabilidad como porque un solo proceso no puede manejar todo el tráfico del clúster.
+
+Cuando Borg inicia un trabajo, encuentra máquinas para las tareas y les dice a las máquinas que inicien el programa del servidor. Borg luego monitorea continuamente estas tareas. Si una tarea falla, se elimina y se reinicia, posiblemente en una máquina diferente.
+
+Debido a que las tareas se asignan de manera flexible entre las máquinas, no podemos simplemente confiar en direcciones IP y números de puerto para referirnos a las tareas. Resolvemos este problema con un nivel adicional de indirecta: cuando se inicia un trabajo, Borg asigna un nombre y un número de índice a cada tarea utilizando el Servicio de Nombres de Borg (BNS). En lugar de usar la dirección IP y el número de puerto, otros procesos se conectan a las tareas de Borg a través del nombre BNS, que se traduce en una dirección IP y un número de puerto por el BNS. Por ejemplo, la ruta de BNS podría ser una cadena como /bns/<cluster>/<usuario>/<nombre del trabajo>/<número de tarea>, que se resolvería en <dirección IP>:<puerto>.
+
+Borg también es responsable de la asignación de recursos a los trabajos. Cada trabajo necesita especificar sus recursos requeridos (por ejemplo, 3 núcleos de CPU, 2 GiB de RAM). Usando la lista de requisitos para todos los trabajos, Borg puede distribuir las tareas en las máquinas de una manera óptima que también tenga en cuenta los dominios de fallas (por ejemplo: Borg no ejecutará todas las tareas de un trabajo en el mismo rack, ya que hacerlo significaría que el conmutador superior del rack sería un único punto de falla para ese trabajo).
+
+Si una tarea intenta usar más recursos de los que solicitó, Borg mata la tarea y la reinicia (ya que una tarea que falla lentamente es generalmente preferible a una tarea que no se ha reiniciado en absoluto).
+
+Almacenamiento
+Las tareas pueden usar el disco local en las máquinas como un espacio de trabajo temporal, pero tenemos varias opciones de almacenamiento en clúster para almacenamiento permanente (e incluso el espacio de trabajo temporal eventualmente se trasladará al modelo de almacenamiento en clúster). Estos son comparables a Lustre y al Hadoop Distributed File System (HDFS), que son ambos sistemas de archivos de clúster de código abierto.
+
+La capa de almacenamiento es responsable de ofrecer a los usuarios acceso fácil y confiable al almacenamiento disponible para un clúster. Como se muestra en la Figura 2-3, el almacenamiento tiene muchas capas:
+
+La capa más baja se llama D (de disco, aunque D usa tanto discos giratorios como almacenamiento flash). D es un servidor de archivos que se ejecuta en casi todas las máquinas de un clúster. Sin embargo, los usuarios que desean acceder a sus datos no quieren tener que recordar qué máquina está almacenando sus datos, por lo que la siguiente capa entra en juego.
+Una capa sobre D llamada Colossus crea un sistema de archivos de clúster que ofrece la semántica habitual de un sistema de archivos, así como replicación y encriptación. Colossus es el sucesor de GFS, el Google File System [Ghe03].
+Hay varios servicios similares a bases de datos construidos sobre Colossus:
+Bigtable [Cha06] es un sistema de base de datos NoSQL que puede manejar bases de datos de tamaño de petabytes. Un Bigtable es un mapa disperso, distribuido, persistente y multidimensional ordenado, indexado por clave de fila, clave de columna y marca de tiempo; cada valor en el mapa es una matriz de bytes sin interpretar. Bigtable admite la replicación eventual consistente entre centros de datos.
+Spanner [Cor12] ofrece una interfaz similar a SQL para los usuarios que requieren consistencia real en todo el mundo.
+Varios otros sistemas de bases de datos, como Blobstore, están disponibles. Cada una de estas opciones viene con su propio conjunto de compensaciones (ver "Integridad de Datos: Lo que Lees es lo que Escribiste").
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
