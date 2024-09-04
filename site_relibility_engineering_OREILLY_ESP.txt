@@ -468,6 +468,27 @@ Por ejemplo, un sistema que maneja 2.5 millones de solicitudes en un día con un
 
 En una aplicación típica, no todas las solicitudes son iguales: fallar en una solicitud de registro de un nuevo usuario es diferente de fallar en una solicitud que consulta si hay nuevos correos electrónicos en segundo plano. Sin embargo, en muchos casos, calcular la disponibilidad como la tasa de éxito de las solicitudes sobre todas las solicitudes es una aproximación razonable del tiempo de inactividad no planificado, desde la perspectiva del usuario final.
 
+Cuantificación del Tiempo de Inactividad No Planificado
+Cuantificar el tiempo de inactividad no planificado como una tasa de éxito de solicitudes también hace que esta métrica de disponibilidad sea más aplicable a sistemas que no suelen atender directamente a los usuarios finales. La mayoría de los sistemas que no son de servicio (como sistemas de procesamiento por lotes, pipelines, almacenamiento y transaccionales) tienen una noción bien definida de unidades de trabajo exitosas y fallidas. De hecho, aunque los sistemas discutidos en este capítulo son principalmente servicios para consumidores e infraestructura, muchos de los mismos principios se aplican a los sistemas no orientados al servicio con mínimas modificaciones.
+
+Por ejemplo, un proceso por lotes que extrae, transforma e inserta los contenidos de una base de datos de un cliente en un data warehouse para permitir un análisis posterior puede estar programado para ejecutarse periódicamente. Utilizando una tasa de éxito de solicitudes definida en términos de registros procesados con éxito o con error, podemos calcular una métrica de disponibilidad útil, a pesar de que el sistema por lotes no se ejecuta constantemente.
+
+Con mayor frecuencia, establecemos objetivos de disponibilidad trimestrales para un servicio y rastreamos nuestro rendimiento en relación con esos objetivos de manera semanal, o incluso diaria. Esta estrategia nos permite gestionar el servicio hacia un objetivo de disponibilidad de alto nivel al buscar, rastrear y corregir desviaciones significativas a medida que surgen inevitablemente. Para más detalles, ver Service Level Objectives (SLOs).
+
+Tolerancia al Riesgo de los Servicios
+¿Qué significa identificar la tolerancia al riesgo de un servicio? En un entorno formal o en el caso de sistemas críticos para la seguridad, la tolerancia al riesgo está típicamente integrada directamente en la definición básica del producto o servicio. En Google, la tolerancia al riesgo de los servicios tiende a estar menos definida claramente.
+
+Para identificar la tolerancia al riesgo de un servicio, los SREs deben trabajar con los dueños de producto para convertir un conjunto de objetivos comerciales en objetivos explícitos que puedan ser implementados a través de la ingeniería. En este caso, los objetivos comerciales que nos preocupan tienen un impacto directo en el rendimiento y la confiabilidad del servicio ofrecido. En la práctica, esta traducción es más fácil de decir que de hacer. Mientras que los servicios para consumidores a menudo tienen dueños de producto claramente definidos, es inusual que los servicios de infraestructura (como sistemas de almacenamiento o capas de almacenamiento en caché HTTP de propósito general) tengan una estructura similar de propiedad de producto. A continuación, discutimos los casos de servicios para consumidores e infraestructura.
+
+Identificación de la Tolerancia al Riesgo de Servicios para Consumidores
+Nuestros servicios para consumidores a menudo tienen un equipo de producto que actúa como dueño comercial de una aplicación. Por ejemplo, Search, Google Maps y Google Docs tienen sus propios product managers. Estos gerentes de producto son responsables de entender a los usuarios y el negocio, así como de dar forma al producto para su éxito en el mercado. Cuando existe un equipo de producto, generalmente es el mejor recurso para discutir los requisitos de confiabilidad de un servicio. En ausencia de un equipo de producto dedicado, los ingenieros que construyen el sistema a menudo desempeñan este papel, consciente o inconscientemente.
+
+Hay muchos factores a considerar al evaluar la tolerancia al riesgo de los servicios, tales como los siguientes:
+
+¿Qué nivel de disponibilidad se requiere?
+¿Diferentes tipos de fallos tienen diferentes efectos en el servicio?
+¿Cómo podemos usar el costo del servicio para ubicar un servicio en el continuo de riesgo?
+¿Qué otras métricas del servicio son importantes de tener en cuenta?
 
 
 
