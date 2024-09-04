@@ -326,6 +326,36 @@ Bigtable [Cha06] es un sistema de base de datos NoSQL que puede manejar bases de
 Spanner [Cor12] ofrece una interfaz similar a SQL para los usuarios que requieren consistencia real en todo el mundo.
 Varios otros sistemas de bases de datos, como Blobstore, están disponibles. Cada una de estas opciones viene con su propio conjunto de compensaciones (ver "Integridad de Datos: Lo que Lees es lo que Escribiste").
 
+El hardware de red de Google se controla de varias maneras. Como se mencionó anteriormente, utilizamos una red definida por software basada en OpenFlow. En lugar de usar hardware de enrutamiento "inteligente", confiamos en componentes de conmutación más económicos y simples, junto con un controlador central (duplicado) que precomputa las mejores rutas a través de la red. De esta manera, podemos trasladar las decisiones de enrutamiento, que requieren mucho cálculo, fuera de los enrutadores y usar hardware de conmutación simple.
+
+El ancho de banda de la red debe asignarse de manera inteligente. Al igual que Borg limita los recursos de cómputo que una tarea puede usar, el Bandwidth Enforcer (BwE) gestiona el ancho de banda disponible para maximizar el promedio disponible. Optimizar el ancho de banda no solo tiene que ver con el costo: se ha demostrado que la ingeniería de tráfico centralizada resuelve varios problemas que son tradicionalmente extremadamente difíciles de resolver con una combinación de enrutamiento distribuido e ingeniería de tráfico [Kum15].
+
+Algunos servicios tienen trabajos que se ejecutan en múltiples clústeres distribuidos por todo el mundo. Para minimizar la latencia en servicios distribuidos globalmente, queremos dirigir a los usuarios al centro de datos más cercano con capacidad disponible. Nuestro Global Software Load Balancer (GSLB) realiza balanceo de carga en tres niveles:
+
+Balanceo geográfico de carga para solicitudes DNS (por ejemplo, a www.google.com).
+Balanceo de carga a nivel de servicio de usuario (por ejemplo, YouTube o Google Maps).
+Balanceo de carga a nivel de llamadas de procedimientos remotos (RPC) dentro de los centros de datos.
+Los propietarios de servicios especifican un nombre simbólico para el servicio, una lista de direcciones BNS de servidores y la capacidad disponible en cada ubicación (generalmente medida en consultas por segundo). GSLB luego dirige el tráfico a las direcciones BNS.
+
+Otros Componentes de Software del Sistema
+Servicio de Bloqueo
+El servicio de bloqueo Chubby [Bur06] proporciona una API similar a un sistema de archivos para mantener bloqueos. Chubby maneja estos bloqueos en ubicaciones de centros de datos y utiliza el protocolo Paxos para lograr consenso asincrónico (ver "Gestión de Estado Crítico: Consenso Distribuido para la Fiabilidad").
+
+Chubby también desempeña un papel importante en la elección de maestro. Cuando un servicio tiene cinco réplicas de un trabajo por razones de confiabilidad, pero solo una réplica puede realizar el trabajo real, Chubby se usa para seleccionar qué réplica puede proceder. Los datos que deben ser consistentes son adecuados para almacenarse en Chubby. Por esta razón, BNS usa Chubby para almacenar el mapeo entre las rutas BNS y los pares de dirección IP
+.
+
+Monitoreo y Alertas
+Queremos asegurarnos de que todos los servicios estén funcionando como se requiere. Por lo tanto, ejecutamos muchas instancias de nuestro programa de monitoreo Borgmon (ver "Alertas Prácticas a partir de Datos de Series Temporales"). Borgmon regularmente recopila métricas de los servidores monitoreados. Estas métricas pueden usarse instantáneamente para alertas y también almacenarse para generar vistas históricas (por ejemplo, gráficos). Podemos usar el monitoreo de las siguientes maneras:
+
+Configurar alertas para problemas agudos.
+Comparar comportamiento: ¿una actualización de software hizo que el servidor sea más rápido?
+Examinar cómo evoluciona el consumo de recursos con el tiempo, lo cual es esencial para la planificación de capacidad.
+
+
+
+
+
+
 
 
 
