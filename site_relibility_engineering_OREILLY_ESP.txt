@@ -379,7 +379,16 @@ Fase de mezcla: Ordena las tuplas por palabra.
 Fase de reducción: Crea una tupla de (palabra, lista de ubicaciones).
 Cada tupla se escribe en una fila de Bigtable, usando la palabra como clave.
 
+Vida de una Solicitud
+La Figura 2-4 muestra cómo se atiende la solicitud de un usuario. Primero, el usuario apunta su navegador a shakespeare.google.com. Para obtener la dirección IP correspondiente, el dispositivo del usuario resuelve la dirección con su servidor DNS (1). Esta solicitud finalmente llega al servidor DNS de Google, que se comunica con GSLB (Global Software Load Balancer). GSLB, que rastrea la carga de tráfico entre los servidores frontend en distintas regiones, selecciona qué dirección IP del servidor enviar a este usuario.
 
+El navegador se conecta al servidor HTTP en esta IP. Este servidor (llamado Google Frontend o GFE) es un proxy inverso que termina la conexión TCP (2). GFE busca qué servicio se requiere (búsqueda web, mapas o, en este caso, Shakespeare). Nuevamente, usando GSLB, el servidor encuentra un servidor frontend disponible para Shakespeare y le envía una RPC que contiene la solicitud HTTP (3).
+
+El servidor de Shakespeare analiza la solicitud HTTP y construye un protobuf que contiene la palabra a buscar. Ahora, el servidor frontend de Shakespeare necesita contactar al servidor backend de Shakespeare. El servidor frontend contacta a GSLB para obtener la dirección BNS de un servidor backend adecuado y sin carga (4). Luego, ese servidor backend de Shakespeare contacta a un servidor Bigtable para obtener los datos solicitados (5).
+
+La respuesta se escribe en el protobuf de respuesta y se devuelve al servidor backend de Shakespeare. El servidor backend entrega un protobuf que contiene los resultados al servidor frontend de Shakespeare, que ensambla el HTML y devuelve la respuesta al usuario.
+
+Toda esta cadena de eventos se ejecuta en un abrir y cerrar de ojos, ¡solo unos cientos de milisegundos! Dado que hay muchas partes móviles involucradas, existen muchos puntos de falla potenciales; en particular, una falla en GSLB podría causar estragos. Sin embargo, las políticas rigurosas de pruebas de Google y la implementación cuidadosa, junto con nuestros métodos proactivos de recuperación de errores, como la degradación controlada, nos permiten ofrecer el servicio confiable que nuestros usuarios esperan. Después de todo, las personas utilizan regularmente www.google.com para verificar si su conexión a Internet está funcionando correctamente.
 
 
 
