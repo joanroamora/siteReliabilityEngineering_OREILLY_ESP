@@ -569,7 +569,13 @@ Por ejemplo, Google+ puede decidir poner datos críticos para la privacidad del 
 
 Es importante destacar que podemos ejecutar múltiples clases de servicios utilizando hardware y software idénticos. Podemos proporcionar garantías de servicio muy diferentes ajustando diversas características, como la cantidad de recursos, el grado de redundancia, las restricciones geográficas de aprovisionamiento y, de manera crítica, la configuración del software de infraestructura.
 
+Ejemplo: Infraestructura de Frontend
+Para demostrar que los principios de evaluación de tolerancia al riesgo no solo se aplican a la infraestructura de almacenamiento, veamos otra gran clase de servicios: la infraestructura de frontend de Google. Esta infraestructura consiste en sistemas de proxy inverso y balanceo de carga que operan cerca del borde de nuestra red. Estos sistemas, entre otras funciones, sirven como uno de los puntos finales de las conexiones desde los usuarios finales (por ejemplo, terminan la conexión TCP desde el navegador del usuario). Dado su papel crítico, diseñamos estos sistemas para ofrecer un nivel extremadamente alto de confiabilidad.
 
+A diferencia de muchos servicios de consumo que pueden mitigar la visibilidad de la falta de confiabilidad en los backends, estos sistemas de infraestructura no tienen esa ventaja. Si una solicitud nunca llega al servidor frontend de la aplicación, se pierde por completo. Por lo tanto, garantizar la alta disponibilidad y confiabilidad de estos sistemas es fundamental para el funcionamiento general del ecosistema de servicios de Google.
+
+Gestión de la Infiabilidad a través de Presupuestos de Errores
+Hemos explorado cómo identificar la tolerancia al riesgo tanto para los servicios de consumo como para los servicios de infraestructura. El siguiente paso es utilizar ese nivel de tolerancia para gestionar la infiabilidad mediante el uso de presupuestos de errores. Estos presupuestos permiten a los equipos equilibrar el desarrollo rápido de nuevas características con la confiabilidad, al proporcionar una cantidad controlada de margen para la infiabilidad, siempre que no se exceda el presupuesto definido.
 
 
 
