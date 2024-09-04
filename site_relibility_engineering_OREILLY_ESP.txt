@@ -407,7 +407,32 @@ Los centros de datos de Google, aunque en su mayoría homogéneos, pueden tener 
 Algunos lectores pueden estar más familiarizados con Kubernetes, descendiente de Borg, un marco de orquestación de clústeres de contenedores de código abierto iniciado por Google en 2014.
 Protocol Buffers es un mecanismo neutral en cuanto a lenguaje y plataforma para serializar datos estructurados.
 
+Parte II - Principios
+Esta sección examina los principios fundamentales sobre cómo suelen trabajar los equipos de SRE: los patrones, comportamientos y áreas de preocupación que influyen en el dominio general de las operaciones de SRE.
 
+"Embracing Risk" (Abrazando el Riesgo)
+El primer capítulo de esta sección, y el más importante para leer si deseas obtener una visión amplia de lo que hace SRE y cómo razonamos al respecto, es Embracing Risk. Examina SRE desde la perspectiva del riesgo: su evaluación, gestión y el uso de presupuestos de errores para proporcionar enfoques útiles y neutrales en la gestión de servicios.
+
+"Service Level Objectives" (Objetivos de Nivel de Servicio)
+Los objetivos de nivel de servicio (SLOs) son otra unidad conceptual fundamental para SRE. La industria a menudo agrupa conceptos dispares bajo el término general de acuerdos de nivel de servicio (SLAs), una tendencia que dificulta pensar claramente sobre estos conceptos. Este capítulo intenta desentrañar indicadores de objetivos y de acuerdos, examina cómo SRE utiliza cada uno de estos términos y ofrece algunas recomendaciones para encontrar métricas útiles para tus propias aplicaciones.
+
+"Eliminating Toil" (Eliminando el Trabajo Tedioso)
+Eliminar el trabajo tedioso es una de las tareas más importantes de SRE y es el tema del capítulo Eliminating Toil. Definimos toil como el trabajo operacional mundano y repetitivo que no aporta valor duradero y que escala linealmente con el crecimiento del servicio.
+
+"Monitoring Distributed Systems" (Monitorización de Sistemas Distribuidos)
+Tanto en Google como en otros lugares, la monitorización es un componente absolutamente esencial para hacer lo correcto en producción. Si no puedes monitorear un servicio, no sabes qué está sucediendo y, si estás ciego a lo que está ocurriendo, no puedes ser confiable. Este capítulo ofrece recomendaciones sobre qué y cómo monitorear, así como algunas mejores prácticas sin depender de implementaciones específicas.
+
+"The Evolution of Automation at Google" (La Evolución de la Automatización en Google)
+En este capítulo, examinamos el enfoque de SRE hacia la automatización y presentamos algunos estudios de caso sobre cómo SRE ha implementado la automatización, tanto con éxito como sin él.
+
+"Release Engineering" (Ingeniería de Lanzamiento)
+La ingeniería de lanzamiento suele ser tratada como una ocurrencia tardía en muchas compañías. Sin embargo, como aprenderás en este capítulo, la ingeniería de lanzamiento no solo es crítica para la estabilidad general del sistema—ya que la mayoría de las interrupciones resultan de la implementación de algún cambio—sino que también es la mejor manera de garantizar que los lanzamientos sean consistentes.
+
+"Simplicity" (Simplicidad)
+Un principio clave de cualquier ingeniería de software efectiva, y no solo de la ingeniería orientada a la confiabilidad, es la simplicidad. Una vez perdida, la simplicidad puede ser extremadamente difícil de recuperar. Sin embargo, como dice el viejo adagio: un sistema complejo que funciona necesariamente evolucionó a partir de un sistema simple que funciona. Este capítulo aborda el tema de la simplicidad en detalle.
+
+Lectura Adicional de Google SRE
+Aumentar la velocidad del producto de manera segura es un principio central para cualquier organización. En "Making Push On Green a Reality" [Kle14], publicado en octubre de 2014, mostramos que eliminar a los humanos del proceso de lanzamiento puede, paradójicamente, reducir el trabajo tedioso de los SREs mientras aumenta la confiabilidad del sistema.
 
 
 
