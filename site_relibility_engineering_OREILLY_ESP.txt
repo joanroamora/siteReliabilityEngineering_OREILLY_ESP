@@ -490,7 +490,28 @@ Hay muchos factores a considerar al evaluar la tolerancia al riesgo de los servi
 ¿Cómo podemos usar el costo del servicio para ubicar un servicio en el continuo de riesgo?
 ¿Qué otras métricas del servicio son importantes de tener en cuenta?
 
+Nivel Objetivo de Disponibilidad
+El nivel objetivo de disponibilidad para un servicio de Google depende generalmente de la función que proporciona y de cómo se posiciona en el mercado. A continuación, se incluyen algunos aspectos a considerar:
 
+Expectativas de los usuarios: ¿Qué nivel de servicio esperan los usuarios?
+Impacto en los ingresos: ¿Este servicio está directamente vinculado a los ingresos, ya sea de Google o de nuestros clientes?
+Modelo de negocio: ¿Es un servicio pago o es gratuito?
+Competencia: Si hay competidores en el mercado, ¿qué nivel de servicio ofrecen ellos?
+Audiencia objetivo: ¿Este servicio está dirigido a consumidores o a empresas?
+Consideremos el caso de Google Apps for Work (ahora Google Workspace). La mayoría de sus usuarios son empresas, algunas grandes y otras pequeñas. Estas empresas dependen de los servicios de Google Apps for Work (Gmail, Calendar, Drive, Docs, etc.) para proporcionar herramientas que permiten a sus empleados realizar su trabajo diario. En otras palabras, una interrupción de un servicio de Google Apps for Work no solo afecta a Google, sino también a todas las empresas que dependen críticamente de nosotros. Para un servicio típico de Google Apps for Work, podríamos establecer un objetivo de disponibilidad trimestral del 99.9% para los usuarios externos, respaldado por un objetivo interno más alto y un contrato que estipula penalidades si no cumplimos con el objetivo externo.
+
+Por otro lado, YouTube proporciona un conjunto de consideraciones diferentes. Cuando Google adquirió YouTube en 2006, tuvimos que decidir el nivel adecuado de disponibilidad para el sitio web. En ese momento, YouTube estaba enfocado en consumidores y se encontraba en una fase de crecimiento y cambio rápido. Aunque YouTube ya tenía un gran producto, el desarrollo de nuevas características era más importante que maximizar la disponibilidad. Por lo tanto, establecimos un objetivo de disponibilidad más bajo para YouTube en comparación con nuestros productos empresariales.
+
+Tipos de Fallos
+El tipo esperado de fallos para un servicio es otra consideración importante. Es necesario preguntarse:
+
+Resiliencia del negocio: ¿Qué tan resiliente es nuestro negocio al tiempo de inactividad del servicio?
+Impacto de los fallos: ¿Es peor para el servicio tener una tasa constante de fallos bajos o sufrir interrupciones completas ocasionales?
+Aunque ambos tipos de fallos pueden resultar en el mismo número absoluto de errores, su impacto en el negocio puede ser muy diferente.
+
+Un ejemplo ilustrativo de la diferencia entre interrupciones totales y parciales surge naturalmente en sistemas que manejan información privada. Consideremos una aplicación de gestión de contactos. Compararíamos una falla intermitente en la que las imágenes de perfil no se muestran con un caso donde los contactos privados de un usuario se muestran a otro usuario. El primer caso representa una mala experiencia para el usuario, y los SREs trabajarían para solucionar el problema rápidamente. En el segundo caso, el riesgo de exponer datos privados podría socavar gravemente la confianza básica del usuario. Como resultado, sería apropiado detener completamente el servicio mientras se depura y se limpia el sistema.
+
+Por otro lado, en algunos servicios de Google es aceptable tener interrupciones regulares durante las ventanas de mantenimiento planificadas. Hace algunos años, el Ads Frontend era uno de esos servicios. Este sistema es utilizado por anunciantes y editores de sitios web para configurar y monitorear sus campañas publicitarias. Dado que la mayor parte de este trabajo ocurre durante el horario laboral, determinamos que interrupciones regulares y planificadas en forma de ventanas de mantenimiento serían aceptables, y estas interrupciones programadas no se contabilizan como tiempo de inactividad no planificado.
 
 
 
