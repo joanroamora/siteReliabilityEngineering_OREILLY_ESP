@@ -351,6 +351,33 @@ Configurar alertas para problemas agudos.
 Comparar comportamiento: ¿una actualización de software hizo que el servidor sea más rápido?
 Examinar cómo evoluciona el consumo de recursos con el tiempo, lo cual es esencial para la planificación de capacidad.
 
+Nuestra Infraestructura de Software
+Nuestra arquitectura de software está diseñada para hacer el uso más eficiente posible de nuestra infraestructura de hardware. Nuestro código está fuertemente multihilo, lo que permite que una tarea utilice fácilmente varios núcleos. Para facilitar la creación de paneles de control, el monitoreo y la depuración, cada servidor tiene un servidor HTTP que proporciona diagnósticos y estadísticas para una tarea determinada.
+
+Todos los servicios de Google se comunican usando una infraestructura de Remote Procedure Call (RPC) llamada Stubby; una versión de código abierto, gRPC, está disponible. Con frecuencia, se hace una llamada RPC incluso cuando se necesita realizar una llamada a una subrutina en el programa local. Esto facilita la refactorización de la llamada en un servidor diferente si se necesita más modularidad o cuando el código base del servidor crece. GSLB puede equilibrar la carga de las RPCs de la misma manera que equilibra los servicios visibles externamente.
+
+Un servidor recibe solicitudes RPC de su frontend y envía RPCs a su backend. En términos tradicionales, el frontend se llama "cliente" y el backend se llama "servidor". Los datos se transfieren hacia y desde una RPC utilizando protocol buffers, a menudo abreviados como "protobufs", que son similares a Thrift de Apache. Los protocol buffers tienen muchas ventajas sobre XML para la serialización de datos estructurados: son más simples de usar, de 3 a 10 veces más pequeños, de 20 a 100 veces más rápidos y menos ambiguos.
+
+Nuestro Entorno de Desarrollo
+La velocidad de desarrollo es muy importante para Google, por lo que hemos creado un entorno de desarrollo completo que aprovecha nuestra infraestructura [Mor12b].
+
+Aparte de algunos grupos que tienen sus propios repositorios de código abierto (por ejemplo, Android y Chrome), los ingenieros de software de Google trabajan desde un repositorio compartido [Pot16]. Esto tiene algunas implicaciones prácticas importantes para nuestros flujos de trabajo:
+
+Si los ingenieros encuentran un problema en un componente fuera de su proyecto, pueden corregirlo, enviar los cambios propuestos (llamados "changelist" o CL) al propietario para su revisión y enviar el CL a la línea principal.
+Los cambios en el código fuente de un proyecto propio de un ingeniero requieren una revisión. Todo el software es revisado antes de ser enviado.
+Cuando se construye el software, la solicitud de construcción se envía a servidores de compilación en un centro de datos. Incluso las compilaciones grandes se ejecutan rápidamente, ya que muchos servidores de compilación pueden compilar en paralelo. Esta infraestructura también se utiliza para pruebas continuas. Cada vez que se envía un CL, se ejecutan pruebas en todo el software que puede depender de ese CL, directa o indirectamente. Si el marco determina que el cambio probablemente rompió otras partes del sistema, notifica al propietario del cambio enviado. Algunos proyectos usan un sistema de "push-on-green", donde una nueva versión se envía automáticamente a producción después de pasar las pruebas.
+
+Shakespeare: Un Servicio de Ejemplo
+Para proporcionar un modelo de cómo se desplegaría hipotéticamente un servicio en el entorno de producción de Google, veamos un servicio de ejemplo que interactúa con múltiples tecnologías de Google. Supongamos que queremos ofrecer un servicio que te permita determinar dónde se usa una palabra determinada en todas las obras de Shakespeare. Podemos dividir este sistema en dos partes:
+
+Un componente por lotes que lee todos los textos de Shakespeare, crea un índice y escribe el índice en un Bigtable. Este trabajo solo necesita ejecutarse una vez o muy infrecuentemente (¡nunca se sabe si se puede descubrir un nuevo texto!).
+Un frontend de aplicación que maneja las solicitudes de los usuarios finales. Este trabajo está siempre activo, ya que los usuarios en todas las zonas horarias querrán buscar en los libros de Shakespeare.
+El componente por lotes es un MapReduce que comprende tres fases:
+
+Fase de mapeo: Lee los textos de Shakespeare y los divide en palabras individuales. Esto es más rápido si lo realizan varios trabajadores en paralelo.
+Fase de mezcla: Ordena las tuplas por palabra.
+Fase de reducción: Crea una tupla de (palabra, lista de ubicaciones).
+Cada tupla se escribe en una fila de Bigtable, usando la palabra como clave.
 
 
 
