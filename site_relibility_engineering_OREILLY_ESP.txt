@@ -434,7 +434,24 @@ Un principio clave de cualquier ingeniería de software efectiva, y no solo de l
 Lectura Adicional de Google SRE
 Aumentar la velocidad del producto de manera segura es un principio central para cualquier organización. En "Making Push On Green a Reality" [Kle14], publicado en octubre de 2014, mostramos que eliminar a los humanos del proceso de lanzamiento puede, paradójicamente, reducir el trabajo tedioso de los SREs mientras aumenta la confiabilidad del sistema.
 
+Capítulo 3 - Abrazando el Riesgo
+Escrito por Marc Alvidrez | Editado por Kavita Guliani
 
+Podrías esperar que Google intente construir servicios 100% confiables, aquellos que nunca fallan. Sin embargo, resulta que, más allá de cierto punto, aumentar la confiabilidad puede ser peor para un servicio (y sus usuarios) en lugar de mejor. La confiabilidad extrema tiene un costo: maximizar la estabilidad limita la velocidad con la que se pueden desarrollar nuevas características y entregar productos a los usuarios, y aumenta drásticamente los costos, lo que a su vez reduce el número de características que un equipo puede permitirse ofrecer.
+
+Además, los usuarios generalmente no notan la diferencia entre una alta confiabilidad y una confiabilidad extrema en un servicio, porque la experiencia del usuario está dominada por componentes menos confiables, como la red celular o el dispositivo que están usando. En pocas palabras, un usuario en un teléfono inteligente con un 99% de confiabilidad no puede notar la diferencia entre una confiabilidad del servicio de 99.99% y 99.999%. Con esto en mente, en lugar de simplemente maximizar el tiempo de actividad, Site Reliability Engineering (SRE) busca equilibrar el riesgo de no disponibilidad con los objetivos de innovación rápida y operaciones de servicio eficientes, para que la felicidad general de los usuarios—con características, servicio y rendimiento—se optimice.
+
+Gestión del Riesgo
+Los sistemas no confiables pueden erosionar rápidamente la confianza de los usuarios, por lo que queremos reducir la posibilidad de fallos. Sin embargo, la experiencia demuestra que a medida que construimos sistemas, el costo no aumenta linealmente con los incrementos en la confiabilidad: una mejora incremental en la confiabilidad puede costar 100 veces más que el incremento anterior. El costo tiene dos dimensiones:
+
+El costo de recursos redundantes de máquinas y computación.
+El costo asociado al equipo redundante, que, por ejemplo, nos permite desconectar sistemas para mantenimiento rutinario o imprevisto, o proporciona espacio para almacenar bloques de código de paridad que garantizan un mínimo de durabilidad de los datos.
+Además, está el costo de oportunidad:
+
+El costo que asume una organización cuando asigna recursos de ingeniería para construir sistemas o características que reducen el riesgo, en lugar de características visibles o utilizables directamente por los usuarios finales. Estos ingenieros ya no están trabajando en nuevas características o productos para los usuarios.
+En SRE, gestionamos la confiabilidad del servicio principalmente gestionando el riesgo. Conceptualizamos el riesgo como un continuo. Le damos la misma importancia tanto a cómo ingenierizar una mayor confiabilidad en los sistemas de Google como a identificar el nivel adecuado de tolerancia para los servicios que ejecutamos. Esto nos permite realizar un análisis de costo-beneficio para determinar, por ejemplo, dónde en el continuo de riesgo (no lineal) deberíamos colocar servicios como Search, Ads, Gmail o Photos.
+
+Nuestro objetivo es alinear explícitamente el riesgo de un servicio dado con el riesgo que el negocio está dispuesto a asumir. Nos esforzamos por hacer que un servicio sea lo suficientemente confiable, pero no más confiable de lo que necesita ser. Es decir, cuando establecemos un objetivo de disponibilidad del 99.99%, queremos excederlo, pero no mucho más: eso desperdiciaría oportunidades de añadir nuevas características al sistema, limpiar deuda técnica o reducir sus costos operativos. En cierto sentido, vemos el objetivo de disponibilidad como un mínimo y un máximo. La ventaja clave de este enfoque es que permite asumir riesgos explícitos y bien pensados.
 
 
 
