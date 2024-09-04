@@ -513,9 +513,61 @@ Un ejemplo ilustrativo de la diferencia entre interrupciones totales y parciales
 
 Por otro lado, en algunos servicios de Google es aceptable tener interrupciones regulares durante las ventanas de mantenimiento planificadas. Hace algunos años, el Ads Frontend era uno de esos servicios. Este sistema es utilizado por anunciantes y editores de sitios web para configurar y monitorear sus campañas publicitarias. Dado que la mayor parte de este trabajo ocurre durante el horario laboral, determinamos que interrupciones regulares y planificadas en forma de ventanas de mantenimiento serían aceptables, y estas interrupciones programadas no se contabilizan como tiempo de inactividad no planificado.
 
+Costo
+El costo es a menudo el factor clave para determinar el objetivo adecuado de disponibilidad de un servicio. El caso de Ads (publicidad) es particularmente adecuado para realizar este intercambio, ya que los éxitos y fallos de las solicitudes se traducen directamente en ingresos ganados o perdidos. Al determinar el objetivo de disponibilidad para cada servicio, planteamos preguntas como:
 
+Si construyéramos y operáramos estos sistemas con un nueve adicional de disponibilidad, ¿cuál sería nuestro aumento incremental en los ingresos?
+¿Este ingreso adicional compensa el costo de alcanzar ese nivel de confiabilidad?
+Para hacer más concreta esta ecuación de compensación, consideremos el siguiente análisis de costo/beneficio para un servicio donde cada solicitud tiene el mismo valor:
 
+Mejora propuesta en el objetivo de disponibilidad: 99.9% → 99.99%
+Aumento propuesto en disponibilidad: 0.09%
+Ingresos del servicio: $1M
+Valor de la mejora en la disponibilidad: $1M * 0.0009 = $900
+En este caso, si el costo de mejorar la disponibilidad en un nueve es menor a $900, vale la pena la inversión. Si el costo es mayor a $900, los costos superarán el aumento proyectado en ingresos.
 
+Cuando no existe una función simple de traducción entre confiabilidad e ingresos, puede ser más difícil establecer estos objetivos. Una estrategia útil puede ser considerar la tasa de error de fondo de los ISPs en Internet. Si las fallas se miden desde la perspectiva del usuario final y es posible reducir la tasa de error del servicio por debajo de la tasa de error de fondo, esos errores se perderán dentro del "ruido" de la conexión a Internet de un usuario. Aunque existen diferencias significativas entre ISPs y protocolos (por ejemplo, TCP versus UDP, IPv4 versus IPv6), hemos medido que la tasa de error de fondo típica de los ISPs está entre el 0.01% y el 1%.
+
+Otras Métricas del Servicio
+Examinar la tolerancia al riesgo de los servicios en relación con métricas además de la disponibilidad puede ser muy útil. Entender qué métricas son importantes y cuáles no lo son nos proporciona margen de maniobra al intentar asumir riesgos bien pensados.
+
+Un ejemplo ilustrativo proviene de la latencia del servicio para nuestros sistemas de Ads. Cuando Google lanzó Web Search, una de sus principales características distintivas fue la velocidad. Al introducir AdWords, que muestra anuncios junto a los resultados de búsqueda, un requisito clave fue que los anuncios no debían ralentizar la experiencia de búsqueda. Este requisito ha impulsado los objetivos de ingeniería en cada generación de sistemas de AdWords y se trata como una invariante.
+
+AdSense, el sistema de anuncios de Google que sirve anuncios contextuales en respuesta a solicitudes de código JavaScript que los editores insertan en sus sitios web, tiene un objetivo de latencia muy diferente. El objetivo de latencia para AdSense es evitar ralentizar la carga de la página de terceros al insertar anuncios contextuales. Por lo tanto, el objetivo específico de latencia depende de la velocidad a la que se renderiza la página del editor. Esto significa que los anuncios de AdSense pueden servirse generalmente con una latencia de cientos de milisegundos más que los anuncios de AdWords.
+
+Este requisito de latencia menos estricto nos ha permitido hacer compensaciones inteligentes en la provisión (determinando la cantidad y ubicación de los recursos de servicio que utilizamos), lo que nos ahorra costos sustanciales en comparación con una provisión ingenua. En otras palabras, dada la relativa insensibilidad del servicio de AdSense a cambios moderados en el rendimiento de la latencia, podemos consolidar el servicio en menos ubicaciones geográficas, reduciendo nuestros costos operativos.
+
+Identificación de la Tolerancia al Riesgo de los Servicios de Infraestructura
+Los requisitos para construir y operar componentes de infraestructura difieren de los de los productos para consumidores en varios aspectos. Una diferencia fundamental es que, por definición, los componentes de infraestructura tienen múltiples clientes, a menudo con necesidades variables.
+
+Nivel Objetivo de Disponibilidad
+Consideremos Bigtable [Cha06], un sistema de almacenamiento distribuido a gran escala para datos estructurados. Algunos servicios para consumidores sirven datos directamente desde Bigtable en el camino de una solicitud de usuario, por lo que requieren baja latencia y alta confiabilidad. Otros equipos usan Bigtable como un repositorio de datos que emplean para realizar procesamiento sin conexión (offline).
+
+Otros Equipos que Usan Bigtable
+Algunos equipos usan Bigtable como un repositorio de datos para realizar análisis offline (por ejemplo, usando MapReduce) de manera regular. Estos equipos tienden a preocuparse más por el rendimiento que por la confiabilidad. La tolerancia al riesgo para estos dos casos de uso es muy distinta.
+
+Una forma de satisfacer las necesidades de ambos casos de uso sería diseñar todos los servicios de infraestructura para ser ultra-confiables. Sin embargo, dado que estos servicios de infraestructura tienden a agregar enormes cantidades de recursos, este enfoque suele ser demasiado costoso en la práctica. Para entender las necesidades de los diferentes tipos de usuarios, se puede observar el estado deseado de la cola de solicitudes para cada tipo de usuario de Bigtable.
+
+Tipos de Fallos
+El usuario que necesita baja latencia quiere que las colas de solicitudes de Bigtable estén (casi siempre) vacías para que el sistema pueda procesar cada solicitud pendiente inmediatamente al llegar. (De hecho, las colas ineficientes son a menudo una causa de alta latencia en los extremos). El usuario que realiza análisis offline se preocupa más por el rendimiento del sistema, por lo que prefiere que las colas de solicitudes nunca estén vacías. Para optimizar el rendimiento, el sistema Bigtable nunca debería estar inactivo esperando la próxima solicitud.
+
+Como puedes ver, el éxito y el fracaso son antitéticos para estos dos tipos de usuarios. El éxito para el usuario de baja latencia es un fracaso para el usuario que realiza análisis offline, y viceversa.
+
+Costo
+Una forma de satisfacer estas restricciones competentes de manera rentable es dividir la infraestructura y ofrecerla en múltiples niveles de servicio independientes. En el ejemplo de Bigtable, podemos construir dos tipos de clústeres: clústeres de baja latencia y clústeres de alto rendimiento.
+
+Los clústeres de baja latencia están diseñados para ser operados y utilizados por servicios que necesitan baja latencia y alta confiabilidad. Para garantizar colas de solicitudes cortas y satisfacer requisitos más estrictos de aislamiento de clientes, el sistema Bigtable puede aprovisionarse con una cantidad sustancial de capacidad adicional, reduciendo la contención y aumentando la redundancia.
+
+Los clústeres de alto rendimiento, por otro lado, pueden aprovisionarse para operar a plena capacidad con menos redundancia, optimizando el rendimiento sobre la latencia. En la práctica, podemos satisfacer estas necesidades más relajadas a un costo mucho más bajo, quizás del 10% al 50% del costo de un clúster de baja latencia.
+
+Dado que Bigtable opera a gran escala, este ahorro de costos se vuelve significativo rápidamente.
+
+Estrategia Clave: Niveles Delineados de Servicio
+La estrategia clave con respecto a la infraestructura es ofrecer servicios con niveles de servicio claramente delineados, lo que permite a los clientes tomar las decisiones adecuadas sobre el riesgo y el costo al construir sus sistemas. Al delinear explícitamente los niveles de servicio, los proveedores de infraestructura pueden externalizar efectivamente las diferencias de costo que conlleva proporcionar un servicio a un determinado nivel, motivando a los clientes a elegir el nivel de servicio con el costo más bajo que aún cumpla con sus necesidades.
+
+Por ejemplo, Google+ puede decidir poner datos críticos para la privacidad del usuario en un datastore de alta disponibilidad y consistencia global (como Spanner, un sistema SQL globalmente replicado), mientras que los datos opcionales (que no son críticos pero mejoran la experiencia del usuario) pueden colocarse en un datastore más barato, menos confiable y eventualmente consistente (como Bigtable, con replicación de mejor esfuerzo).
+
+Es importante destacar que podemos ejecutar múltiples clases de servicios utilizando hardware y software idénticos. Podemos proporcionar garantías de servicio muy diferentes ajustando diversas características, como la cantidad de recursos, el grado de redundancia, las restricciones geográficas de aprovisionamiento y, de manera crítica, la configuración del software de infraestructura.
 
 
 
