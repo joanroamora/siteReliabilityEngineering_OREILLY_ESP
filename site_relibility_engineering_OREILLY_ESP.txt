@@ -390,7 +390,22 @@ La respuesta se escribe en el protobuf de respuesta y se devuelve al servidor ba
 
 Toda esta cadena de eventos se ejecuta en un abrir y cerrar de ojos, ¡solo unos cientos de milisegundos! Dado que hay muchas partes móviles involucradas, existen muchos puntos de falla potenciales; en particular, una falla en GSLB podría causar estragos. Sin embargo, las políticas rigurosas de pruebas de Google y la implementación cuidadosa, junto con nuestros métodos proactivos de recuperación de errores, como la degradación controlada, nos permiten ofrecer el servicio confiable que nuestros usuarios esperan. Después de todo, las personas utilizan regularmente www.google.com para verificar si su conexión a Internet está funcionando correctamente.
 
+Organización de Trabajo y Datos
+Las pruebas de carga determinaron que nuestro servidor backend puede manejar alrededor de 100 consultas por segundo (QPS). Los ensayos realizados con un conjunto limitado de usuarios nos llevan a esperar una carga máxima de alrededor de 3,470 QPS, por lo que necesitamos al menos 35 tareas. Sin embargo, las siguientes consideraciones significan que necesitamos al menos 37 tareas en el trabajo, o N+2:
 
+Durante las actualizaciones, una tarea a la vez no estará disponible, lo que deja 36 tareas.
+Podría ocurrir una falla de máquina durante una actualización de tareas, dejando solo 35 tareas, justo lo suficiente para manejar la carga máxima.13
+Un examen más detallado del tráfico de usuarios muestra que nuestro uso máximo está distribuido globalmente: 1,430 QPS de América del Norte, 290 de América del Sur, 1,400 de Europa y África, y 350 de Asia y Australia. En lugar de ubicar todos los backends en un solo sitio, los distribuimos por EE.UU., América del Sur, Europa y Asia. Al permitir una redundancia N+2 por región, terminamos con 17 tareas en EE.UU., 16 en Europa y 6 en Asia. Sin embargo, decidimos usar 4 tareas (en lugar de 5) en América del Sur, para reducir los costos de N+2 a N+1. En este caso, estamos dispuestos a tolerar un pequeño riesgo de mayor latencia a cambio de menores costos de hardware: si GSLB redirige el tráfico de un continente a otro cuando nuestro centro de datos en América del Sur está sobrecargado, podemos ahorrar el 20% de los recursos que gastaríamos en hardware. En las regiones más grandes, distribuimos las tareas entre dos o tres clústeres para mayor resiliencia.
+
+Dado que los backends necesitan contactar con Bigtable para acceder a los datos, también necesitamos diseñar estratégicamente este elemento de almacenamiento. Un backend en Asia contactando a un Bigtable en EE.UU. añadiría una cantidad significativa de latencia, por lo que replicamos el Bigtable en cada región. La replicación de Bigtable nos ayuda de dos maneras: proporciona resiliencia en caso de que un servidor de Bigtable falle y reduce la latencia de acceso a los datos. Aunque Bigtable solo ofrece consistencia eventual, no es un problema importante porque no necesitamos actualizar el contenido con frecuencia.
+
+Hemos introducido una gran cantidad de terminología aquí; aunque no es necesario recordarlo todo, es útil para enmarcar muchos de los otros sistemas a los que nos referiremos más adelante.
+
+Notas:
+
+Los centros de datos de Google, aunque en su mayoría homogéneos, pueden tener diferencias debido a la evolución del hardware en diferentes generaciones.
+Algunos lectores pueden estar más familiarizados con Kubernetes, descendiente de Borg, un marco de orquestación de clústeres de contenedores de código abierto iniciado por Google en 2014.
+Protocol Buffers es un mecanismo neutral en cuanto a lenguaje y plataforma para serializar datos estructurados.
 
 
 
