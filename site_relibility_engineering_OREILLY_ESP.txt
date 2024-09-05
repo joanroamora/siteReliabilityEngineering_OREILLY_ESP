@@ -857,3 +857,27 @@ Sobrecarga administrativa:
 
 Trabajo administrativo no relacionado directamente con la operación de un servicio. Ejemplos incluyen contratación, trámites de recursos humanos, reuniones de equipo/empresa, revisión de colas de errores, revisiones de pares y autoevaluaciones, y cursos de formación.
 Cada SRE debe dedicar al menos 50% de su tiempo a trabajo de ingeniería, cuando se promedia a lo largo de varios trimestres o un año. Dado que el toil tiende a ser irregular, un 50% constante de tiempo en ingeniería puede no ser realista para algunos equipos de SRE, y pueden estar por debajo de ese objetivo en algunos trimestres. Sin embargo, si la proporción de tiempo dedicado a proyectos cae significativamente por debajo del 50% a largo plazo, el equipo afectado necesita retroceder y averiguar qué está fallando.
+
+¿Es el Toil Siempre Malo?
+Toil no hace que todos estén descontentos todo el tiempo, especialmente en pequeñas cantidades. Las tareas predecibles y repetitivas pueden resultar tranquilizadoras y generar una sensación de logro rápido. Son actividades de bajo riesgo y bajo estrés. Algunas personas tienden a disfrutar de este tipo de trabajo, y en dosis pequeñas, el toil no representa un problema.
+
+Sin embargo, el toil se vuelve tóxico cuando se experimenta en grandes cantidades. Si tienes una carga excesiva de toil, debes preocuparte y manifestarlo abiertamente. Algunas de las razones por las cuales demasiado toil es malo incluyen:
+
+Estancamiento profesional: Tu progreso profesional se ralentiza o se detiene si dedicas muy poco tiempo a proyectos. Aunque Google valora el trabajo pesado cuando es inevitable y tiene un gran impacto, no puedes construir una carrera basándote únicamente en él.
+
+Baja moral: Todos tienen un límite para la cantidad de toil que pueden tolerar. Demasiado toil puede llevar al agotamiento, el aburrimiento y la insatisfacción.
+
+Además, dedicar demasiado tiempo al toil a expensas del trabajo de ingeniería perjudica a la organización de SRE de las siguientes maneras:
+
+Confusión: SRE es una organización de ingeniería. Cuando los individuos o equipos dentro de SRE se dedican demasiado al toil, socavan esta definición y confunden a los demás sobre el verdadero rol de SRE.
+
+Retraso en el progreso: El toil excesivo hace que un equipo sea menos productivo. Si el equipo de SRE está demasiado ocupado con tareas manuales y resolviendo problemas, la velocidad de desarrollo de nuevas características se reducirá.
+
+Sienta un precedente: Si aceptas demasiado toil, los equipos de desarrollo (Dev) tendrán incentivos para cargarte con más toil, transfiriendo tareas operativas que deberían ser responsabilidad de ellos hacia SRE.
+
+Promueve la rotación de personal: Aunque a ti no te moleste el toil, otros miembros del equipo podrían no tolerarlo tanto. Si el toil se convierte en parte integral de los procedimientos del equipo, los mejores ingenieros podrían comenzar a buscar un empleo más gratificante en otros lugares.
+
+Quiebra la confianza: Los nuevos empleados o transferencias que se unieron a SRE con la promesa de trabajar en proyectos sentirán que fueron engañados, lo que afecta negativamente la moral del equipo.
+
+Conclusión
+Si todos nos comprometemos a eliminar un poco de toil cada semana con algo de buena ingeniería, poco a poco mejoraremos nuestros servicios. Esto nos permitirá concentrar nuestros esfuerzos en escalar los servicios, diseñar la próxima generación de servicios y construir herramientas transversales para toda la organización. Inventemos más y hagamos menos toil.
