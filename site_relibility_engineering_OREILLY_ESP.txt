@@ -724,3 +724,36 @@ Solicitudes incluidas: "Peticiones HTTP GET desde trabajos de monitoreo en caja 
 Cómo se adquieren los datos: "A través de nuestro monitoreo, medido en el servidor"
 Latencia de acceso a datos: "Tiempo hasta el último byte"
 Para ahorrar esfuerzo, construye un conjunto de plantillas de SLI reutilizables para cada métrica común. Esto también facilita que todos entiendan qué significa un SLI específico.
+
+Objetivos en la Práctica
+Al definir objetivos de nivel de servicio (SLOs), es crucial comenzar pensando en lo que tus usuarios realmente valoran, no solo en lo que puedes medir fácilmente. A menudo, lo que los usuarios consideran importante es difícil o imposible de medir directamente, por lo que tendrás que aproximarte a sus necesidades de alguna manera. Sin embargo, si simplemente comienzas con lo que es fácil de medir, terminarás con SLOs menos útiles. Por lo tanto, a veces hemos descubierto que trabajar desde los objetivos deseados hacia atrás para encontrar los indicadores específicos es más efectivo que elegir indicadores primero y luego establecer objetivos.
+
+Definición de Objetivos
+Para garantizar la máxima claridad, los SLOs deben especificar cómo se miden y bajo qué condiciones son válidos. Por ejemplo:
+
+SLO explícito: "El 99% (promediado durante 1 minuto) de las llamadas Get RPC se completarán en menos de 100 ms (medido en todos los servidores backend)".
+SLO simplificado (usando valores por defecto): "El 99% de las llamadas Get RPC se completarán en menos de 100 ms".
+Si la forma de las curvas de rendimiento es importante, puedes especificar múltiples objetivos para diferentes percentiles:
+
+El 90% de las llamadas Get RPC se completarán en menos de 1 ms.
+El 99% de las llamadas Get RPC se completarán en menos de 10 ms.
+El 99.9% de las llamadas Get RPC se completarán en menos de 100 ms.
+Si tienes usuarios con cargas de trabajo heterogéneas, como una pipeline de procesamiento por lotes que se preocupa por el rendimiento y un cliente interactivo que se preocupa por la latencia, podría ser apropiado definir objetivos separados para cada tipo de carga de trabajo:
+
+El 95% de las llamadas Set RPC de los clientes de rendimiento se completarán en menos de 1 segundo.
+El 99% de las llamadas Set RPC de los clientes de latencia con cargas útiles de menos de 1 kB se completarán en menos de 10 ms.
+Permitir Presupuestos de Errores
+Es poco realista y no deseable insistir en que los SLOs se cumplan el 100% del tiempo. Hacerlo puede reducir la tasa de innovación, requerir soluciones demasiado conservadoras o ambas. En su lugar, es mejor permitir un presupuesto de errores, que defina a qué ritmo se pueden incumplir los SLOs, y rastrearlo de manera diaria o semanal. Este presupuesto se puede utilizar como insumo para decidir cuándo desplegar nuevas versiones. (Un presupuesto de errores es simplemente un SLO para cumplir otros SLOs).
+
+Selección de Objetivos
+Elegir los SLOs adecuados no es una actividad puramente técnica, ya que tiene implicaciones tanto para el producto como para el negocio. Debe haber un equilibrio entre las características del producto y los recursos disponibles, como el personal, el tiempo de comercialización y el hardware. Algunos consejos útiles:
+
+No elijas un objetivo basado solo en el rendimiento actual: Adoptar valores sin reflexión puede forzarte a mantener un sistema que requiere esfuerzos heroicos para cumplir sus objetivos, o que no puede mejorar sin rediseño significativo.
+Mantén la simplicidad: Las agregaciones complicadas pueden oscurecer los cambios en el rendimiento del sistema y son más difíciles de razonar.
+Evita los absolutos: Es irreal pedir un sistema que escale "infinitamente" sin aumento de latencia o que esté "siempre" disponible.
+Ten la menor cantidad de SLOs posible: Elige solo los suficientes para proporcionar una buena cobertura de los atributos de tu sistema. Si no puedes justificar un SLO, probablemente no vale la pena tenerlo.
+La perfección puede esperar: Es mejor comenzar con un objetivo amplio y ajustarlo con el tiempo que elegir uno demasiado estricto que deba relajarse más adelante.
+Lecciones Clave
+Los SLOs son fundamentales para priorizar el trabajo de los equipos de SRE y de desarrollo de productos, ya que reflejan lo que les importa a los usuarios.
+Un buen SLO es una herramienta útil para el equipo de desarrollo, mientras que un SLO mal definido puede resultar en un esfuerzo desperdiciado o en un producto deficiente.
+Los SLOs son una palanca poderosa: deben utilizarse de manera sabia para equilibrar el rendimiento del servicio y las expectativas de los usuarios.
