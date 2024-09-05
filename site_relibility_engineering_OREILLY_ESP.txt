@@ -757,3 +757,40 @@ Lecciones Clave
 Los SLOs son fundamentales para priorizar el trabajo de los equipos de SRE y de desarrollo de productos, ya que reflejan lo que les importa a los usuarios.
 Un buen SLO es una herramienta útil para el equipo de desarrollo, mientras que un SLO mal definido puede resultar en un esfuerzo desperdiciado o en un producto deficiente.
 Los SLOs son una palanca poderosa: deben utilizarse de manera sabia para equilibrar el rendimiento del servicio y las expectativas de los usuarios.
+
+Medidas de Control
+Los SLIs y SLOs son elementos cruciales en los bucles de control utilizados para gestionar sistemas. Este proceso suele seguir cuatro pasos:
+
+Monitorizar y medir los SLIs del sistema.
+Comparar los SLIs con los SLOs y decidir si es necesario actuar.
+Si es necesario actuar, determinar qué debe hacerse para cumplir con el objetivo.
+Tomar acción.
+Por ejemplo, si en el paso 2 se detecta que la latencia de las solicitudes está aumentando y que se incumplirá el SLO en unas horas a menos que se haga algo, el paso 3 podría incluir probar la hipótesis de que los servidores están saturados de CPU y decidir agregar más servidores para distribuir la carga. Sin el SLO, no sabrías si es necesario tomar medidas ni cuándo hacerlo.
+
+Los SLOs Establecen Expectativas
+Publicar SLOs establece expectativas claras sobre el comportamiento del sistema. Los usuarios (y potenciales usuarios) a menudo quieren saber qué pueden esperar de un servicio para comprender si es adecuado para su caso de uso. Por ejemplo, un equipo que desee construir un sitio web para compartir fotos podría evitar usar un servicio que promete alta durabilidad y bajo costo a cambio de una disponibilidad ligeramente inferior, aunque ese mismo servicio podría ser perfecto para un sistema de gestión de archivos.
+
+Para establecer expectativas realistas para tus usuarios, considera utilizar una o ambas de las siguientes tácticas:
+
+Mantén un Margen de Seguridad
+Usar un SLO interno más estricto que el SLO anunciado a los usuarios te da margen para responder a problemas crónicos antes de que se vuelvan visibles externamente. Un buffer en el SLO también te permite acomodar cambios en el sistema que priorizan otros atributos, como el costo o la facilidad de mantenimiento, sin tener que decepcionar a los usuarios.
+
+No Sobrecumplas
+Los usuarios dependen de la realidad de lo que ofreces, no solo de lo que dices que entregarás. Si el rendimiento real de tu servicio es mucho mejor que su SLO declarado, los usuarios comenzarán a depender de ese rendimiento actual. Puedes evitar una sobredependencia deliberadamente tomando el sistema offline ocasionalmente (como lo hizo Google con el servicio Chubby, introduciendo interrupciones planificadas), limitando algunas solicitudes o diseñando el sistema para que no sea más rápido bajo cargas ligeras.
+
+¿Invertir o Cambiar Prioridades?
+Comprender qué tan bien un sistema está cumpliendo con sus expectativas ayuda a decidir si es necesario invertir en hacerlo más rápido, disponible o resistente. Por otro lado, si el servicio está funcionando bien, el equipo puede enfocarse en otras prioridades, como pagar deuda técnica, agregar nuevas características o lanzar nuevos productos.
+
+Acuerdos en la Práctica
+Elaborar un SLA (Service Level Agreement) requiere que los equipos de negocio y legales seleccionen las consecuencias y penalidades apropiadas para un incumplimiento. El rol del equipo de SRE es ayudarlos a entender la probabilidad y la dificultad de cumplir con los SLOs contenidos en el SLA. Muchos de los consejos sobre la construcción de SLOs también son aplicables a los SLAs.
+
+Es recomendable ser conservador en lo que se promete a los usuarios, ya que, cuanto más amplio sea el grupo de usuarios, más difícil será cambiar o eliminar SLAs que resulten ser poco sabios o difíciles de cumplir.
+
+Es importante notar que, cuando la gente habla de una "violación de SLA", en realidad casi siempre se refieren a un SLO no cumplido. Una verdadera violación de SLA podría desencadenar una disputa legal por incumplimiento de contrato.
+
+Consejos para SLAs:
+Ser conservador en lo que se promete: Es mejor prometer menos y cumplir consistentemente, que prometer demasiado y no cumplir.
+
+Apoyar a los equipos legales y de negocio: El equipo de SRE debe ayudar a estos equipos a evaluar la viabilidad técnica de los SLOs antes de comprometerse a un SLA.
+
+Evitar la sobrepromesa: SLAs demasiado ambiciosos son difíciles de cambiar, y si no se pueden cumplir, pueden tener consecuencias legales y financieras serias.
