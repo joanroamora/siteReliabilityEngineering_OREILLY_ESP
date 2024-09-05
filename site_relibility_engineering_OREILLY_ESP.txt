@@ -599,6 +599,22 @@ La diferencia entre estos dos números es el presupuesto de cuánta "infiabilida
 Siempre que el tiempo de actividad medido esté por encima del SLO—es decir, mientras quede presupuesto de errores—se pueden lanzar nuevas versiones.
 Por ejemplo, supongamos que el SLO de un servicio es servir con éxito el 99.999% de todas las consultas por trimestre. Esto significa que el presupuesto de errores del servicio es una tasa de fallos del 0.001% para un trimestre dado. Si un problema nos hace fallar el 0.0002% de las consultas esperadas para el trimestre, ese problema consume el 20% del presupuesto de errores trimestral del servicio.
 
+Beneficios de los Presupuestos de Errores
+El principal beneficio de un presupuesto de errores es que proporciona un incentivo común que permite tanto al equipo de desarrollo de productos como al equipo de SRE enfocarse en encontrar el equilibrio adecuado entre innovación y confiabilidad.
 
+Muchos productos usan este ciclo de control para gestionar la velocidad de lanzamiento: siempre que se cumplan los SLOs del sistema, los lanzamientos pueden continuar. Si las violaciones del SLO ocurren con la suficiente frecuencia como para agotar el presupuesto de errores, los lanzamientos se detienen temporalmente mientras se invierten recursos adicionales en pruebas y desarrollo del sistema para hacerlo más resistente, mejorar su rendimiento, etc. Existen enfoques más sutiles y efectivos que esta simple técnica de encender/apagar: por ejemplo, reducir la velocidad de los lanzamientos o revertirlos cuando el presupuesto de errores por violación del SLO está a punto de agotarse.
+
+Por ejemplo, si el equipo de desarrollo de productos quiere reducir las pruebas o aumentar la velocidad de los lanzamientos y el equipo de SRE se resiste, el presupuesto de errores guía la decisión. Cuando el presupuesto es amplio, los desarrolladores pueden tomar más riesgos. Cuando el presupuesto está casi agotado, los mismos desarrolladores presionarán para hacer más pruebas o reducir la velocidad de los lanzamientos, ya que no quieren arriesgarse a consumir todo el presupuesto y detener el lanzamiento. En efecto, el equipo de desarrollo se autogestiona. Ellos conocen el presupuesto y pueden manejar su propio riesgo. (Por supuesto, esto depende de que el equipo de SRE tenga la autoridad para detener los lanzamientos si se rompe el SLO).
+
+¿Qué sucede si un corte de red o una falla en el centro de datos reduce el SLO medido? Estos eventos también consumen parte del presupuesto de errores. Como resultado, el número de nuevos lanzamientos puede reducirse para el resto del trimestre. Todo el equipo apoya esta reducción porque todos comparten la responsabilidad del tiempo de actividad.
+
+El presupuesto también ayuda a resaltar algunos de los costos de tener objetivos de confiabilidad excesivamente altos, tanto en términos de inflexibilidad como de innovación lenta. Si el equipo tiene problemas para lanzar nuevas características, pueden optar por aflojar el SLO (aumentando así el presupuesto de errores) para fomentar la innovación.
+
+Perspectivas Clave
+Gestionar la confiabilidad del servicio es principalmente gestionar el riesgo, y gestionar el riesgo puede ser costoso.
+
+El 100% de confiabilidad probablemente nunca es el objetivo adecuado: no solo es imposible de lograr, sino que suele ser más de lo que los usuarios de un servicio desean o notan. Es importante adaptar el perfil del servicio al riesgo que el negocio está dispuesto a asumir.
+
+Un presupuesto de errores alinea los incentivos y enfatiza la propiedad conjunta entre SRE y el equipo de desarrollo de productos. Los presupuestos de errores facilitan la toma de decisiones sobre la tasa de lanzamientos, desactivan de manera efectiva las discusiones sobre interrupciones con las partes interesadas y permiten que varios equipos lleguen a las mismas conclusiones sobre el riesgo en producción sin conflictos.
 
 
