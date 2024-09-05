@@ -655,3 +655,39 @@ Escrito por Marc Alvidrez
 Chubby [Bur06] es el servicio de bloqueo de Google para sistemas distribuidos débilmente acoplados. En el caso global, distribuimos instancias de Chubby de manera que cada réplica esté en una región geográfica diferente. Con el tiempo, descubrimos que las fallas en la instancia global de Chubby generaban constantemente interrupciones de servicio, muchas de las cuales eran visibles para los usuarios finales. Como resultado, las verdaderas interrupciones globales de Chubby eran tan infrecuentes que los propietarios de los servicios comenzaron a agregar dependencias a Chubby asumiendo que nunca fallaría. Su alta confiabilidad proporcionaba una falsa sensación de seguridad, ya que los servicios no podían funcionar correctamente cuando Chubby no estaba disponible, por raro que fuera el caso.
 
 La solución a este escenario de Chubby es interesante: SRE se asegura de que Chubby global cumpla, pero no exceda significativamente su objetivo de nivel de servicio. En cualquier trimestre, si una falla real no ha reducido la disponibilidad por debajo del objetivo, se sintetiza una interrupción controlada al desconectar intencionalmente el sistema. De esta manera, podemos eliminar las dependencias poco razonables en Chubby poco después de que se agreguen, forzando a los propietarios de servicios a enfrentarse con la realidad de los sistemas distribuidos cuanto antes.
+
+Acuerdos (SLAs)
+Finalmente, los SLAs (Service Level Agreements) son contratos explícitos o implícitos con tus usuarios que incluyen las consecuencias de cumplir (o no cumplir) los SLOs que contienen. Las consecuencias son más fácilmente reconocibles cuando son financieras—como un reembolso o una penalización—pero pueden tomar otras formas. Una forma sencilla de diferenciar entre un SLO y un SLA es preguntar: "¿Qué pasa si no se cumplen los SLOs?" Si no hay una consecuencia explícita, es casi seguro que estás viendo un SLO.
+
+Los equipos de SRE no suelen involucrarse en la construcción de los SLAs, ya que estos están estrechamente ligados a decisiones comerciales y de producto. Sin embargo, SRE sí se involucra en ayudar a evitar que se activen las consecuencias de no cumplir con los SLOs. También pueden ayudar a definir los SLIs, ya que debe haber una forma objetiva de medir los SLOs en el acuerdo, o de lo contrario surgirán desacuerdos.
+
+Un ejemplo importante de un servicio sin SLA público es Google Search. Queremos que todos usen Search de manera fluida y eficiente, pero no hemos firmado un contrato con todo el mundo. Aun así, si Search no está disponible, hay consecuencias: la reputación de Google se ve afectada y se pierde ingresos por publicidad. Sin embargo, muchos otros servicios de Google, como Google for Work, sí tienen SLAs explícitos con sus usuarios.
+
+Tanto si un servicio tiene SLA como si no, es valioso definir SLIs y SLOs y usarlos para gestionar el servicio.
+
+Indicadores en la Práctica
+Dado que hemos explicado la importancia de elegir métricas apropiadas para medir tu servicio, ¿cómo puedes identificar qué métricas son significativas para tu servicio o sistema?
+
+¿Qué es lo que tú y tus usuarios valoran?
+No deberías utilizar todas las métricas que puedas rastrear en tu sistema de monitoreo como un SLI. Entender lo que tus usuarios desean del sistema ayudará a seleccionar cuidadosamente algunos indicadores clave. Elegir demasiados indicadores puede hacer que sea difícil prestar atención a los indicadores importantes, mientras que elegir muy pocos puede dejar comportamientos significativos del sistema sin examinar.
+
+Normalmente, encontramos que un puñado de indicadores representativos es suficiente para evaluar y analizar la salud de un sistema.
+
+Categorías Comunes de SLIs
+Los servicios tienden a caer en algunas categorías amplias en cuanto a los SLIs que consideran relevantes:
+
+Sistemas de atención al usuario, como los frontends de búsqueda de Shakespeare, suelen centrarse en la disponibilidad, la latencia y el rendimiento. En otras palabras:
+
+¿Podemos responder a la solicitud?
+¿Cuánto tiempo tomó responder?
+¿Cuántas solicitudes se pueden manejar?
+Sistemas de almacenamiento tienden a enfatizar la latencia, la disponibilidad y la durabilidad. Es decir:
+
+¿Cuánto tiempo lleva leer o escribir datos?
+¿Podemos acceder a los datos cuando los necesitamos?
+¿Siguen los datos disponibles cuando los necesitamos?
+Sistemas de grandes volúmenes de datos, como las pipelines de procesamiento de datos, suelen preocuparse por el rendimiento y la latencia de extremo a extremo. En otras palabras:
+
+¿Cuántos datos se están procesando?
+¿Cuánto tiempo tarda en procesarse desde la ingestión hasta la finalización?
+Todos los sistemas deberían preocuparse por la exactitud: ¿Se devolvió la respuesta correcta? ¿Se recuperaron los datos correctos? ¿Se hizo el análisis correcto? Aunque la exactitud suele ser más una propiedad de los datos que del sistema en sí, es un buen indicador de la salud del sistema, aunque generalmente no es responsabilidad directa de SRE garantizarla.
