@@ -838,3 +838,22 @@ Si buscamos limitar el tiempo que un SRE dedica al toil al 50%, ¿cómo se distr
 Los SREs informan que su principal fuente de toil son las interrupciones (mensajes y correos electrónicos relacionados con el servicio que no son urgentes). La siguiente fuente principal es la respuesta on-call (urgente), seguida por los lanzamientos y empujes de software. A pesar de que estos procesos suelen manejarse con una buena cantidad de automatización, aún hay espacio para mejoras.
 
 Las encuestas trimestrales de los SREs de Google muestran que el tiempo promedio dedicado al toil es de aproximadamente 33%, lo que es mejor que nuestro objetivo general del 50%. Sin embargo, el promedio no refleja a los valores atípicos: algunos SREs informan un 0% de toil (solo proyectos de desarrollo sin trabajo de guardia), mientras que otros reportan un 80% de toil. Cuando los SREs individuales informan un exceso de toil, a menudo indica que los gerentes deben distribuir la carga de toil de manera más equitativa entre el equipo y alentar a esos SREs a encontrar proyectos de ingeniería que les resulten satisfactorios.
+
+¿Qué Califica como Ingeniería?
+El trabajo de ingeniería es novedoso y requiere intrínsecamente juicio humano. Produce una mejora permanente en el servicio y está guiado por una estrategia. Frecuentemente, es un trabajo creativo e innovador, abordando problemas con un enfoque basado en el diseño, cuanto más generalizado, mejor. El trabajo de ingeniería ayuda a tu equipo o a la organización de SRE a manejar un servicio más grande o más servicios, con el mismo nivel de personal.
+
+Las actividades típicas de SRE se dividen aproximadamente en las siguientes categorías:
+
+Ingeniería de software:
+
+Implica escribir o modificar código, además del trabajo asociado de diseño y documentación. Ejemplos incluyen escribir scripts de automatización, crear herramientas o frameworks, agregar características de servicio para escalabilidad y confiabilidad, o modificar código de infraestructura para hacerlo más robusto.
+Ingeniería de sistemas:
+
+Implica configurar sistemas de producción, modificar configuraciones o documentar sistemas de una manera que produzca mejoras duraderas a partir de un esfuerzo puntual. Ejemplos incluyen la configuración y actualización de monitoreo, configuración de balanceo de carga, ajuste de parámetros del sistema operativo y configuración de servidores. También incluye la consultoría sobre arquitectura, diseño y producción para equipos de desarrollo.
+Toil:
+
+Trabajo directamente relacionado con la operación de un servicio, que es repetitivo, manual, etc.
+Sobrecarga administrativa:
+
+Trabajo administrativo no relacionado directamente con la operación de un servicio. Ejemplos incluyen contratación, trámites de recursos humanos, reuniones de equipo/empresa, revisión de colas de errores, revisiones de pares y autoevaluaciones, y cursos de formación.
+Cada SRE debe dedicar al menos 50% de su tiempo a trabajo de ingeniería, cuando se promedia a lo largo de varios trimestres o un año. Dado que el toil tiende a ser irregular, un 50% constante de tiempo en ingeniería puede no ser realista para algunos equipos de SRE, y pueden estar por debajo de ese objetivo en algunos trimestres. Sin embargo, si la proporción de tiempo dedicado a proyectos cae significativamente por debajo del 50% a largo plazo, el equipo afectado necesita retroceder y averiguar qué está fallando.
