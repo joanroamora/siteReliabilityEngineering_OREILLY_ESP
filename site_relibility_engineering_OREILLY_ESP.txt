@@ -824,3 +824,17 @@ Sin valor duradero: Si el estado del servicio no cambia después de completar la
 Escala lineal con el crecimiento del servicio: Si el trabajo de una tarea crece de forma lineal con el tamaño del servicio, el volumen de tráfico o el número de usuarios, probablemente es toil. Un servicio bien diseñado puede crecer significativamente sin requerir trabajo adicional, salvo esfuerzos únicos para agregar recursos.
 
 La eliminación de toil es un principio clave en SRE, ya que libera tiempo para enfocarse en proyectos que aporten valor a largo plazo al servicio.
+
+Por qué Menos Toil es Mejor
+En nuestra organización de SRE, tenemos el objetivo de mantener el trabajo operativo (es decir, toil) por debajo del 50% del tiempo de cada SRE. Al menos el 50% del tiempo de cada SRE debe dedicarse a proyectos de ingeniería que reduzcan el toil futuro o añadan características al servicio. El desarrollo de nuevas características suele centrarse en mejorar la confiabilidad, el rendimiento o la utilización del servicio, lo que a menudo reduce el toil de manera indirecta.
+
+Compartimos este objetivo del 50% porque el toil tiende a expandirse si no se controla y puede llenar rápidamente el 100% del tiempo de todos. Reducir el toil y escalar los servicios es el verdadero trabajo de ingeniería dentro de Site Reliability Engineering. El trabajo de ingeniería permite que la organización de SRE escale de manera sublineal con el tamaño del servicio y gestione los servicios de manera más eficiente que un equipo puramente de desarrollo (Dev) o de operaciones (Ops).
+
+Además, cuando contratamos nuevos SREs, les prometemos que SRE no es una organización de operaciones tradicional, mencionando la regla del 50%. Debemos cumplir esa promesa evitando que la organización o cualquier subequipo dentro de ella se convierta en un equipo de operaciones.
+
+Cómo Calcular el Toil
+Si buscamos limitar el tiempo que un SRE dedica al toil al 50%, ¿cómo se distribuye ese tiempo? Hay un mínimo de toil que cualquier SRE tiene que manejar si está de guardia (on-call). Un SRE típico tiene una semana de guardia primaria y una semana de guardia secundaria en cada ciclo. Esto significa que, en una rotación de 6 personas, al menos 2 de cada 6 semanas se dedican a turnos de guardia, lo que establece el límite inferior de toil potencial en 33% del tiempo de un SRE. En una rotación de 8 personas, el límite inferior es 25%.
+
+Los SREs informan que su principal fuente de toil son las interrupciones (mensajes y correos electrónicos relacionados con el servicio que no son urgentes). La siguiente fuente principal es la respuesta on-call (urgente), seguida por los lanzamientos y empujes de software. A pesar de que estos procesos suelen manejarse con una buena cantidad de automatización, aún hay espacio para mejoras.
+
+Las encuestas trimestrales de los SREs de Google muestran que el tiempo promedio dedicado al toil es de aproximadamente 33%, lo que es mejor que nuestro objetivo general del 50%. Sin embargo, el promedio no refleja a los valores atípicos: algunos SREs informan un 0% de toil (solo proyectos de desarrollo sin trabajo de guardia), mientras que otros reportan un 80% de toil. Cuando los SREs individuales informan un exceso de toil, a menudo indica que los gerentes deben distribuir la carga de toil de manera más equitativa entre el equipo y alentar a esos SREs a encontrar proyectos de ingeniería que les resulten satisfactorios.
