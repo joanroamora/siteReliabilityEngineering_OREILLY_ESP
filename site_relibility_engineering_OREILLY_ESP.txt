@@ -577,7 +577,27 @@ A diferencia de muchos servicios de consumo que pueden mitigar la visibilidad de
 Gestión de la Infiabilidad a través de Presupuestos de Errores
 Hemos explorado cómo identificar la tolerancia al riesgo tanto para los servicios de consumo como para los servicios de infraestructura. El siguiente paso es utilizar ese nivel de tolerancia para gestionar la infiabilidad mediante el uso de presupuestos de errores. Estos presupuestos permiten a los equipos equilibrar el desarrollo rápido de nuevas características con la confiabilidad, al proporcionar una cantidad controlada de margen para la infiabilidad, siempre que no se exceda el presupuesto definido.
 
+Motivación para los Presupuestos de Errores
+Otros capítulos de este libro discuten cómo pueden surgir tensiones entre los equipos de desarrollo de productos y los equipos de SRE, dado que suelen ser evaluados según métricas diferentes. El rendimiento de los desarrolladores de productos se evalúa principalmente en función de la velocidad del producto, lo que genera un incentivo para lanzar nuevo código lo más rápido posible. Mientras tanto, el rendimiento de los SREs se evalúa (como es de esperar) según la confiabilidad del servicio, lo que genera un incentivo para resistir un alto ritmo de cambios. La asimetría de información entre los dos equipos amplifica aún más esta tensión inherente: los desarrolladores tienen más visibilidad sobre el tiempo y esfuerzo necesarios para escribir y lanzar su código, mientras que los SREs tienen más visibilidad sobre la confiabilidad del servicio y el estado de la producción en general.
 
+Estas tensiones a menudo se reflejan en diferentes opiniones sobre el esfuerzo que debe invertirse en las prácticas de ingeniería. La siguiente lista presenta algunas tensiones típicas:
+
+Tolerancia a fallos del software: ¿Cuánto deberíamos reforzar el software para eventos inesperados? Si es demasiado poco, tendremos un producto frágil e inutilizable. Si es demasiado, tendremos un producto que nadie quiere usar (aunque funcione muy establemente).
+Pruebas: Con pocas pruebas, se tienen interrupciones embarazosas, filtraciones de datos privados o una serie de otros eventos que atraen la atención de los medios. Con demasiadas pruebas, podrías perder el mercado.
+Frecuencia de implementación: Cada implementación es arriesgada. ¿Cuánto deberíamos trabajar en reducir ese riesgo, versus hacer otras tareas?
+Duración y tamaño de la fase canary: Es una práctica recomendada probar una nueva versión en un pequeño subconjunto de la carga de trabajo, lo que a menudo se denomina canarying. ¿Cuánto tiempo debemos esperar y qué tan grande debe ser el canary?
+Usualmente, los equipos preexistentes han llegado a un balance informal sobre dónde se encuentra el límite entre el riesgo y el esfuerzo. Sin embargo, raramente se puede probar que este balance es óptimo y, a menudo, es simplemente un reflejo de las habilidades de negociación de los ingenieros involucrados. Tampoco deberían tomarse decisiones basadas en política, miedo o esperanza. (De hecho, el lema no oficial de Google SRE es "La esperanza no es una estrategia"). Nuestro objetivo es definir una métrica objetiva, acordada por ambas partes, que pueda guiar las negociaciones de manera reproducible. Cuanto más basada en datos esté la decisión, mejor.
+
+Formación de un Presupuesto de Errores
+Para basar estas decisiones en datos objetivos, ambos equipos definen conjuntamente un presupuesto de errores trimestral basado en el objetivo de nivel de servicio (SLO) del servicio. El presupuesto de errores proporciona una métrica clara y objetiva que determina cuán poco confiable se permite que sea el servicio dentro de un trimestre. Esta métrica elimina la política de las negociaciones entre los SREs y los desarrolladores de productos al decidir cuánto riesgo permitir.
+
+El proceso es el siguiente:
+
+Product Management define un SLO, que establece la expectativa de cuánto tiempo de actividad debería tener el servicio por trimestre.
+El tiempo de actividad real es medido por una tercera parte neutral: nuestro sistema de monitoreo.
+La diferencia entre estos dos números es el presupuesto de cuánta "infiabilidad" queda para el trimestre.
+Siempre que el tiempo de actividad medido esté por encima del SLO—es decir, mientras quede presupuesto de errores—se pueden lanzar nuevas versiones.
+Por ejemplo, supongamos que el SLO de un servicio es servir con éxito el 99.999% de todas las consultas por trimestre. Esto significa que el presupuesto de errores del servicio es una tasa de fallos del 0.001% para un trimestre dado. Si un problema nos hace fallar el 0.0002% de las consultas esperadas para el trimestre, ese problema consume el 20% del presupuesto de errores trimestral del servicio.
 
 
 
