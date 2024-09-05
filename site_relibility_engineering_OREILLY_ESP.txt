@@ -794,3 +794,33 @@ Ser conservador en lo que se promete: Es mejor prometer menos y cumplir consiste
 Apoyar a los equipos legales y de negocio: El equipo de SRE debe ayudar a estos equipos a evaluar la viabilidad técnica de los SLOs antes de comprometerse a un SLA.
 
 Evitar la sobrepromesa: SLAs demasiado ambiciosos son difíciles de cambiar, y si no se pueden cumplir, pueden tener consecuencias legales y financieras serias.
+
+Capítulo 5 - Eliminando el Trabajo Repetitivo (Toil)
+Escrito por Vivek Rau | Editado por Betsy Beyer
+
+"Si un operador humano necesita intervenir en tu sistema durante las operaciones normales, tienes un error."
+— Carla Geisser, Google SRE
+
+En SRE, nuestro objetivo es dedicar tiempo a proyectos de ingeniería a largo plazo en lugar de a trabajo operativo repetitivo. Debido a que el término "trabajo operativo" puede interpretarse de manera errónea, usamos un término específico: toil (trabajo repetitivo y monótono).
+
+Definición de Toil
+Toil no es simplemente "trabajo que no me gusta hacer". Tampoco es equivalente a tareas administrativas o trabajos monótonos. Las preferencias respecto al tipo de trabajo que se considera satisfactorio varían de una persona a otra, y algunas personas incluso disfrutan del trabajo manual y repetitivo. También hay tareas administrativas que deben realizarse, pero no deben clasificarse como toil; estas se consideran sobrecarga. La sobrecarga incluye tareas como reuniones de equipo, establecimiento y evaluación de objetivos, y trámites de recursos humanos.
+
+El trabajo que parece tedioso, pero tiene valor a largo plazo, tampoco es toil. Por ejemplo, limpiar toda la configuración de alertas de tu servicio puede ser tedioso, pero no es toil.
+
+¿Qué es Toil?
+Toil es el tipo de trabajo asociado con la operación de un servicio de producción que tiende a ser manual, repetitivo, automatizable, táctico, sin valor duradero, y que crece linealmente a medida que crece el servicio. No todas las tareas clasificadas como toil tienen todas estas características, pero cuanto más se ajuste una tarea a las siguientes descripciones, más probable es que sea toil:
+
+Manual: Esto incluye tareas como ejecutar manualmente un script que automatiza un proceso. Aunque ejecutar un script puede ser más rápido que realizar cada paso manualmente, el tiempo que un humano dedica a ejecutarlo sigue siendo tiempo de toil.
+
+Repetitivo: Si estás realizando una tarea por primera o segunda vez, no es toil. Toil es el trabajo que haces una y otra vez. Resolver un problema novedoso o crear una nueva solución no es toil.
+
+Automatizable: Si una máquina puede realizar la tarea tan bien como un humano, o si la necesidad de la tarea puede ser eliminada mediante diseño, es toil. Si el juicio humano es esencial para la tarea, probablemente no es toil.
+
+Táctico: Toil es reactivo, impulsado por interrupciones, en lugar de ser estratégico y proactivo. Atender alertas del sistema es toil. Puede que nunca logremos eliminar por completo este tipo de trabajo, pero debemos trabajar continuamente para minimizarlo.
+
+Sin valor duradero: Si el estado del servicio no cambia después de completar la tarea, probablemente fue toil. Si la tarea produjo una mejora permanente, no fue toil, incluso si involucró trabajo pesado, como revisar código y configuraciones heredadas.
+
+Escala lineal con el crecimiento del servicio: Si el trabajo de una tarea crece de forma lineal con el tamaño del servicio, el volumen de tráfico o el número de usuarios, probablemente es toil. Un servicio bien diseñado puede crecer significativamente sin requerir trabajo adicional, salvo esfuerzos únicos para agregar recursos.
+
+La eliminación de toil es un principio clave en SRE, ya que libera tiempo para enfocarse en proyectos que aporten valor a largo plazo al servicio.
