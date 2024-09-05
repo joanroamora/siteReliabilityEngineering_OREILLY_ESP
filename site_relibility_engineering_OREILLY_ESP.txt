@@ -617,4 +617,41 @@ El 100% de confiabilidad probablemente nunca es el objetivo adecuado: no solo es
 
 Un presupuesto de errores alinea los incentivos y enfatiza la propiedad conjunta entre SRE y el equipo de desarrollo de productos. Los presupuestos de errores facilitan la toma de decisiones sobre la tasa de lanzamientos, desactivan de manera efectiva las discusiones sobre interrupciones con las partes interesadas y permiten que varios equipos lleguen a las mismas conclusiones sobre el riesgo en producción sin conflictos.
 
+Capítulo 4 - Objetivos de Nivel de Servicio (SLOs)
+Escrito por Chris Jones, John Wilkes y Niall Murphy con Cody Smith | Editado por Betsy Beyer
 
+Es imposible gestionar un servicio correctamente, y mucho menos de manera efectiva, sin entender qué comportamientos realmente importan para ese servicio y cómo medir y evaluar esos comportamientos. Con este fin, queremos definir y entregar un nivel de servicio dado a nuestros usuarios, ya sea que utilicen una API interna o un producto público.
+
+Utilizamos la intuición, la experiencia y una comprensión de lo que los usuarios desean para definir indicadores de nivel de servicio (SLIs), objetivos de nivel de servicio (SLOs) y acuerdos de nivel de servicio (SLAs). Estas mediciones describen las propiedades básicas de las métricas que importan, qué valores queremos que tengan esas métricas y cómo reaccionaremos si no podemos proporcionar el servicio esperado. Elegir métricas adecuadas impulsa la acción correcta si algo sale mal y también brinda confianza a los equipos de SRE de que un servicio está saludable.
+
+Este capítulo describe el marco que utilizamos para abordar los problemas de modelado de métricas, selección de métricas y análisis de métricas. Gran parte de esta explicación sería bastante abstracta sin un ejemplo, por lo que utilizaremos el servicio Shakespeare descrito en un capítulo anterior como ilustración.
+
+Terminología de Niveles de Servicio
+Muchos lectores están probablemente familiarizados con el concepto de SLA, pero los términos SLI y SLO también merecen una definición cuidadosa, ya que el término SLA se ha sobrecargado y ha tomado diversos significados según el contexto. Preferimos separar esos significados para mayor claridad.
+
+Indicadores
+Un SLI (Service Level Indicator) es un indicador de nivel de servicio, una medida cuantitativa cuidadosamente definida de algún aspecto del nivel de servicio proporcionado.
+
+La mayoría de los servicios consideran la latencia de solicitudes—cuánto tiempo tarda en devolver una respuesta—como un SLI clave. Otros SLIs comunes incluyen la tasa de error, a menudo expresada como una fracción de todas las solicitudes recibidas, y el rendimiento del sistema, típicamente medido en solicitudes por segundo. Las mediciones suelen agregarse: es decir, se recopilan datos brutos durante una ventana de medición y luego se convierten en una tasa, promedio o percentil.
+
+Idealmente, el SLI mide directamente un nivel de servicio de interés, pero a veces solo está disponible un proxy, ya que la medida deseada puede ser difícil de obtener o interpretar. Por ejemplo, la latencia del lado del cliente a menudo es la métrica más relevante para el usuario, pero podría ser posible medir solo la latencia en el servidor.
+
+Otro tipo de SLI importante para los SREs es la disponibilidad, o la fracción del tiempo en que un servicio es utilizable. A menudo se define en términos de la fracción de solicitudes bien formadas que tienen éxito, a veces llamada rendimiento. (La durabilidad—la probabilidad de que los datos se mantengan a largo plazo—es igualmente importante para los sistemas de almacenamiento de datos). Aunque el 100% de disponibilidad es imposible, la disponibilidad cercana al 100% suele ser alcanzable, y la industria comúnmente expresa estos valores de alta disponibilidad en términos del número de "nueves" en el porcentaje de disponibilidad. Por ejemplo, disponibilidades del 99% y 99.999% se pueden denominar como "2 nueves" y "5 nueves" de disponibilidad, respectivamente. El objetivo actual publicado para la disponibilidad de Google Compute Engine es "tres nueves y medio"—99.95% de disponibilidad.
+
+Objetivos
+Un SLO (Service Level Objective) es un objetivo de nivel de servicio, un valor objetivo o un rango de valores para un nivel de servicio medido por un SLI (Service Level Indicator). Una estructura natural para los SLOs es: SLI ≤ objetivo, o bien límite inferior ≤ SLI ≤ límite superior. Por ejemplo, podríamos decidir que devolveremos los resultados de búsqueda de Shakespeare "rápidamente" y adoptar un SLO en el que la latencia promedio de las solicitudes de búsqueda sea inferior a 100 milisegundos.
+
+Elegir un SLO adecuado es complejo. Para empezar, ¡no siempre puedes elegir su valor! Para las solicitudes HTTP entrantes desde el mundo exterior a tu servicio, la métrica de consultas por segundo (QPS) está esencialmente determinada por los deseos de tus usuarios, y no puedes establecer un SLO para eso.
+
+Por otro lado, puedes decidir que deseas que la latencia promedio por solicitud sea inferior a 100 milisegundos, y establecer tal objetivo podría motivarte a escribir un frontend con comportamientos de baja latencia o a adquirir ciertos tipos de equipos de baja latencia. (Obviamente, 100 milisegundos es un valor arbitrario, pero en general, los números más bajos de latencia son buenos. Existen razones convincentes para creer que rápido es mejor que lento, y que una latencia experimentada por el usuario por encima de ciertos valores ahuyenta a las personas. Ver más detalles en "Speed Matters" [Bru09]).
+
+Nuevamente, esto es más sutil de lo que parece, ya que esos dos SLIs, QPS y latencia, podrían estar conectados tras bambalinas: mayor QPS a menudo conduce a mayores latencias, y es común que los servicios tengan un "desplome" de rendimiento más allá de cierto umbral de carga.
+
+Elegir y publicar los SLOs para los usuarios establece expectativas claras sobre el rendimiento de un servicio. Esta estrategia puede reducir quejas infundadas sobre, por ejemplo, que el servicio es "lento". Sin un SLO explícito, los usuarios a menudo desarrollan sus propias creencias sobre el rendimiento deseado, que pueden no estar relacionadas con las expectativas de quienes diseñan y operan el servicio. Esta dinámica puede llevar tanto a una sobre-reliancia en el servicio, cuando los usuarios creen incorrectamente que el servicio será más disponible de lo que realmente es (como sucedió con Chubby), como a una sub-reliancia, cuando los usuarios potenciales creen que un sistema es menos confiable de lo que realmente es.
+
+Ejemplo: La Interrupción Planificada Global de Chubby
+Escrito por Marc Alvidrez
+
+Chubby [Bur06] es el servicio de bloqueo de Google para sistemas distribuidos débilmente acoplados. En el caso global, distribuimos instancias de Chubby de manera que cada réplica esté en una región geográfica diferente. Con el tiempo, descubrimos que las fallas en la instancia global de Chubby generaban constantemente interrupciones de servicio, muchas de las cuales eran visibles para los usuarios finales. Como resultado, las verdaderas interrupciones globales de Chubby eran tan infrecuentes que los propietarios de los servicios comenzaron a agregar dependencias a Chubby asumiendo que nunca fallaría. Su alta confiabilidad proporcionaba una falsa sensación de seguridad, ya que los servicios no podían funcionar correctamente cuando Chubby no estaba disponible, por raro que fuera el caso.
+
+La solución a este escenario de Chubby es interesante: SRE se asegura de que Chubby global cumpla, pero no exceda significativamente su objetivo de nivel de servicio. En cualquier trimestre, si una falla real no ha reducido la disponibilidad por debajo del objetivo, se sintetiza una interrupción controlada al desconectar intencionalmente el sistema. De esta manera, podemos eliminar las dependencias poco razonables en Chubby poco después de que se agreguen, forzando a los propietarios de servicios a enfrentarse con la realidad de los sistemas distribuidos cuanto antes.
