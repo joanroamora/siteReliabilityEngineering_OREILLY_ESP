@@ -703,3 +703,24 @@ Algunas métricas parecen ser directas, como el número de solicitudes por segun
 De manera similar, promediar las latencias de solicitud puede parecer atractivo, pero oculta un detalle importante: es completamente posible que la mayoría de las solicitudes sean rápidas, pero que haya un conjunto de solicitudes con una latencia mucho mayor.
 
 La mayoría de las métricas se deben considerar como distribuciones, en lugar de promedios. Por ejemplo, para un SLI de latencia, algunas solicitudes serán atendidas rápidamente, mientras que otras tardarán más—y a veces mucho más. Un promedio simple puede ocultar estas latencias extremas (conocidas como tail latencies), así como cambios en ellas. La Figura 4-1 proporciona un ejemplo: aunque una solicitud típica se atiende en unos 50 ms, ¡el 5% de las solicitudes son 20 veces más lentas! Monitorear y generar alertas solo en función de la latencia promedio no mostraría cambios en el comportamiento a lo largo del día, cuando de hecho hay cambios significativos en la latencia extrema (la línea superior).
+
+Figura 4-1: Percentiles de latencia al 50.º, 85.º, 95.º y 99.º para un sistema
+Es importante observar que el eje Y tiene una escala logarítmica. Utilizar percentiles para los indicadores permite analizar la forma de la distribución y sus diferentes atributos. Por ejemplo, un percentil alto, como el 99.º o el 99.9.º, te muestra un valor máximo plausible, mientras que el percentil 50 (también conocido como mediana) destaca el caso típico. Cuanto mayor es la varianza en los tiempos de respuesta, más se ve afectada la experiencia típica del usuario por el comportamiento de la "cola larga" de solicitudes lentas, un efecto que se agrava bajo altas cargas debido a los efectos de colas.
+
+Los estudios de usuarios han mostrado que las personas prefieren un sistema ligeramente más lento en lugar de uno con alta variabilidad en los tiempos de respuesta. Por esta razón, algunos equipos de SRE se enfocan únicamente en los valores percentiles altos, bajo el argumento de que si el comportamiento del percentil 99.9 es bueno, la experiencia típica ciertamente será satisfactoria.
+
+Nota sobre Falacias Estadísticas
+Generalmente preferimos trabajar con percentiles en lugar de con la media (promedio aritmético) de un conjunto de valores. Esto permite considerar la cola larga de puntos de datos, que a menudo tienen características significativamente diferentes (y más interesantes) que la media. Dado que los sistemas computacionales tienden a generar datos sesgados (por ejemplo, ninguna solicitud puede tener una respuesta en menos de 0 ms, y un tiempo de espera de 1,000 ms significa que no puede haber respuestas exitosas con valores superiores al tiempo de espera), no podemos asumir que la media y la mediana sean iguales o cercanas.
+
+Es crucial no asumir que nuestros datos están normalmente distribuidos sin verificarlos primero, ya que las intuiciones y aproximaciones estándar pueden no ser válidas. Por ejemplo, si la distribución no es la esperada, un proceso que actúe sobre los valores atípicos (por ejemplo, reiniciar un servidor con latencias de solicitudes altas) podría actuar con demasiada frecuencia o no lo suficiente.
+
+Estandarización de Indicadores
+Recomendamos estandarizar las definiciones comunes para los SLIs, de modo que no tengas que razonarlas desde cero cada vez. Cualquier característica que se ajuste a las plantillas de definición estándar puede omitirse de la especificación de un SLI individual. Ejemplos:
+
+Intervalos de agregación: "Promediado cada 1 minuto"
+Regiones de agregación: "Todas las tareas en un clúster"
+Frecuencia de mediciones: "Cada 10 segundos"
+Solicitudes incluidas: "Peticiones HTTP GET desde trabajos de monitoreo en caja negra"
+Cómo se adquieren los datos: "A través de nuestro monitoreo, medido en el servidor"
+Latencia de acceso a datos: "Tiempo hasta el último byte"
+Para ahorrar esfuerzo, construye un conjunto de plantillas de SLI reutilizables para cada métrica común. Esto también facilita que todos entiendan qué significa un SLI específico.
