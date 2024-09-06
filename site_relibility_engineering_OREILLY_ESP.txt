@@ -907,3 +907,36 @@ Nodo y máquina: Se utilizan indistintamente para indicar una sola instancia de 
 Relacionados entre sí: por ejemplo, un servidor de caché y un servidor web.
 Servicios no relacionados que comparten hardware: por ejemplo, un repositorio de código y un servidor maestro para un sistema de configuración como Puppet o Chef.
 Push: Cualquier cambio en el software en ejecución de un servicio o su configuración.
+
+¿Por qué Monitorear?
+Existen varias razones para monitorear un sistema, entre ellas:
+
+Análisis de tendencias a largo plazo:
+
+¿Qué tan grande es mi base de datos y qué tan rápido está creciendo?
+¿Cuántos usuarios activos diarios tengo y cómo crece esa cifra?
+Comparaciones en el tiempo o entre grupos de experimentos:
+
+¿Son más rápidas las consultas con Acme Bucket of Bytes 2.72 frente a Ajax DB 3.14?
+¿Mejora la tasa de aciertos de mi memcache con un nodo adicional?
+¿Es mi sitio más lento que la semana pasada?
+Alertas:
+
+Algo está roto y alguien necesita arreglarlo ahora.
+O, algo podría romperse pronto y alguien debería revisarlo pronto.
+Construcción de paneles (dashboards):
+
+Los paneles deben responder preguntas básicas sobre el servicio y normalmente incluyen alguna forma de las cuatro señales doradas (discutidas en el capítulo de las Cuatro Señales Doradas).
+Análisis retrospectivo ad hoc (depuración):
+
+¿Por qué aumentó la latencia? ¿Qué más ocurrió al mismo tiempo?
+El monitoreo de sistemas también proporciona datos brutos para el análisis empresarial y facilita el análisis de brechas de seguridad. Sin embargo, dado que este libro se enfoca en los dominios de ingeniería donde SRE tiene experiencia particular, no discutiremos estas aplicaciones aquí.
+
+El Valor del Monitoreo y las Alertas
+El monitoreo y las alertas permiten que un sistema nos informe cuando está roto o a punto de fallar. Si el sistema no puede automáticamente corregir el problema, queremos que un humano investigue la alerta, determine si hay un problema real, lo mitigue y encuentre la causa raíz del problema.
+
+No deberías activar una alerta solo porque "algo parece un poco extraño" a menos que estés auditando seguridad en componentes muy específicos del sistema.
+
+El paginado de un humano es un uso costoso del tiempo de un empleado. Si el empleado está trabajando, una alerta interrumpe su flujo de trabajo. Si está en casa, interrumpe su tiempo personal, o incluso su sueño. Si las alertas son demasiado frecuentes, los empleados pueden llegar a dudar, ignorar o desatender alertas importantes, lo que podría enmascarar un problema real.
+
+Los sistemas de alertas efectivos tienen un buen señal-ruido, donde la señal es clara y el ruido es mínimo.
