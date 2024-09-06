@@ -1139,7 +1139,33 @@ Por ejemplo, a menudo asumimos que la distribución de un nuevo binario a un cl�
 
 SRE tiene varias filosofías y productos en el ámbito de la automatización. Algunos se parecen más a herramientas genéricas de despliegue sin un modelado particularmente detallado de entidades de alto nivel, mientras que otros se asemejan más a lenguajes para describir el despliegue de servicios (y otros) a un nivel muy abstracto. El trabajo realizado en este último enfoque tiende a ser más reutilizable y a constituir una plataforma más común que el primero, pero la complejidad de nuestro entorno de producción a veces significa que el primer enfoque es la opción más factible de manera inmediata.
 
+Una Jerarquía de Clases de Automatización
+Aunque todos estos pasos de automatización son valiosos, y una plataforma de automatización es valiosa en sí misma, en un mundo ideal, no necesitaríamos automatización externalizada. De hecho, en lugar de tener un sistema que necesita lógica de conexión externa, sería aún mejor tener un sistema que no requiera esa lógica de conexión en absoluto, no solo porque la internalización es más eficiente (aunque tal eficiencia es útil), sino porque ha sido diseñado para no necesitar esa lógica desde el principio. Lograr esto implica abordar los casos de uso de la lógica de conexión—generalmente manipulaciones "de primer orden" de un sistema, como la adición de cuentas o la activación de sistemas—y encontrar una manera de manejarlos directamente dentro de la aplicación.
 
+Como un ejemplo más detallado, gran parte de la automatización de activación de sistemas en Google es problemática porque termina siendo mantenida por separado del sistema central y, por lo tanto, sufre de "bit rot", es decir, no se actualiza cuando los sistemas subyacentes cambian. A pesar de las mejores intenciones, intentar vincular más estrechamente los dos (la automatización de activación y el sistema central) a menudo fracasa debido a prioridades no alineadas, ya que los desarrolladores de productos, razonablemente, se oponen a un requisito de prueba de implementación para cada cambio. En segundo lugar, la automatización que es crucial pero que se ejecuta solo en intervalos poco frecuentes, y por lo tanto es difícil de probar, suele ser particularmente frágil debido al ciclo de retroalimentación extendido. El cambio de clúster es un ejemplo clásico de automatización que se ejecuta con poca frecuencia: los cambios de clúster pueden ocurrir cada pocos meses, lo que introduce inconsistencias entre instancias.
+
+La evolución de la automatización sigue un camino:
+
+Sin automatización
+El maestro de la base de datos se cambia manualmente entre ubicaciones.
+
+Automatización específica del sistema mantenida externamente
+Un SRE tiene un script de cambio en su directorio personal.
+
+Automatización genérica mantenida externamente
+El SRE añade soporte para la base de datos en un script genérico de cambio que todos utilizan.
+
+Automatización específica del sistema mantenida internamente
+La base de datos incluye su propio script de cambio.
+
+Sistemas que no necesitan automatización
+La base de datos detecta problemas y cambia automáticamente sin intervención humana.
+
+A los SRE no les gustan las operaciones manuales, por lo que obviamente intentamos crear sistemas que no las requieran. Sin embargo, a veces son inevitables.
+
+Además, hay una subvariedad de automatización que aplica cambios no solo en el dominio de la configuración específica del sistema, sino en todo el entorno de producción. En un entorno de producción centralizado y propietario como el de Google, hay un gran número de cambios que no tienen un alcance específico de servicio—por ejemplo, cambiar los servidores Chubby, ajustar una bandera en la biblioteca cliente de Bigtable para hacer el acceso más confiable—pero que aún así necesitan ser gestionados de manera segura y revertidos si es necesario. A partir de cierto volumen de cambios, es inviable realizar estos cambios manualmente, y antes de llegar a ese punto, es un desperdicio tener una supervisión manual para un proceso donde una gran proporción de los cambios son triviales o se logran con éxito mediante estrategias simples de reinicio y verificación.
+
+Utilizaremos estudios de casos internos para ilustrar algunos de los puntos anteriores en detalle. El primer estudio de caso trata sobre cómo, gracias a un trabajo diligente y con visión de futuro, logramos alcanzar el nirvana auto-profesado de SRE: automatizarnos hasta el punto de no necesitar intervención humana.
 
 
 
