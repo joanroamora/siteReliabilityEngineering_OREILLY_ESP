@@ -955,3 +955,30 @@ Del mismo modo, para mantener el ruido bajo y la señal alta, los elementos de t
 
 Síntomas Versus Causas
 Tu sistema de monitoreo debe responder a dos preguntas: ¿qué está roto? y ¿por qué?. El "qué está roto" indica el síntoma, mientras que el "por qué" sugiere una causa (posiblemente intermedia).
+
+Tabla 6-1. Ejemplos de Síntomas y Causas
+Síntoma	Causa
+Estoy sirviendo HTTP 500 o 404	Los servidores de base de datos están rechazando conexiones
+Mis respuestas son lentas	Las CPUs están sobrecargadas por un algoritmo ineficiente o hay una pérdida parcial de paquetes debido a un cable Ethernet dañado
+Los usuarios en la Antártida no reciben GIFs animados de gatos	La red de distribución de contenido ha bloqueado algunas IPs debido a problemas con ciertas políticas
+El contenido privado es accesible públicamente	Un nuevo despliegue de software provocó que se olvidaran las ACLs, permitiendo el acceso a todas las solicitudes
+Diferencia entre "Qué" y "Por Qué"
+La distinción entre síntomas y causas es fundamental al escribir un buen sistema de monitoreo. Un sistema diseñado correctamente debe minimizar el ruido y maximizar las señales útiles, diferenciando lo que está roto ("qué") de la causa subyacente ("por qué").
+
+Monitoreo de Caja Negra Versus Monitoreo de Caja Blanca
+Monitoreo de caja negra se orienta a los síntomas y representa problemas activos, no predichos: "El sistema no está funcionando correctamente ahora mismo".
+Monitoreo de caja blanca permite inspeccionar los componentes internos del sistema, como logs o puntos finales HTTP, y es esencial para detectar problemas inminentes y fallos enmascarados por reintentos.
+En un sistema en capas, lo que para una persona es un síntoma, para otra puede ser una causa. Por ejemplo, una lectura lenta en una base de datos puede ser un síntoma para el SRE de base de datos, pero una causa para el SRE del frontend que observa un sitio web lento. Por lo tanto, el monitoreo de caja blanca a veces es sintomático y a veces es orientado a la causa.
+
+Para alertar a un humano, el monitoreo de caja negra es valioso porque solo alerta cuando el problema ya está ocurriendo y afecta a los usuarios reales. Sin embargo, el monitoreo de caja negra es menos útil para problemas inminentes pero aún no ocurridos.
+
+Las Cuatro Señales Doradas
+Si solo puedes medir cuatro métricas de un sistema orientado al usuario, concéntrate en las siguientes cuatro:
+
+Latencia: El tiempo que tarda en procesarse una solicitud. Es importante distinguir entre la latencia de solicitudes exitosas y la de solicitudes fallidas. Las solicitudes fallidas pueden ser rápidas, pero el error puede generar confusión en las métricas si no se manejan adecuadamente.
+
+Tráfico: Mide la demanda en tu sistema. Para un servicio web, esto puede ser el número de solicitudes HTTP por segundo. Para un sistema de transmisión de audio, puede ser la tasa de E/S de red o las sesiones concurrentes.
+
+Errores: La tasa de solicitudes que fallan, ya sea explícitamente (HTTP 500s), implícitamente (contenido incorrecto servido), o por política (una respuesta que supera un tiempo de respuesta comprometido).
+
+Saturación: Representa cuán llenos están los recursos del sistema.
