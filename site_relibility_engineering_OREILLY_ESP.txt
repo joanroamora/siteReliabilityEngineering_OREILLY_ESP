@@ -1190,7 +1190,24 @@ El principal resultado de esta nueva automatización fue que teníamos mucho má
 
 Este ejemplo demuestra la sabiduría de esforzarse en ofrecer una plataforma en lugar de simplemente reemplazar procedimientos manuales existentes. El siguiente ejemplo proviene del grupo de infraestructura de clústeres y ilustra algunos de los compromisos más difíciles que podrías encontrar en tu camino hacia la automatización de todas las cosas.
 
+Aliviar el Dolor: Aplicar Automatización a la Creación de Clústeres
+Hace diez años, el equipo de SRE de Infraestructura de Clústeres parecía recibir un nuevo empleado cada pocos meses. Resultó que esta frecuencia coincidía aproximadamente con la frecuencia con la que se creaba un nuevo clúster. Debido a que crear un servicio en un nuevo clúster le daba a los nuevos empleados una buena exposición a los aspectos internos del servicio, esta tarea parecía una herramienta de capacitación natural y útil.
 
+Los pasos necesarios para preparar un clúster para su uso eran algo como lo siguiente:
+
+Acondicionar un centro de datos con energía y refrigeración.
+Instalar y configurar los switches principales y las conexiones a la red troncal.
+Instalar los primeros racks de servidores.
+Configurar servicios básicos como DNS e instaladores, luego configurar un servicio de bloqueo, almacenamiento y computación.
+Desplegar los racks de servidores restantes.
+Asignar recursos a los servicios orientados al usuario para que sus equipos puedan configurar los servicios.
+Los pasos 4 y 6 eran extremadamente complejos. Mientras que los servicios básicos como DNS son relativamente sencillos, los subsistemas de almacenamiento y computación en ese momento aún estaban en pleno desarrollo, por lo que se agregaban nuevas banderas, componentes y optimizaciones semanalmente.
+
+Algunos servicios tenían más de cien subsistemas de componentes diferentes, cada uno con una compleja red de dependencias. El hecho de no configurar un subsistema, o configurarlo de manera diferente a otros despliegues, era una falla potencial que podría causar una interrupción en el servicio al cliente.
+
+En un caso, un clúster de Bigtable de varios petabytes se configuró para no usar el primer disco (de registro) en sistemas de 12 discos, por razones de latencia. Un año después, cierta automatización asumió que si el primer disco de una máquina no estaba en uso, entonces esa máquina no tenía almacenamiento configurado; por lo tanto, era seguro borrar la máquina y configurarla desde cero. Todos los datos de Bigtable fueron eliminados al instante. Afortunadamente, teníamos múltiples réplicas en tiempo real del conjunto de datos, pero sorpresas como esta no son bienvenidas. La automatización debe tener cuidado al confiar en señales de "seguridad" implícitas.
+
+La automatización temprana se centró en acelerar la entrega de clústeres. Este enfoque solía depender de un uso creativo de SSH para la distribución de paquetes tediosos y problemas de inicialización de servicios. Esta estrategia fue una victoria inicial, pero esos scripts libres terminaron convirtiéndose en un "colesterol" de deuda técnica.
 
 
 
