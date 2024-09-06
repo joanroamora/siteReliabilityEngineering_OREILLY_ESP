@@ -982,3 +982,24 @@ Tráfico: Mide la demanda en tu sistema. Para un servicio web, esto puede ser el
 Errores: La tasa de solicitudes que fallan, ya sea explícitamente (HTTP 500s), implícitamente (contenido incorrecto servido), o por política (una respuesta que supera un tiempo de respuesta comprometido).
 
 Saturación: Representa cuán llenos están los recursos del sistema.
+
+Saturación
+La saturación mide cuán "lleno" está tu servicio. Este es un indicador clave de los recursos más limitados de tu sistema, como la memoria en un sistema restringido por memoria o el I/O en un sistema restringido por entrada/salida. Es importante tener en cuenta que muchos sistemas comienzan a degradarse en rendimiento antes de alcanzar el 100% de utilización, por lo que es esencial establecer un objetivo de utilización.
+
+En sistemas complejos, la saturación puede complementarse con mediciones de carga de alto nivel, como la capacidad del servicio para manejar el doble de tráfico, un aumento del 10% o incluso menos tráfico que el que actualmente maneja. En servicios simples que no tienen parámetros que alteren la complejidad de la solicitud, como "Dame un nonce" o "Necesito un número monotónico único global", un valor estático de una prueba de carga podría ser suficiente. Sin embargo, la mayoría de los servicios necesitan utilizar señales indirectas como la utilización de la CPU o el ancho de banda de red, que tienen un límite superior conocido. Los aumentos en la latencia suelen ser un indicador anticipado de saturación. Medir el tiempo de respuesta en el percentil 99 en ventanas de tiempo pequeñas (por ejemplo, un minuto) puede ofrecer una señal temprana de saturación.
+
+Finalmente, la saturación también se preocupa por las predicciones de saturación inminente, como "Parece que tu base de datos llenará su disco duro en 4 horas".
+
+Si mides las cuatro señales doradas y alertas a un humano cuando una de ellas es problemática (o, en el caso de saturación, casi problemática), tu servicio estará bien cubierto por el monitoreo.
+
+Preocuparse por el "Tail" (Instrumentación y Rendimiento)
+Al diseñar un sistema de monitoreo desde cero, es tentador basarlo en la media de alguna cantidad, como la latencia promedio, el uso promedio de CPU o la capacidad promedio de las bases de datos. Sin embargo, esto puede ser peligroso, ya que las CPU y las bases de datos pueden utilizarse de manera desequilibrada. Lo mismo ocurre con la latencia: si tu servicio web tiene una latencia media de 100 ms con 1,000 solicitudes por segundo, fácilmente un 1% de las solicitudes podría tardar 5 segundos.
+
+La forma más sencilla de diferenciar entre una media lenta y un "tail" muy lento de solicitudes es agrupar las latencias por rangos y recolectar conteos de solicitudes en lugar de las latencias reales. Por ejemplo, ¿cuántas solicitudes sirvieron en 0-10 ms, en 10-30 ms, en 30-100 ms, en 100-300 ms, etc.? Distribuir los límites del histograma de manera aproximadamente exponencial (por factores de 3) es una manera fácil de visualizar la distribución de tus solicitudes.
+
+
+
+
+
+
+
