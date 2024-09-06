@@ -1209,7 +1209,17 @@ En un caso, un clúster de Bigtable de varios petabytes se configuró para no us
 
 La automatización temprana se centró en acelerar la entrega de clústeres. Este enfoque solía depender de un uso creativo de SSH para la distribución de paquetes tediosos y problemas de inicialización de servicios. Esta estrategia fue una victoria inicial, pero esos scripts libres terminaron convirtiéndose en un "colesterol" de deuda técnica.
 
+Detección de Inconsistencias con Prodtest
+A medida que el número de clústeres creció, algunos clústeres requerían ajustes manuales en las banderas y configuraciones. Como resultado, los equipos perdían cada vez más tiempo rastreando errores de configuración difíciles de detectar. Si una bandera que hacía que GFS fuera más receptivo al procesamiento de registros se filtraba en las plantillas predeterminadas, las celdas con muchos archivos podían quedarse sin memoria bajo carga. Las configuraciones incorrectas, frustrantes y que consumían mucho tiempo, se infiltraban con casi cada cambio de configuración grande.
 
+Los scripts shell creativos, aunque frágiles, que utilizábamos para configurar clústeres no estaban escalando al ritmo del número de personas que querían hacer cambios, ni al número de permutaciones de clústeres que necesitaban ser construidas. Estos scripts shell también fallaban en resolver preocupaciones más significativas antes de declarar que un servicio estaba listo para recibir tráfico de clientes, tales como:
+
+¿Estaban todas las dependencias del servicio disponibles y correctamente configuradas?
+¿Todas las configuraciones y paquetes eran consistentes con otros despliegues?
+¿Podía el equipo confirmar que cada excepción de configuración era deseada?
+Prodtest (Prueba de Producción) fue una solución ingeniosa a estas sorpresas no deseadas. Ampliamos el marco de trabajo de pruebas unitarias de Python para permitir la realización de pruebas unitarias en servicios del mundo real. Estas pruebas unitarias tenían dependencias, lo que permitía una cadena de pruebas, y un fallo en una prueba rápidamente abortaba el proceso. Tomemos el ejemplo de la prueba mostrada en la Figura 7-1.
+
+Prodtest nos ayudó a identificar y evitar problemas de configuración, asegurando que los clústeres estuvieran correctamente configurados antes de tomar tráfico de producción, proporcionando una solución más escalable y menos propensa a errores que los scripts shell anteriores.
 
 
 
