@@ -1069,6 +1069,34 @@ Un sistema de monitoreo y alertas saludable es simple y fácil de razonar. Se en
 
 A largo plazo, lograr una rotación de guardia y un producto exitoso implica elegir alertar sobre síntomas o problemas reales inminentes, adaptar tus objetivos a metas alcanzables y asegurarte de que tu monitoreo apoye un diagnóstico rápido.
 
+Capítulo 7 - La Evolución de la Automatización en Google
+Escrito por Niall Murphy con John Looney y Michael Kacirek
+Editado por Betsy Beyer
+
+"Además del arte negro, solo existe la automatización y la mecanización."
+Federico García Lorca (1898–1936), poeta y dramaturgo español
+
+Para SRE, la automatización es un multiplicador de fuerzas, no una panacea. Por supuesto, simplemente multiplicar la fuerza no cambia automáticamente la precisión con la que se aplica: hacer automatización sin cuidado puede crear tantos problemas como los que resuelve. Por lo tanto, aunque creemos que la automatización basada en software es superior a la operación manual en la mayoría de las circunstancias, mejor aún es un diseño de sistema de nivel superior que no requiera ninguna de las dos opciones: un sistema autónomo. Dicho de otra manera, el valor de la automatización proviene tanto de lo que hace como de su aplicación juiciosa. Hablaremos tanto del valor de la automatización como de cómo ha evolucionado nuestra actitud a lo largo del tiempo.
+
+El Valor de la Automatización
+¿Qué valor tiene exactamente la automatización?
+
+Consistencia
+Aunque la escala es una motivación obvia para la automatización, hay muchas otras razones para usarla. Tomemos el ejemplo de los sistemas informáticos universitarios, donde muchas personas de ingeniería de sistemas comenzaron sus carreras. Los administradores de sistemas con ese trasfondo solían estar a cargo de administrar una colección de máquinas o algún software, y estaban acostumbrados a realizar varias acciones manualmente en el cumplimiento de esa tarea. Un ejemplo común es la creación de cuentas de usuario; otros incluyen deberes puramente operativos como asegurarse de que se realicen las copias de seguridad, gestionar la conmutación por error de servidores, y pequeñas manipulaciones de datos, como cambiar los servidores DNS ascendentes en el archivo resolv.conf, los datos de zona del servidor DNS y actividades similares.
+
+Sin embargo, esta prevalencia de tareas manuales resulta insatisfactoria tanto para las organizaciones como para las personas que mantienen los sistemas de esta manera. Para empezar, cualquier acción realizada por un humano o humanos cientos de veces no se ejecutará de la misma manera cada vez: incluso con la mejor disposición del mundo, muy pocos de nosotros seremos tan consistentes como una máquina. Esta inevitable falta de consistencia lleva a errores, descuidos, problemas de calidad de datos y, sí, problemas de confiabilidad. En este dominio—la ejecución de procedimientos bien definidos y conocidos—el valor de la consistencia es, en muchos aspectos, el principal valor de la automatización.
+
+Una Plataforma
+La automatización no solo proporciona consistencia. Diseñada y ejecutada correctamente, los sistemas automáticos también proporcionan una plataforma que puede ser ampliada, aplicada a más sistemas, o incluso convertida en un producto comercial. (La alternativa, no automatizar, no es rentable ni extensible: es, en cambio, un impuesto sobre la operación de un sistema).
+
+Una plataforma también centraliza los errores. En otras palabras, un error corregido en el código se corregirá una vez y para siempre, a diferencia de un conjunto suficientemente grande de humanos que realizan el mismo procedimiento, como se discutió anteriormente. Una plataforma puede extenderse para realizar tareas adicionales más fácilmente que lo que los humanos podrían ser instruidos para hacer (o incluso darse cuenta de que tienen que hacer). Dependiendo de la naturaleza de la tarea, puede ejecutarse de manera continua o mucho más frecuentemente de lo que los humanos podrían hacer apropiadamente, o en momentos inconvenientes para los humanos. Además, una plataforma puede exportar métricas sobre su rendimiento o permitirte descubrir detalles sobre tu proceso que antes no conocías, porque estos detalles son más fácilmente medibles dentro del contexto de una plataforma.
+
+
+
+
+
+
+
 
 
 
