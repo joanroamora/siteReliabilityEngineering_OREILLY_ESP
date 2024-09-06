@@ -1113,7 +1113,31 @@ Otro argumento a favor de la automatización, particularmente en el caso de Goog
 
 Por supuesto, aunque Google tiene una inclinación ideológica hacia el uso de máquinas para gestionar máquinas cuando es posible, la realidad requiere modificar nuestro enfoque. No es apropiado automatizar todos los componentes de cada sistema, y no todos tienen la capacidad o inclinación de desarrollar automatización en un momento dado. Algunos sistemas esenciales comenzaron como prototipos rápidos, sin estar diseñados para durar o para interactuar con automatización. Los párrafos anteriores establecen una visión maximalista de nuestra posición, pero una que hemos implementado con éxito en el contexto de Google. En general, hemos optado por crear plataformas donde pudimos, o posicionarnos de tal manera que pudiéramos crear plataformas con el tiempo. Vemos este enfoque basado en plataformas como necesario para la manejabilidad y escalabilidad.
 
+Los casos de uso para la automatización
+En la industria, el término automatización se utiliza generalmente para referirse a la escritura de código con el fin de resolver una amplia variedad de problemas, aunque las motivaciones para escribir este código y las soluciones en sí mismas son, a menudo, bastante diferentes. En un sentido más amplio, la automatización es "meta-software", es decir, software que actúa sobre otro software.
 
+Como insinuamos anteriormente, existen varios casos de uso para la automatización. Aquí hay una lista no exhaustiva de ejemplos:
+
+Creación de cuentas de usuario
+Activación y desactivación de clústeres para servicios
+Preparación e implementación de software o hardware
+Despliegues de nuevas versiones de software
+Cambios en la configuración en tiempo de ejecución
+Un caso especial de cambios en la configuración en tiempo de ejecución: cambios en tus dependencias
+Esta lista podría continuar esencialmente ad infinitum.
+
+Casos de uso de automatización en SRE de Google
+En Google, tenemos todos los casos de uso mencionados y más.
+
+Sin embargo, dentro de Google SRE, nuestra afinidad principal ha sido tradicionalmente la administración de la infraestructura, en lugar de gestionar la calidad de los datos que pasan por dicha infraestructura. Esta distinción no siempre es clara; por ejemplo, nos importa profundamente si la mitad de un conjunto de datos desaparece después de un despliegue, y por ello monitoreamos y alertamos sobre diferencias de gran magnitud como esta. Sin embargo, es raro que escribamos el equivalente a cambiar las propiedades de algún subconjunto arbitrario de cuentas en un sistema. Por lo tanto, el contexto de nuestra automatización a menudo se centra en la administración del ciclo de vida de los sistemas, no en sus datos: por ejemplo, los despliegues de un servicio en un nuevo clúster.
+
+En este sentido, los esfuerzos de automatización de SRE no son muy diferentes de lo que hacen muchas otras personas y organizaciones, excepto que utilizamos herramientas diferentes para gestionarlo y tenemos un enfoque distinto (como discutiremos más adelante).
+
+Herramientas ampliamente disponibles como Puppet, Chef, cfengine e incluso Perl, que todas proporcionan formas de automatizar tareas particulares, difieren principalmente en cuanto al nivel de abstracción de los componentes proporcionados para facilitar la automatización. Un lenguaje completo como Perl proporciona capacidades al nivel de POSIX, lo que en teoría proporciona un alcance de automatización prácticamente ilimitado a través de las API accesibles al sistema. Sin embargo, Chef y Puppet proporcionan abstracciones listas para usar con las que se pueden manipular servicios u otras entidades de alto nivel. El compromiso aquí es clásico: las abstracciones de nivel superior son más fáciles de gestionar y comprender, pero cuando te enfrentas a una "abstracción deficiente", puedes fallar de manera sistémica, repetida y potencialmente inconsistente.
+
+Por ejemplo, a menudo asumimos que la distribución de un nuevo binario a un clúster es atómica; el clúster terminará con la versión antigua o con la nueva. Sin embargo, el comportamiento en el mundo real es más complicado: la red de ese clúster puede fallar a mitad del proceso, las máquinas pueden fallar, la comunicación con la capa de gestión del clúster puede fallar, dejando el sistema en un estado inconsistente; dependiendo de la situación, los nuevos binarios podrían estar preparados pero no desplegados, o desplegados pero no reiniciados, o reiniciados pero no verificables. Muy pocas abstracciones modelan este tipo de resultados con éxito, y la mayoría generalmente termina deteniéndose y solicitando intervención. Los sistemas de automatización realmente deficientes ni siquiera hacen eso.
+
+SRE tiene varias filosofías y productos en el ámbito de la automatización. Algunos se parecen más a herramientas genéricas de despliegue sin un modelado particularmente detallado de entidades de alto nivel, mientras que otros se asemejan más a lenguajes para describir el despliegue de servicios (y otros) a un nivel muy abstracto. El trabajo realizado en este último enfoque tiende a ser más reutilizable y a constituir una plataforma más común que el primero, pero la complejidad de nuestro entorno de producción a veces significa que el primer enfoque es la opción más factible de manera inmediata.
 
 
 
