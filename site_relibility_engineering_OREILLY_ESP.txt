@@ -940,3 +940,18 @@ No deberías activar una alerta solo porque "algo parece un poco extraño" a men
 El paginado de un humano es un uso costoso del tiempo de un empleado. Si el empleado está trabajando, una alerta interrumpe su flujo de trabajo. Si está en casa, interrumpe su tiempo personal, o incluso su sueño. Si las alertas son demasiado frecuentes, los empleados pueden llegar a dudar, ignorar o desatender alertas importantes, lo que podría enmascarar un problema real.
 
 Los sistemas de alertas efectivos tienen un buen señal-ruido, donde la señal es clara y el ruido es mínimo.
+
+Estableciendo Expectativas Razonables para el Monitoreo
+El monitoreo de una aplicación compleja es, en sí mismo, un gran esfuerzo de ingeniería. Incluso con una infraestructura considerable ya en su lugar para instrumentación, recolección de datos, visualización y alertas, un equipo de SRE en Google de 10 a 12 miembros generalmente tiene uno o dos miembros cuyo principal objetivo es construir y mantener los sistemas de monitoreo para su servicio. Este número ha disminuido con el tiempo, a medida que hemos generalizado y centralizado la infraestructura de monitoreo común, pero aún así, cada equipo de SRE normalmente tiene al menos una persona encargada del monitoreo.
+
+A pesar de lo útil que puede ser tener acceso a dashboards de gráficos de tráfico y similares, los equipos de SRE evitan cuidadosamente cualquier situación que requiera que alguien "vigile una pantalla en busca de problemas". En general, Google ha tendido hacia sistemas de monitoreo más simples y rápidos, con mejores herramientas para análisis post-mortem. Evitamos los sistemas "mágicos" que intentan aprender umbrales o detectar causalidades automáticamente. Las reglas que detectan cambios inesperados en las tasas de solicitudes de usuarios finales son una excepción; estas reglas, aunque simples, permiten una detección muy rápida de una anomalía específica y grave. Otros usos de los datos de monitoreo, como la planificación de capacidad y la predicción de tráfico, pueden tolerar más fragilidad, y por tanto, más complejidad.
+
+Google SRE ha tenido un éxito limitado con jerarquías de dependencia complejas. Rara vez usamos reglas como, "Si sé que la base de datos es lenta, alerta por una base de datos lenta; de lo contrario, alerta por una página web lenta en general". Las reglas dependientes suelen aplicarse solo a partes muy estables de nuestro sistema. Un ejemplo es, "Si un centro de datos está drenando tráfico, no me alertes sobre su latencia".
+
+Simplicidad y Robustez en los Sistemas de Monitoreo
+Es crucial mantener los sistemas de monitoreo simples y comprensibles por todo el equipo, especialmente cuando se trata de la ruta crítica desde el inicio de un problema de producción hasta la alerta a un humano, pasando por la triage básica y el debugging profundo.
+
+Del mismo modo, para mantener el ruido bajo y la señal alta, los elementos de tu sistema de monitoreo que dirigen alertas a un pager deben ser muy simples y robustos. Las reglas que generan alertas deben ser fáciles de entender y representar una falla clara.
+
+Síntomas Versus Causas
+Tu sistema de monitoreo debe responder a dos preguntas: ¿qué está roto? y ¿por qué?. El "qué está roto" indica el síntoma, mientras que el "por qué" sugiere una causa (posiblemente intermedia).
