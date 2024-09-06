@@ -997,6 +997,35 @@ Al diseñar un sistema de monitoreo desde cero, es tentador basarlo en la media 
 
 La forma más sencilla de diferenciar entre una media lenta y un "tail" muy lento de solicitudes es agrupar las latencias por rangos y recolectar conteos de solicitudes en lugar de las latencias reales. Por ejemplo, ¿cuántas solicitudes sirvieron en 0-10 ms, en 10-30 ms, en 30-100 ms, en 100-300 ms, etc.? Distribuir los límites del histograma de manera aproximadamente exponencial (por factores de 3) es una manera fácil de visualizar la distribución de tus solicitudes.
 
+Elegir una Resolución Apropiada para las Mediciones
+Diferentes aspectos de un sistema requieren ser medidos con niveles de granularidad distintos. Por ejemplo:
+
+Carga de CPU: Observar la carga de CPU durante un minuto no revelará picos breves que pueden causar altas latencias de cola.
+Disponibilidad de servicio web: Para un servicio web que apunte a un 99.9% de tiempo de actividad anual (9 horas de inactividad por año), sondear el estado 200 (éxito) más de una vez o dos veces por minuto probablemente sea innecesario.
+Llenado de discos duros: Si el servicio apunta a una disponibilidad del 99.9%, verificar el estado de los discos duros más de una vez cada 1 o 2 minutos puede ser igualmente innecesario.
+Debes estructurar cuidadosamente la granularidad de tus mediciones. Realizar mediciones por segundo puede generar datos interesantes, pero puede ser costoso en términos de recolección, almacenamiento y análisis. Si el objetivo es una alta resolución pero no requiere baja latencia, puedes reducir costos tomando muestras internas en el servidor y luego agregando estos datos externamente. Un enfoque podría ser:
+
+Registrar la utilización de CPU cada segundo.
+Incrementar un contenedor de utilización de CPU en intervalos de 5% cada segundo.
+Agregar esos valores cada minuto.
+Este enfoque permite observar picos breves de CPU sin incurrir en costos elevados.
+
+Tan Simple como Sea Posible, No Más Simple
+La combinación de diferentes requisitos puede dar lugar a un sistema de monitoreo muy complejo, con múltiples capas de alertas, umbrales de latencia, métricas, códigos para detectar posibles causas y dashboards asociados. La complejidad puede volver al sistema frágil y difícil de mantener.
+
+Para evitar esto, sigue estas pautas de simplicidad en el diseño de sistemas de monitoreo:
+
+Las reglas que capturan incidentes reales con más frecuencia deben ser simples, predecibles y fiables.
+La recolección de datos y la configuración de alertas que rara vez se ejercitan (menos de una vez al trimestre) deben ser consideradas para su eliminación.
+Las señales recopiladas pero no expuestas en ningún dashboard o alerta prebaked son candidatas para ser eliminadas.
+En la experiencia de Google, la recolección y agregación básica de métricas junto con alertas y dashboards ha funcionado bien como un sistema autónomo. Aunque puede ser tentador combinar el monitoreo con otras tareas como perfiles detallados del sistema, depuración de procesos, análisis de logs o pruebas de carga, mantener sistemas separados con puntos de integración claros y simples es una mejor estrategia para evitar la fragilidad.
+
+
+
+
+
+
+
 
 
 
