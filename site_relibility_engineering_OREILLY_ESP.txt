@@ -881,3 +881,29 @@ Quiebra la confianza: Los nuevos empleados o transferencias que se unieron a SRE
 
 Conclusión
 Si todos nos comprometemos a eliminar un poco de toil cada semana con algo de buena ingeniería, poco a poco mejoraremos nuestros servicios. Esto nos permitirá concentrar nuestros esfuerzos en escalar los servicios, diseñar la próxima generación de servicios y construir herramientas transversales para toda la organización. Inventemos más y hagamos menos toil.
+
+Capítulo 6 - Monitoreo de Sistemas Distribuidos
+Escrito por Rob Ewaschuk | Editado por Betsy Beyer
+
+Los equipos de SRE en Google siguen algunos principios básicos y mejores prácticas para construir sistemas exitosos de monitoreo y alertas. Este capítulo proporciona pautas sobre qué problemas deben interrumpir a un ser humano mediante una alerta y cómo tratar los problemas que no son lo suficientemente graves como para disparar una alerta.
+
+Definiciones
+No existe un vocabulario universalmente compartido para discutir todos los temas relacionados con el monitoreo. Incluso dentro de Google, el uso de los siguientes términos varía, pero las interpretaciones más comunes son las que se enumeran a continuación:
+
+Monitoreo: Recolección, procesamiento, agregación y visualización de datos cuantitativos en tiempo real sobre un sistema, como el conteo de consultas y tipos, conteo de errores y tipos, tiempos de procesamiento y tiempos de vida de los servidores.
+
+Monitoreo de caja blanca: Monitoreo basado en métricas expuestas por los internos del sistema, como logs, interfaces como el Java Virtual Machine Profiling Interface (JVMPI) o un manejador HTTP que emite estadísticas internas.
+
+Monitoreo de caja negra: Pruebas del comportamiento visible externamente tal como lo vería un usuario.
+
+Panel de control (Dashboard): Aplicación (generalmente basada en la web) que proporciona una vista resumida de las métricas principales de un servicio. Un panel puede tener filtros, selectores y otros controles, pero está preconstruido para exponer las métricas más importantes para sus usuarios. También puede mostrar información del equipo, como la longitud de la cola de tickets, una lista de errores de alta prioridad, el ingeniero de guardia actual para un área de responsabilidad o lanzamientos recientes.
+
+Alerta: Notificación destinada a ser leída por un humano y que se envía a un sistema como una cola de tickets, un alias de correo electrónico o un sistema de alertas de emergencia como un pager. Estas alertas se clasifican como tickets, alertas por correo electrónico y páginas.
+
+Causa raíz: Un defecto en un sistema de software o humano que, si se repara, genera confianza en que este evento no volverá a ocurrir de la misma manera. Un incidente dado puede tener múltiples causas raíz. Por ejemplo, puede haber sido causado por una combinación de automatización insuficiente, software que se bloquea ante entradas erróneas y pruebas insuficientes del script utilizado para generar la configuración. Cada uno de estos factores puede considerarse una causa raíz por sí solo, y cada uno debe repararse.
+
+Nodo y máquina: Se utilizan indistintamente para indicar una sola instancia de un kernel en ejecución, ya sea en un servidor físico, máquina virtual o contenedor. Puede haber múltiples servicios que valga la pena monitorear en una sola máquina. Los servicios pueden estar:
+
+Relacionados entre sí: por ejemplo, un servidor de caché y un servidor web.
+Servicios no relacionados que comparten hardware: por ejemplo, un repositorio de código y un servidor maestro para un sistema de configuración como Puppet o Chef.
+Push: Cualquier cambio en el software en ejecución de un servicio o su configuración.
