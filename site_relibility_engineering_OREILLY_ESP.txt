@@ -1020,7 +1020,35 @@ La recolección de datos y la configuración de alertas que rara vez se ejercita
 Las señales recopiladas pero no expuestas en ningún dashboard o alerta prebaked son candidatas para ser eliminadas.
 En la experiencia de Google, la recolección y agregación básica de métricas junto con alertas y dashboards ha funcionado bien como un sistema autónomo. Aunque puede ser tentador combinar el monitoreo con otras tareas como perfiles detallados del sistema, depuración de procesos, análisis de logs o pruebas de carga, mantener sistemas separados con puntos de integración claros y simples es una mejor estrategia para evitar la fragilidad.
 
+Unificando Estos Principios
+Los principios discutidos en este capítulo forman una filosofía de monitoreo y alertas que está ampliamente respaldada y seguida por los equipos de SRE en Google. Si bien esta filosofía es un poco aspiracional, es un buen punto de partida para crear o revisar una nueva alerta, y puede ayudar a cualquier organización a hacer las preguntas correctas, independientemente de su tamaño o de la complejidad de su servicio o sistema.
 
+Al crear reglas para el monitoreo y las alertas, las siguientes preguntas pueden ayudarte a evitar falsos positivos y la fatiga por alertas:
+
+¿Esta regla detecta una condición que de otro modo pasaría desapercibida, que sea urgente, accionable y visible para el usuario?
+¿Alguna vez podré ignorar esta alerta sabiendo que es benigna? ¿Cuándo y por qué podré ignorarla, y cómo puedo evitar este escenario?
+¿Esta alerta indica definitivamente que los usuarios están siendo negativamente afectados?
+¿Existen casos detectables en los que los usuarios no estén siendo impactados, como tráfico drenado o despliegues de prueba, que deberían ser filtrados?
+¿Puedo tomar acción en respuesta a esta alerta? ¿Es una acción urgente, o podría esperar hasta la mañana? ¿Podría esta acción automatizarse de manera segura? ¿Será esta acción una solución a largo plazo o solo una solución temporal?
+¿Hay otras personas recibiendo páginas por este problema, lo que hace innecesaria al menos una de las páginas?
+Estas preguntas reflejan una filosofía fundamental sobre las alertas y los pagers:
+
+Cada vez que el pager suena, debería poder reaccionar con urgencia.
+Cada alerta debe ser accionable.
+Cada respuesta a una alerta debe requerir inteligencia; si una alerta solo requiere una respuesta mecánica, no debería ser una alerta.
+Las alertas deben ser sobre problemas novedosos o eventos que no se han visto antes.
+Monitoreo a Largo Plazo
+Los sistemas de monitoreo deben ser diseñados con objetivos a largo plazo en mente. Cada página de alerta distrae a un ingeniero de mejorar el sistema para el futuro, por lo que a veces es justificable tomar un golpe a corto plazo en la disponibilidad o el rendimiento con el fin de mejorar la situación a largo plazo.
+
+Caso de Estudio: Bigtable SRE y el Problema del Exceso de Alertas
+Hace años, el servicio Bigtable de Google tenía un SLO basado en el rendimiento promedio de un cliente bien comportado. Sin embargo, el 5% de las solicitudes más lentas impactaban significativamente en el promedio. Como resultado, se enviaban alertas por correo y alertas de pager que consumían una cantidad inaceptable de tiempo de ingeniería.
+
+Para remediar esta situación, el equipo siguió un enfoque de tres pasos:
+
+Reducir temporalmente el objetivo de SLO al percentil 75 de latencia de solicitud.
+Deshabilitar las alertas por correo debido a su volumen excesivo.
+Concentrarse en mejorar el rendimiento de Bigtable y las capas inferiores de la pila de almacenamiento.
+Este enfoque permitió al equipo abordar los problemas a largo plazo, reducir las interrupciones por alertas y finalmente mejorar el servicio en general.
 
 
 
