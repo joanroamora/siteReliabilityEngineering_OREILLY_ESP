@@ -1221,5 +1221,3 @@ Prodtest (Prueba de Producción) fue una solución ingeniosa a estas sorpresas n
 
 Prodtest nos ayudó a identificar y evitar problemas de configuración, asegurando que los clústeres estuvieran correctamente configurados antes de tomar tráfico de producción, proporcionando una solución más escalable y menos propensa a errores que los scripts shell anteriores.
 
-l
-
