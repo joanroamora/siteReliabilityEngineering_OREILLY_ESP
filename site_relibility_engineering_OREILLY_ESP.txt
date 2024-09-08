@@ -1398,5 +1398,36 @@ Rapid
 
 La Figura 8-1 muestra los componentes principales del sistema Rapid. Rapid se configura con archivos llamados blueprints. Los blueprints están escritos en un lenguaje de configuración interno y se utilizan para definir objetivos de compilación y prueba, reglas para la implementación y información administrativa (como los propietarios del proyecto). Las listas de control de acceso basadas en roles determinan quién puede realizar acciones específicas en un proyecto de Rapid.
 
+Cada proyecto de Rapid tiene flujos de trabajo que definen las acciones a realizar durante el proceso de lanzamiento. Las acciones del flujo de trabajo pueden ejecutarse en serie o en paralelo, y un flujo de trabajo puede lanzar otros flujos de trabajo. Rapid envía solicitudes de trabajo a tareas que se ejecutan como un trabajo de Borg en nuestros servidores de producción. Debido a que Rapid utiliza nuestra infraestructura de producción, puede gestionar miles de solicitudes de lanzamiento simultáneamente.
+
+Un proceso de lanzamiento típico sigue los siguientes pasos:
+
+Rapid utiliza el número de revisión de integración solicitado (a menudo obtenido automáticamente de nuestro sistema de pruebas continuas) para crear una rama de lanzamiento.
+Rapid utiliza Blaze para compilar todos los binarios y ejecutar las pruebas unitarias, a menudo realizando estos dos pasos en paralelo. La compilación y las pruebas ocurren en entornos dedicados a esas tareas específicas, en lugar de llevarse a cabo en el trabajo de Borg donde se ejecuta el flujo de trabajo de Rapid. Esta separación nos permite paralelizar el trabajo fácilmente.
+Los artefactos de compilación están disponibles para pruebas de sistema y despliegues canarios. Un despliegue canario típico implica iniciar algunos trabajos en nuestro entorno de producción después de la finalización de las pruebas del sistema.
+Los resultados de cada paso del proceso se registran. Se crea un informe de todos los cambios desde el último lanzamiento.
+Rapid nos permite gestionar nuestras ramas de lanzamiento y cherry picks; las solicitudes individuales de cherry pick pueden aprobarse o rechazarse para su inclusión en un lanzamiento.
+
+Despliegue
+Rapid a menudo se usa para realizar despliegues simples directamente. Actualiza los trabajos de Borg para usar los paquetes MPM recién creados basados en las definiciones de despliegue en los archivos blueprint y ejecutores de tareas especializados.
+
+Para despliegues más complejos, utilizamos Sisyphus, un marco de automatización de lanzamientos de propósito general desarrollado por SRE. Un lanzamiento es una unidad lógica de trabajo que está compuesta por una o más tareas individuales. Sisyphus proporciona un conjunto de clases de Python que pueden extenderse para admitir cualquier proceso de despliegue. Tiene un panel que permite un control más fino de cómo se realiza el lanzamiento y proporciona una forma de monitorear el progreso del despliegue.
+
+En una integración típica, Rapid crea un lanzamiento en un trabajo de Sisyphus de larga duración. Rapid conoce la etiqueta de compilación asociada con el paquete MPM que creó y puede especificar esa etiqueta de compilación al crear el lanzamiento en Sisyphus. Sisyphus usa la etiqueta de compilación para especificar qué versión de los paquetes MPM debe desplegarse.
+
+Con Sisyphus, el proceso de despliegue puede ser tan simple o complejo como sea necesario. Por ejemplo, puede actualizar todos los trabajos asociados de inmediato o puede implementar un nuevo binario en clústeres sucesivos durante un período de varias horas.
+
+Nuestro objetivo es adaptar el proceso de despliegue al perfil de riesgo de un servicio determinado. En entornos de desarrollo o preproducción, podemos compilar cada hora e implementar lanzamientos automáticamente cuando todas las pruebas pasan. Para servicios grandes orientados al usuario, podemos implementar comenzando en un clúster y expandirnos exponencialmente hasta que todos los clústeres se actualicen. Para piezas sensibles de infraestructura, podemos extender el despliegue durante varios días, intercalando implementaciones entre instancias en diferentes regiones geográficas.
+
+Gestión de la Configuración
+La gestión de la configuración es un área de colaboración particularmente estrecha entre los ingenieros de lanzamiento y los SRE. Aunque la gestión de la configuración puede parecer inicialmente un problema engañosamente simple, los cambios de configuración son una fuente potencial de inestabilidad. Como resultado, nuestro enfoque para lanzar y gestionar configuraciones de sistemas y servicios ha evolucionado sustancialmente a lo largo del tiempo.
+
+Hoy en día, utilizamos varios modelos para distribuir archivos de configuración, como se describe en los siguientes párrafos. Todos los esquemas implican almacenar la configuración en nuestro repositorio principal de código fuente y hacer cumplir un requisito estricto de revisión de código.
+
+Usar la rama principal para la configuración: Este fue el primer método utilizado para configurar servicios en Borg (y los sistemas que lo precedieron). En este esquema, los desarrolladores y SREs modifican los archivos de configuración en la rama principal. Los cambios se revisan y luego se aplican al sistema en funcionamiento. Como resultado, los lanzamientos de binarios y los cambios de configuración están desacoplados. Si bien este método es conceptualmente y procedimentalmente simple, a menudo conduce a una desincronización entre la versión registrada de los archivos de configuración y la versión en ejecución de los mismos, ya que los trabajos deben actualizarse para aplicar los cambios.
+
+Incluir archivos de configuración y binarios en el mismo paquete MPM: Para proyectos con pocos archivos de configuración o donde los archivos (o un subconjunto de ellos) cambian con cada ciclo de lanzamiento, los archivos de configuración pueden incluirse en el paquete MPM junto con los binarios. Aunque esta estrategia limita la flexibilidad al vincular estrechamente los binarios y los archivos de configuración, simplifica el despliegue al requerir la instalación de un solo paquete.
+
+Empaquetar archivos de configuración en "paquetes de configuración" MPM: Podemos aplicar el principio hermético a la gestión de la configuración. Las configuraciones de los binarios tienden a estar estrechamente vinculadas a versiones particulares de los binarios, por lo que aprovechamos los sistemas de compilación y empaquetado para crear una instantánea y lanzar archivos de configuración junto con sus binarios.
 
 
