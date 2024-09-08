@@ -1698,3 +1698,66 @@ sum without instance({var=task:http_requests:rate10m,job=webserver})
 El uso de la función rate() devuelve el delta total dividido por el tiempo total entre los valores más tempranos y más recientes.
 
 Las reglas calculadas y agregadas permiten inspeccionar las tasas de error y de solicitudes en todo el clúster a lo largo del tiempo, lo que facilita la generación de alertas efectivas y la evaluación continua del sistema.
+
+Ahora que sabemos cómo crear una tasa de consultas, podemos ampliarlo para calcular también una tasa de errores, y luego calcular la proporción de respuestas frente a solicitudes para entender cuánto trabajo útil está realizando el servicio. Podemos comparar la tasa de errores con nuestro objetivo de nivel de servicio (SLO) y generar una alerta si se incumple o está en peligro de incumplirse:
+
+shell
+Copiar código
+rules <<<
+# Calcular la tasa por tarea y por la etiqueta ‘code’
+{var=task:http_responses:rate10m,job=webserver} =
+rate by code({var=http_responses,job=webserver}[10m]);
+
+# Calcular una tasa de respuestas a nivel de clúster por la etiqueta ‘code’
+{var=dc:http_responses:rate10m,job=webserver} =
+sum without instance({var=task:http_responses:rate10m,job=webserver});
+
+# Calcular una nueva tasa a nivel de clúster, sumando todos los códigos que no sean 200
+{var=dc:http_errors:rate10m,job=webserver} =
+sum without code({var=dc:http_responses:rate10m,job=webserver,code=!/200/});
+
+# Calcular la proporción de la tasa de errores frente a la tasa de solicitudes
+{var=dc:http_errors:ratio_rate10m,job=webserver} =
+{var=dc:http_errors:rate10m,job=webserver}
+/
+{var=dc:http_requests:rate10m,job=webserver};
+>>>
+De nuevo, esta calculación sigue la convención de añadir un sufijo al nombre de la nueva variable de serie temporal con la operación que la creó. El resultado se interpreta como "relación de tasas de errores HTTP en el clúster en un intervalo de 10 minutos".
+
+Ejemplo de salida
+shell
+Copiar código
+{var=task:http_responses:rate10m,job=webserver}
+{var=task:http_responses:rate10m,job=webserver,code=200,instance=host0:80 ...}
+{var=task:http_responses:rate10m,job=webserver,code=500,instance=host0:80 ...}
+{var=task:http_responses:rate10m,job=webserver,code=200,instance=host1:80 ...}
+...
+{var=dc:http_errors:rate10m,job=webserver} 0.6
+{var=dc:http_errors:ratio_rate10m,job=webserver} 0.15
+Como se mencionó anteriormente, las reglas de Borgmon crean nuevas series temporales, lo que permite consultar y explorar los resultados de los cálculos como tablas o gráficos, una característica útil para la depuración durante incidentes.
+
+Alertas
+Cuando una regla de alerta es evaluada por Borgmon, el resultado es verdadero (se activa la alerta) o falso. Para evitar que las alertas "parpadeen" (cambien rápidamente de estado), las reglas permiten un tiempo mínimo durante el cual la alerta debe ser verdadera antes de activarse. Por lo general, este tiempo mínimo se establece en al menos dos ciclos de evaluación para evitar falsas alertas.
+
+Aquí hay un ejemplo de alerta que se activa cuando la proporción de errores supera el 1% y el número total de errores excede 1 por segundo:
+
+shell
+Copiar código
+rules <<<
+{var=dc:http_errors:ratio_rate10m,job=webserver} > 0.01
+and by job, error
+{var=dc:http_errors:rate10m,job=webserver} > 1
+for 2m
+=> ErrorRatioTooHigh
+details "webserver error ratio at %trigger_value%"
+labels { severity=page };
+>>>
+En este ejemplo, la proporción de errores es 0.15, lo cual supera el umbral de 0.01, pero el número total de errores no excede 1, por lo que la alerta no se activaría aún.
+
+Gestión de Alertas
+Borgmon se conecta a un servicio central llamado Alertmanager, que gestiona la entrega de notificaciones y permite:
+
+Inhibir alertas cuando otras están activas.
+Deduplicar alertas de varios Borgmon con las mismas etiquetas.
+Enviar o recibir alertas según sus etiquetas.
+Un buen diseño de alertas implica enviar las alertas críticas a la rotación de guardia del equipo y las alertas importantes pero no críticas a sus colas de tickets.
