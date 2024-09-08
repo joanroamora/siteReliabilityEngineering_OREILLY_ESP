@@ -1380,7 +1380,23 @@ Ramas
 
 Todo el código se registra en la rama principal del árbol de código fuente (mainline). Sin embargo, la mayoría de los proyectos importantes no se lanzan directamente desde la rama principal. En su lugar, creamos una rama a partir de la principal en una revisión específica y nunca fusionamos los cambios de la rama de nuevo a la principal. Las correcciones de errores se envían a la rama principal y luego se hacen cherry pick en la rama para su inclusión en el lanzamiento. Esta práctica evita que se incluyan cambios no relacionados enviados a la rama principal desde que ocurrió la compilación original. Usando este método de ramificación y cherry pick, sabemos el contenido exacto de cada lanzamiento.
 
+Pruebas
 
+Un sistema de pruebas continuo ejecuta pruebas unitarias contra el código en la rama principal (mainline) cada vez que se envía un cambio, lo que nos permite detectar fallos de compilación y de pruebas rápidamente. El equipo de ingeniería de lanzamientos recomienda que los objetivos de prueba del sistema de compilación continua correspondan a los mismos objetivos de prueba que regulan el lanzamiento del proyecto. También recomendamos crear lanzamientos en el número de revisión (versión) de la última compilación continua que completó con éxito todas las pruebas. Estas medidas disminuyen la probabilidad de que los cambios posteriores realizados en la rama principal causen fallos durante la compilación realizada en el momento del lanzamiento.
+
+Durante el proceso de lanzamiento, volvemos a ejecutar las pruebas unitarias usando la rama de lanzamiento y creamos un historial de auditoría que muestra que todas las pruebas pasaron. Este paso es importante porque, si un lanzamiento incluye cherry picks, la rama de lanzamiento puede contener una versión del código que no existe en ninguna parte de la rama principal. Queremos garantizar que las pruebas pasen en el contexto de lo que realmente se está lanzando.
+
+Para complementar el sistema de pruebas continuo, utilizamos un entorno de pruebas independiente que ejecuta pruebas a nivel de sistema sobre los artefactos de compilación empaquetados. Estas pruebas pueden lanzarse manualmente o desde Rapid.
+
+Empaquetado
+
+El software se distribuye a nuestras máquinas de producción a través del Gestor de Paquetes Midas (MPM) [McN14c]. MPM ensambla paquetes basados en reglas de Blaze que enumeran los artefactos de compilación a incluir, junto con sus propietarios y permisos. Los paquetes se nombran (por ejemplo, search/shakespeare/frontend), se versionan con un hash único y se firman para garantizar su autenticidad. MPM admite la aplicación de etiquetas a una versión particular de un paquete. Rapid aplica una etiqueta que contiene el ID de compilación, lo que garantiza que un paquete pueda ser referenciado de manera única usando el nombre del paquete y esta etiqueta.
+
+Las etiquetas pueden aplicarse a un paquete MPM para indicar su ubicación en el proceso de lanzamiento (por ejemplo, dev, canary o production). Si aplicas una etiqueta existente a un nuevo paquete, la etiqueta se moverá automáticamente del paquete antiguo al nuevo. Por ejemplo, si un paquete está etiquetado como canary, alguien que instale la versión canary de ese paquete recibirá automáticamente la versión más reciente con esa etiqueta.
+
+Rapid
+
+La Figura 8-1 muestra los componentes principales del sistema Rapid. Rapid se configura con archivos llamados blueprints. Los blueprints están escritos en un lenguaje de configuración interno y se utilizan para definir objetivos de compilación y prueba, reglas para la implementación y información administrativa (como los propietarios del proyecto). Las listas de control de acceso basadas en roles determinan quién puede realizar acciones específicas en un proyecto de Rapid.
 
 
 
