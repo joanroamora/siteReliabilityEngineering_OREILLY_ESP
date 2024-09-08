@@ -1631,3 +1631,28 @@ Un servicio suele estar compuesto por muchos binarios que ejecutan muchas tareas
 Borgmon almacena todos los datos en una base de datos en memoria, que se guarda regularmente en disco. Los puntos de datos tienen la forma (marca de tiempo, valor) y se almacenan en listas cronológicas llamadas series temporales, y cada serie temporal se nombra mediante un conjunto único de etiquetas, en el formato nombre=valor.
 
 Como se presenta en la Figura 10-1, una serie temporal es conceptualmente una matriz unidimensional de números, que progresa en el tiempo. A medida que agregas permutaciones de etiquetas a esta serie temporal, la matriz se vuelve multidimensional.
+
+En la práctica, la estructura es un bloque de memoria de tamaño fijo, conocido como el time-series arena (área de series temporales), con un recolector de basura que expira las entradas más antiguas una vez que el área está llena. El intervalo de tiempo entre las entradas más recientes y las más antiguas en el área es el horizonte, lo que indica cuántos datos consultables se mantienen en la RAM. Normalmente, los datacenters y los Borgmon globales están dimensionados para mantener aproximadamente 12 horas de datos para la visualización en consolas, y mucho menos tiempo si son los recolectores de nivel más bajo. El requisito de memoria para un solo punto de datos es de aproximadamente 24 bytes, por lo que podemos alojar 1 millón de series temporales únicas durante 12 horas, con intervalos de 1 minuto, en menos de 17 GB de RAM.
+
+Periódicamente, el estado en memoria se archiva en un sistema externo conocido como la Base de Datos de Series Temporales (TSDB, por sus siglas en inglés). Borgmon puede consultar el TSDB para obtener datos más antiguos; aunque es más lento, el TSDB es más económico y de mayor capacidad que la RAM de Borgmon.
+
+Etiquetas y Vectores
+Como se muestra en el ejemplo de series temporales en la Figura 10-2, las series temporales se almacenan como secuencias de números y marcas de tiempo, que se denominan vectores. Al igual que los vectores en álgebra lineal, estos vectores son secciones transversales de la matriz multidimensional de puntos de datos en el área. Conceptualmente, las marcas de tiempo pueden ignorarse porque los valores se insertan en el vector a intervalos regulares de tiempo (por ejemplo, cada 1 o 10 segundos, o cada minuto).
+
+Etiquetas Importantes
+El nombre de una serie temporal es un conjunto de etiquetas (labelset), ya que está implementado como un conjunto de etiquetas expresadas como pares clave=valor. Algunas de estas etiquetas son esenciales para identificar las series temporales en la base de datos, como:
+
+var: El nombre de la variable.
+job: El nombre asignado al tipo de servidor que se está monitoreando.
+service: Una colección de trabajos que proporcionan un servicio a los usuarios.
+zone: La ubicación (generalmente el centro de datos) donde el Borgmon recolectó la variable.
+Por ejemplo, una expresión de variable podría ser: {var=http_requests, job=webserver, instance=host0:80, service=web, zone=us-west}
+
+Una consulta de series temporales no requiere la especificación de todas las etiquetas, lo que permite devolver un vector de resultados que coincidan con el conjunto de etiquetas. Por ejemplo, eliminando la etiqueta instance: {var=http_requests, job=webserver, service=web, zone=us-west}
+
+Esto podría devolver varias filas de resultados en un vector con los valores más recientes para la serie temporal.
+
+Consulta en el Tiempo
+También se pueden consultar las series temporales especificando una duración en la expresión de variable: {var=http_requests, job=webserver, service=web, zone=us-west}[10m]
+
+Esto devuelve los últimos 10 minutos de la historia de las series temporales que coinciden con la expresión, mostrando múltiples puntos de datos si se recopilan a intervalos regulares (por ejemplo, 1 minuto).
