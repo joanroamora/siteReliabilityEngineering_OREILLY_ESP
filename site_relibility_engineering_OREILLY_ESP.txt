@@ -1608,3 +1608,26 @@ Instrumentación de Aplicaciones
 El controlador HTTP /varz simplemente enumera todas las variables exportadas en texto sin formato. Una extensión posterior añadió una variable mapeada que permite al exportador definir varias etiquetas en un nombre de variable y luego exportar una tabla de valores o un histograma.
 
 Agregar una métrica a un programa solo requiere una declaración en el código donde se necesita la métrica. Esta interfaz de texto sin esquema hace que la barrera para agregar nuevas instrumentaciones sea muy baja, lo que es positivo tanto para los equipos de ingeniería de software como para los de SRE.
+
+Exportando Variables
+Las raíces web de Google son profundas: cada uno de los principales lenguajes utilizados en Google tiene una implementación de la interfaz de variables exportadas que se registra automáticamente con el servidor HTTP incorporado en cada binario de Google por defecto. Las instancias de las variables que se exportan permiten al autor del servidor realizar operaciones obvias como agregar una cantidad al valor actual, establecer una clave en un valor específico, y más. La biblioteca expvar de Go y su forma de salida en JSON son una variante de esta API.
+
+Recolección de Datos Exportados
+Para encontrar sus objetivos, una instancia de Borgmon se configura con una lista de objetivos utilizando uno de los muchos métodos de resolución de nombres. La lista de objetivos suele ser dinámica, por lo que el uso de descubrimiento de servicios reduce el costo de mantenimiento y permite escalar el monitoreo.
+
+A intervalos predefinidos, Borgmon accede a la URI /varz en cada objetivo, decodifica los resultados y almacena los valores en memoria. Además, distribuye la recolección de cada instancia en la lista de objetivos a lo largo de todo el intervalo, para que la recolección de cada objetivo no esté sincronizada con sus pares.
+
+Borgmon también registra variables "sintéticas" para cada objetivo a fin de identificar:
+
+Si el nombre se resolvió en un host y puerto.
+Si el objetivo respondió a una recolección.
+Si el objetivo respondió a una verificación de salud.
+A qué hora se completó la recolección.
+Estas variables sintéticas facilitan la escritura de reglas para detectar si las tareas monitoreadas no están disponibles. Es interesante notar que varz es bastante diferente de SNMP (Protocolo Simple de Administración de Red), que "está diseñado [...] para tener requisitos mínimos de transporte y seguir funcionando cuando la mayoría de las otras aplicaciones de red fallan". Raspar objetivos mediante HTTP parece estar en desacuerdo con este principio de diseño; sin embargo, la experiencia muestra que esto rara vez es un problema. El sistema ya está diseñado para ser robusto ante fallos de red y máquinas, y Borgmon permite a los ingenieros escribir reglas de alertas más inteligentes al usar el fallo de recolección como una señal.
+
+Almacenamiento en el Time-Series Arena
+Un servicio suele estar compuesto por muchos binarios que ejecutan muchas tareas, en muchas máquinas, y en muchos clústeres. Borgmon necesita mantener todos esos datos organizados, mientras permite consultas flexibles y segmentación de esos datos.
+
+Borgmon almacena todos los datos en una base de datos en memoria, que se guarda regularmente en disco. Los puntos de datos tienen la forma (marca de tiempo, valor) y se almacenan en listas cronológicas llamadas series temporales, y cada serie temporal se nombra mediante un conjunto único de etiquetas, en el formato nombre=valor.
+
+Como se presenta en la Figura 10-1, una serie temporal es conceptualmente una matriz unidimensional de números, que progresa en el tiempo. A medida que agregas permutaciones de etiquetas a esta serie temporal, la matriz se vuelve multidimensional.
