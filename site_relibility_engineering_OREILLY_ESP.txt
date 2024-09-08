@@ -1548,3 +1548,25 @@ En Ingeniería de software en SRE, ofrecemos un estudio de caso sobre la ingenie
 De manera natural, tras la planificación de capacidad, el equilibrio de carga garantiza que estamos utilizando adecuadamente la capacidad que hemos construido. Discutimos cómo las solicitudes a nuestros servicios se envían a los centros de datos en Equilibrio de carga en el frontend. Luego continuamos la discusión en Equilibrio de carga en el centro de datos y Manejo de sobrecargas, ambos esenciales para asegurar la confiabilidad del servicio.
 
 Finalmente, en Abordando fallas en cascada, ofrecemos consejos para abordar fallas en cascada, tanto en el diseño del sistema como en caso de que tu servicio se vea atrapado en una de estas fallas.
+
+Desarrollo
+
+Uno de los aspectos clave del enfoque de Google hacia Site Reliability Engineering (SRE) es que realizamos un diseño de sistemas a gran escala y trabajos de ingeniería de software significativos dentro de la organización.
+
+En Gestión de Estado Crítico: Consenso Distribuido para la Fiabilidad, explicamos el consenso distribuido, que (bajo la forma de Paxos) está en el núcleo de muchos de los sistemas distribuidos de Google, incluyendo nuestro sistema globalmente distribuido de Cron. En Programación Periódica Distribuida con Cron, describimos un sistema que escala a centros de datos completos y más allá, lo cual no es una tarea sencilla.
+
+Pipelines de Procesamiento de Datos discute las diversas formas que pueden tomar los pipelines de procesamiento de datos: desde trabajos de MapReduce ejecutados periódicamente hasta sistemas que operan en casi tiempo real. Diferentes arquitecturas pueden conducir a desafíos sorprendentes y contraintuitivos.
+
+Asegurarse de que los datos que almacenaste sigan ahí cuando quieras leerlos es el corazón de la integridad de los datos; en Integridad de Datos: Lo que Lees es lo que Escribiste, explicamos cómo mantener los datos seguros.
+
+Producto
+
+Finalmente, habiendo llegado a la cúspide de la pirámide de fiabilidad, nos encontramos en el punto de tener un producto funcional. En Lanzamientos de Productos Confiables a Gran Escala, hablamos sobre cómo Google realiza lanzamientos de productos confiables a gran escala para intentar ofrecer a los usuarios la mejor experiencia posible desde el Día Cero.
+
+Lecturas adicionales del SRE de Google
+
+Como se discutió anteriormente, las pruebas son un tema delicado, y su ejecución incorrecta puede tener grandes efectos en la estabilidad general. En un artículo de ACM [Kri12], explicamos cómo Google realiza pruebas de resiliencia a nivel de toda la empresa para asegurarse de que estamos preparados para enfrentar lo inesperado, ya sea un apocalipsis zombie u otro desastre.
+
+Aunque a menudo se considera un arte oscuro, lleno de hojas de cálculo misteriosas que predicen el futuro, la planificación de capacidad es vital, y como muestra [Hix15a], no necesitas una bola de cristal para hacerlo bien.
+
+Finalmente, un enfoque interesante y novedoso para la seguridad de redes corporativas se detalla en [War14], una iniciativa para reemplazar las intranets privilegiadas con credenciales de dispositivos y usuarios. Impulsado por SREs a nivel de infraestructura, este es definitivamente un enfoque a tener en cuenta cuando estés creando tu próxima red.
