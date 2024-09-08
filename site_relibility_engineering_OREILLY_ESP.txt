@@ -1318,7 +1318,31 @@ Hubo una vez en que la automatización a cargo del desmantelamiento de un rack e
 
 En cuestión de minutos, el altamente eficiente Diskerase borró los discos de todas las máquinas en nuestra CDN, y las máquinas ya no podían terminar conexiones de usuarios (ni hacer nada más útil). Aún pudimos servir a todos los usuarios desde nuestros propios centros de datos, y después de unos minutos el único efecto visible externamente fue un leve aumento en la latencia. Hasta donde pudimos decir, muy pocos usuarios notaron el problema gracias a la buena planificación de capacidad (¡al menos en eso acertamos!). Mientras tanto, pasamos la mayor parte de dos días reinstalando las máquinas en los racks de colos afectados; luego pasamos las semanas siguientes auditando y agregando más verificaciones de cordura, incluyendo limitación de velocidad, en nuestra automatización, y haciendo que nuestro flujo de trabajo de desmantelamiento fuera idempotente.
 
+Capítulo 8 - Ingeniería de Lanzamientos
+Escrito por Dinah McNutt
+Editado por Betsy Beyer y Tim Harvey
 
+La ingeniería de lanzamientos es una disciplina relativamente nueva y en rápido crecimiento dentro de la ingeniería de software que puede describirse concisamente como el proceso de construir y entregar software [McN14a]. Los ingenieros de lanzamientos tienen un conocimiento sólido (si no experto) en la gestión de código fuente, compiladores, lenguajes de configuración de compilación, herramientas de compilación automatizadas, gestores de paquetes e instaladores. Su conjunto de habilidades incluye un conocimiento profundo en múltiples dominios: desarrollo, gestión de configuración, integración de pruebas, administración de sistemas y soporte al cliente.
+
+Mantener servicios confiables requiere procesos de lanzamiento confiables. Los Ingenieros de Fiabilidad del Sitio (SREs, por sus siglas en inglés) necesitan saber que los binarios y configuraciones que utilizan se construyen de manera reproducible y automatizada para que los lanzamientos sean repetibles y no sean "copos de nieve únicos". Los cambios en cualquier aspecto del proceso de lanzamiento deben ser intencionales, no accidentales. A los SRE les importa este proceso, desde el código fuente hasta el despliegue.
+
+La ingeniería de lanzamientos es una función laboral específica en Google. Los ingenieros de lanzamientos trabajan con los ingenieros de software (SWEs) en el desarrollo de productos y con los SREs para definir todos los pasos necesarios para lanzar software, desde cómo se almacena el software en el repositorio de código fuente, hasta las reglas de compilación, pruebas, empaquetado y despliegue.
+
+El Rol del Ingeniero de Lanzamiento
+
+Google es una empresa impulsada por los datos, y la ingeniería de lanzamientos sigue ese modelo. Contamos con herramientas que informan sobre una gran cantidad de métricas, como el tiempo que tarda un cambio de código en desplegarse en producción (en otras palabras, la velocidad de lanzamiento) y estadísticas sobre qué características se están utilizando en los archivos de configuración de compilación [Ada15]. La mayoría de estas herramientas fueron ideadas y desarrolladas por ingenieros de lanzamiento.
+
+Los ingenieros de lanzamientos definen las mejores prácticas para usar nuestras herramientas, con el fin de asegurarse de que los proyectos se lancen utilizando metodologías consistentes y repetibles. Nuestras mejores prácticas abarcan todos los elementos del proceso de lanzamiento, como las banderas del compilador, formatos para las etiquetas de identificación de compilación y los pasos requeridos durante una compilación. Asegurarse de que nuestras herramientas se comporten correctamente por defecto y que estén debidamente documentadas permite que los equipos se centren en las características y en los usuarios, en lugar de perder tiempo reinventando la rueda (de manera deficiente) en lo que respecta al lanzamiento de software.
+
+Google cuenta con un gran número de SREs encargados de desplegar productos de manera segura y de mantener los servicios de Google en funcionamiento. Para garantizar que nuestros procesos de lanzamiento cumplan con los requisitos empresariales, los ingenieros de lanzamientos y los SREs trabajan juntos para desarrollar estrategias para probar cambios de manera progresiva (canarying), implementar nuevas versiones sin interrumpir los servicios y revertir características que presenten problemas.
+
+Filosofía
+
+La ingeniería de lanzamientos se guía por una filosofía de ingeniería y servicio que se expresa a través de cuatro principios fundamentales, que se detallan a continuación.
+
+Modelo de autoservicio
+
+Para trabajar a gran escala, los equipos deben ser autosuficientes. La ingeniería de lanzamientos ha desarrollado mejores prácticas y herramientas que permiten a los equipos de desarrollo de productos controlar y ejecutar sus propios procesos de lanzamiento. Aunque tenemos miles de ingenieros y productos, podemos lograr una alta velocidad de lanzamiento porque los equipos individuales pueden decidir con qué frecuencia y cuándo lanzar nuevas versiones de sus productos. Los procesos de lanzamiento pueden automatizarse hasta el punto de que requieran una mínima intervención por parte de los ingenieros, y muchos proyectos se construyen y lanzan automáticamente mediante una combinación de nuestro sistema de compilación automatizado y nuestras herramientas de despliegue. Los lanzamientos son verdaderamente automáticos y solo requieren la participación de los ingenieros si y cuando surgen problemas.
 
 
 
