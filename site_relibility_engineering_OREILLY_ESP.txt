@@ -1344,7 +1344,41 @@ Modelo de autoservicio
 
 Para trabajar a gran escala, los equipos deben ser autosuficientes. La ingeniería de lanzamientos ha desarrollado mejores prácticas y herramientas que permiten a los equipos de desarrollo de productos controlar y ejecutar sus propios procesos de lanzamiento. Aunque tenemos miles de ingenieros y productos, podemos lograr una alta velocidad de lanzamiento porque los equipos individuales pueden decidir con qué frecuencia y cuándo lanzar nuevas versiones de sus productos. Los procesos de lanzamiento pueden automatizarse hasta el punto de que requieran una mínima intervención por parte de los ingenieros, y muchos proyectos se construyen y lanzan automáticamente mediante una combinación de nuestro sistema de compilación automatizado y nuestras herramientas de despliegue. Los lanzamientos son verdaderamente automáticos y solo requieren la participación de los ingenieros si y cuando surgen problemas.
 
+Alta Velocidad
 
+El software orientado al usuario (como muchos componentes de Google Search) se reconstruye con frecuencia, ya que nuestro objetivo es implementar funciones dirigidas al cliente lo más rápido posible. Hemos adoptado la filosofía de que los lanzamientos frecuentes resultan en menos cambios entre versiones, lo que facilita las pruebas y la resolución de problemas. Algunos equipos realizan compilaciones cada hora y luego seleccionan la versión que se desplegará en producción a partir del grupo de compilaciones resultantes. La selección se basa en los resultados de las pruebas y en las características contenidas en una compilación determinada. Otros equipos han adoptado un modelo de lanzamiento "Push on Green", en el cual se despliega cada compilación que pasa todas las pruebas [Kle14].
+
+Compilaciones Herméticas
+
+Las herramientas de compilación deben permitirnos garantizar la consistencia y la repetibilidad. Si dos personas intentan compilar el mismo producto con el mismo número de revisión en el repositorio de código fuente en máquinas diferentes, esperamos resultados idénticos. Nuestras compilaciones son herméticas, lo que significa que no dependen de las bibliotecas ni de otro software instalado en la máquina de compilación. En su lugar, las compilaciones dependen de versiones conocidas de herramientas de compilación, como compiladores y dependencias como bibliotecas. El proceso de compilación es autónomo y no debe depender de servicios externos al entorno de compilación.
+
+Volver a compilar versiones anteriores cuando necesitamos corregir un error en el software que está en producción puede ser un desafío. Logramos esta tarea reconstruyendo en la misma revisión que la compilación original e incluyendo cambios específicos que se enviaron después de ese punto en el tiempo. A esta táctica la llamamos "cherry picking". Nuestras herramientas de compilación están versionadas según la revisión en el repositorio de código fuente del proyecto que se está compilando. Por lo tanto, un proyecto compilado el mes pasado no utilizará la versión de este mes del compilador si se requiere un cherry pick, ya que esa versión podría contener características incompatibles o no deseadas.
+
+Aplicación de Políticas y Procedimientos
+
+Varias capas de seguridad y control de acceso determinan quién puede realizar operaciones específicas al lanzar un proyecto. Las operaciones restringidas incluyen:
+
+Aprobar cambios en el código fuente, operación gestionada a través de archivos de configuración distribuidos por toda la base de código.
+Especificar las acciones a realizar durante el proceso de lanzamiento.
+Crear un nuevo lanzamiento.
+Aprobar la propuesta inicial de integración (que es una solicitud para realizar una compilación en una revisión específica del repositorio de código fuente) y los cherry picks posteriores.
+Desplegar un nuevo lanzamiento.
+Realizar cambios en la configuración de compilación de un proyecto.
+Casi todos los cambios en la base de código requieren una revisión de código, que es una acción simplificada e integrada en nuestro flujo de trabajo normal de desarrollo. Nuestro sistema de lanzamientos automatizados produce un informe de todos los cambios contenidos en un lanzamiento, que se archiva junto con otros artefactos de la compilación. Al permitir que los SRE comprendan qué cambios están incluidos en un nuevo lanzamiento de un proyecto, este informe puede agilizar la resolución de problemas cuando surgen inconvenientes con un lanzamiento.
+
+Compilación y Despliegue Continuos
+
+Google ha desarrollado un sistema automatizado de lanzamiento llamado Rapid. Rapid es un sistema que aprovecha varias tecnologías de Google para proporcionar un marco que permite lanzamientos escalables, herméticos y confiables. Las siguientes secciones describen el ciclo de vida del software en Google y cómo se gestiona utilizando Rapid y otras herramientas asociadas.
+
+Compilación
+
+Blaze es la herramienta de compilación preferida de Google. Soporta la construcción de binarios en una variedad de lenguajes, incluidos C++, Java, Python, Go y JavaScript. Los ingenieros usan Blaze para definir objetivos de compilación (por ejemplo, la salida de una compilación, como un archivo JAR) y para especificar las dependencias de cada objetivo [Kem11]. Al realizar una compilación, Blaze compila automáticamente los objetivos de dependencia.
+
+Los objetivos de compilación para binarios y pruebas unitarias se definen en los archivos de configuración del proyecto de Rapid. Rapid pasa a Blaze banderas específicas del proyecto, como un identificador de compilación único. Todos los binarios admiten una bandera que muestra la fecha de compilación, el número de revisión y el identificador de compilación, lo que nos permite asociar fácilmente un binario con un registro de cómo se compiló.
+
+Ramas
+
+Todo el código se registra en la rama principal del árbol de código fuente (mainline). Sin embargo, la mayoría de los proyectos importantes no se lanzan directamente desde la rama principal. En su lugar, creamos una rama a partir de la principal en una revisión específica y nunca fusionamos los cambios de la rama de nuevo a la principal. Las correcciones de errores se envían a la rama principal y luego se hacen cherry pick en la rama para su inclusión en el lanzamiento. Esta práctica evita que se incluyan cambios no relacionados enviados a la rama principal desde que ocurrió la compilación original. Usando este método de ramificación y cherry pick, sabemos el contenido exacto de cada lanzamiento.
 
 
 
