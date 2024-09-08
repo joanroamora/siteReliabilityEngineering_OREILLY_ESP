@@ -1761,3 +1761,28 @@ Inhibir alertas cuando otras están activas.
 Deduplicar alertas de varios Borgmon con las mismas etiquetas.
 Enviar o recibir alertas según sus etiquetas.
 Un buen diseño de alertas implica enviar las alertas críticas a la rotación de guardia del equipo y las alertas importantes pero no críticas a sus colas de tickets.
+
+Fragmentación de la Topología de Monitoreo
+
+Un Borgmon también puede importar datos de series temporales desde otros Borgmon. Aunque uno podría intentar recolectar datos de todas las tareas de un servicio globalmente, hacerlo rápidamente se convierte en un cuello de botella de escalabilidad e introduce un punto único de falla en el diseño. En su lugar, se utiliza un protocolo de transmisión para transmitir los datos de las series temporales entre Borgmon, ahorrando tiempo de CPU y ancho de banda de red en comparación con el formato basado en texto varz. Un despliegue típico utiliza dos o más Borgmon globales para la agregación de alto nivel y un Borgmon en cada centro de datos para monitorear todos los trabajos que se ejecutan en esa ubicación. (Google divide la red de producción en zonas para cambios de producción, por lo que tener dos o más réplicas globales proporciona diversidad frente al mantenimiento y las fallas de este punto único de falla).
+
+Como se muestra en la Figura 10-3, los despliegues más complicados dividen el Borgmon del centro de datos en una capa puramente dedicada a la recolección (a menudo debido a limitaciones de RAM y CPU en un solo Borgmon para servicios muy grandes) y una capa de agregación del centro de datos que realiza principalmente la evaluación de reglas para la agregación. A veces, la capa global se divide entre la evaluación de reglas y la creación de paneles de control. Los Borgmon de nivel superior pueden filtrar los datos que desean transmitir desde los Borgmon de nivel inferior, de modo que el Borgmon global no llene su espacio de almacenamiento con todas las series temporales por tarea de los niveles inferiores. Así, la jerarquía de agregación construye cachés locales de series temporales relevantes a las que se puede acceder cuando sea necesario.
+
+Monitoreo de Caja Negra
+
+Borgmon es un sistema de monitoreo de caja blanca: inspecciona el estado interno del servicio objetivo, y las reglas se escriben con conocimiento de los detalles internos en mente. La naturaleza transparente de este modelo proporciona un gran poder para identificar rápidamente qué componentes están fallando, qué colas están llenas y dónde ocurren los cuellos de botella, tanto al responder a un incidente como al probar el despliegue de una nueva característica.
+
+Sin embargo, el monitoreo de caja blanca no proporciona una visión completa del sistema monitoreado. Confiar únicamente en el monitoreo de caja blanca significa que no estás al tanto de lo que ven los usuarios. Solo ves las consultas que llegan al objetivo; las consultas que nunca llegan debido a un error de DNS son invisibles, mientras que las consultas perdidas debido a una caída del servidor nunca generan una alerta. Solo puedes alertar sobre las fallas que esperabas.
+
+Los equipos en Google resuelven este problema de cobertura con Prober, que realiza una verificación de protocolo contra un objetivo y reporta éxito o falla. Prober puede enviar alertas directamente a Alertmanager, o sus propios varz pueden ser recolectados por un Borgmon. Prober puede validar el contenido de la respuesta del protocolo (por ejemplo, el contenido HTML de una respuesta HTTP) y verificar que los contenidos son los esperados, e incluso extraer y exportar valores como series temporales. Los equipos a menudo utilizan Prober para exportar histogramas de tiempos de respuesta por tipo de operación y tamaño del contenido, lo que les permite analizar el rendimiento visible para el usuario. Prober es una combinación del modelo de verificación y prueba con una extracción de variables más rica para crear series temporales.
+
+Prober se puede apuntar tanto al dominio frontend como detrás del balanceador de carga. Al usar ambos objetivos, se pueden detectar fallas localizadas y suprimir alertas. Por ejemplo, podríamos monitorear tanto el www.google.com balanceado como los servidores web en cada centro de datos detrás del balanceador de carga. Esta configuración nos permite saber si aún se está sirviendo tráfico cuando falla un centro de datos, o aislar rápidamente un punto en el gráfico de flujo de tráfico donde ha ocurrido una falla.
+
+
+
+
+
+
+
+
+
