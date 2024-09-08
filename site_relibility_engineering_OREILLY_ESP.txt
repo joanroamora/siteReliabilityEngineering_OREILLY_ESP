@@ -1457,3 +1457,39 @@ Distribuyendo software en un entorno masivamente paralelo, LISA 2014, [McN14c]
 Google utiliza un repositorio de código fuente unificado monolítico; ver [Pot16].
 
 Blaze ha sido liberado como código abierto bajo el nombre de Bazel. Consulta “Bazel FAQ” en el sitio web de Bazel: http://bazel.io/faq.html.
+
+Capítulo 9 - Simplicidad
+Escrito por Max Luebbe
+Editado por Tim Harvey
+
+El precio de la fiabilidad es la búsqueda de la máxima simplicidad.
+C.A.R. Hoare, discurso del Premio Turing
+
+Los sistemas de software son inherentemente dinámicos e inestables. Un sistema de software solo puede ser perfectamente estable si existe en un vacío. Si dejamos de cambiar la base de código, dejamos de introducir errores. Si el hardware subyacente o las bibliotecas nunca cambian, ninguno de estos componentes introducirá errores. Si congelamos la base de usuarios actual, nunca tendremos que escalar el sistema. De hecho, un buen resumen del enfoque SRE para gestionar sistemas es: "Al final del día, nuestro trabajo es mantener el equilibrio entre la agilidad y la estabilidad en el sistema".
+
+Estabilidad del sistema frente a agilidad
+A veces tiene sentido sacrificar la estabilidad por la agilidad. A menudo he abordado un dominio de problemas desconocido realizando lo que llamo "codificación exploratoria", estableciendo una vida útil explícita para cualquier código que escriba con la comprensión de que necesitaré probar y fallar una vez para realmente entender la tarea que necesito cumplir. El código que tiene una fecha de caducidad puede ser mucho más permisivo con la cobertura de pruebas y la gestión de lanzamientos porque nunca se enviará a producción ni será visto por los usuarios.
+
+Para la mayoría de los sistemas de software en producción, queremos una mezcla equilibrada de estabilidad y agilidad. Los SRE trabajan para crear procedimientos, prácticas y herramientas que hagan el software más confiable. Al mismo tiempo, los SRE aseguran que este trabajo tenga el menor impacto posible en la agilidad del desarrollador. De hecho, la experiencia de SRE ha demostrado que los procesos confiables tienden a aumentar la agilidad del desarrollador: los despliegues rápidos y confiables en producción hacen que los cambios sean más fáciles de ver. Como resultado, una vez que aparece un error, lleva menos tiempo encontrarlo y solucionarlo. Construir fiabilidad en el desarrollo permite que los desarrolladores se concentren en lo que realmente nos importa: la funcionalidad y el rendimiento de su software y sistemas.
+
+La virtud de lo aburrido
+A diferencia de casi todo lo demás en la vida, "aburrido" es en realidad un atributo positivo cuando se trata de software. No queremos que nuestros programas sean espontáneos e interesantes; queremos que se ajusten al guion y logren sus objetivos comerciales de manera predecible. En palabras del ingeniero de Google Robert Muth, "A diferencia de una historia de detectives, la falta de emoción, suspense y acertijos es en realidad una propiedad deseable del código fuente". Las sorpresas en producción son los enemigos del SRE.
+
+Como sugiere Fred Brooks en su ensayo "No Silver Bullet", es muy importante considerar la diferencia entre la complejidad esencial y la complejidad accidental. La complejidad esencial es la complejidad inherente en una situación dada que no se puede eliminar de la definición de un problema, mientras que la complejidad accidental es más fluida y se puede resolver con esfuerzo de ingeniería. Por ejemplo, escribir un servidor web implica lidiar con la complejidad esencial de servir páginas web rápidamente. Sin embargo, si escribimos un servidor web en Java, podríamos introducir complejidad accidental al intentar minimizar el impacto de la recolección de basura.
+
+Con la intención de minimizar la complejidad accidental, los equipos de SRE deberían:
+
+Resistirse cuando se introduce complejidad accidental en los sistemas de los que son responsables.
+Esforzarse constantemente por eliminar la complejidad en los sistemas que asumen y de los que asumen la responsabilidad operativa.
+¡No renunciaré a mi código!
+Debido a que los ingenieros son seres humanos que a menudo forman un apego emocional a sus creaciones, las confrontaciones sobre purgas a gran escala del código fuente no son infrecuentes. Algunos podrían protestar: "¿Qué pasa si necesitamos ese código más tarde?" o "¿Por qué no lo comentamos para poder añadirlo más tarde?" o "¿Por qué no lo limitamos con una bandera en lugar de eliminarlo?". Todas estas son sugerencias terribles. Los sistemas de control de versiones facilitan la reversión de cambios, mientras que cientos de líneas de código comentadas crean distracciones y confusión (especialmente a medida que los archivos fuente continúan evolucionando), y el código que nunca se ejecuta, controlado por una bandera que siempre está deshabilitada, es una bomba de tiempo metafórica esperando explotar, como lo experimentó dolorosamente Knight Capital (ver "Order In the Matter of Knight Capital Americas LLC").
+
+Arriesgándome a sonar extremo, cuando se considera un servicio web que se espera que esté disponible 24/7, hasta cierto punto, cada nueva línea de código escrita es una responsabilidad. SRE promueve prácticas que hacen más probable que todo el código tenga un propósito esencial, como examinar el código para asegurarse de que realmente impulsa los objetivos comerciales, eliminar rutinariamente el código muerto y construir la detección de sobrecarga en todos los niveles de prueba.
+
+La métrica de "líneas negativas de código"
+El término "sobrecarga de software" se acuñó para describir la tendencia del software a volverse más lento y más grande con el tiempo debido a una corriente constante de características adicionales. Mientras que el software sobrecargado parece intuitivamente indeseable, sus aspectos negativos se vuelven aún más claros cuando se consideran desde la perspectiva de SRE: cada línea de código cambiada o añadida a un proyecto crea la posibilidad de introducir nuevos defectos y errores. Un proyecto más pequeño es más fácil de entender, más fácil de probar y, con frecuencia, tiene menos defectos. Teniendo en cuenta esta perspectiva, quizás deberíamos tener reservas cuando tengamos la urgencia de añadir nuevas funciones a un proyecto. Algunas de las codificaciones más satisfactorias que he hecho han sido eliminar miles de líneas de código cuando ya no eran útiles.
+
+APIs mínimas
+El poeta francés Antoine de Saint-Exupéry escribió: "La perfección finalmente se alcanza no cuando no hay más que añadir, sino cuando no hay nada más que quitar". Este principio también es aplicable al diseño y construcción de software. Las APIs son una expresión particularmente clara de por qué debe seguirse esta regla.
+
+Escribir APIs claras y mínimas es un aspecto esencial para gestionar la simplicidad en un sistema de software. Cuantos menos métodos y argumentos proporcionemos a los consumidores de la API, más fácil será entenderla, y más esfuerzo podremos dedicar a mejorar esos métodos. Una vez más, aparece un tema recurrente: la decisión consciente de no asumir ciertos problemas nos permite centrarnos en nuestro problema principal y mejorar sustancialmente las soluciones que decidimos crear. ¡En software, menos es más! Una API pequeña y simple es, por lo general, un signo de un problema bien entendido.
