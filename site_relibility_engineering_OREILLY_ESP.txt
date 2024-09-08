@@ -1430,4 +1430,30 @@ Incluir archivos de configuración y binarios en el mismo paquete MPM: Para proy
 
 Empaquetar archivos de configuración en "paquetes de configuración" MPM: Podemos aplicar el principio hermético a la gestión de la configuración. Las configuraciones de los binarios tienden a estar estrechamente vinculadas a versiones particulares de los binarios, por lo que aprovechamos los sistemas de compilación y empaquetado para crear una instantánea y lanzar archivos de configuración junto con sus binarios.
 
+No es solo para los empleados de Google
 
+Cuando los desarrolladores y SREs cuentan con las herramientas adecuadas, la automatización correcta y políticas bien definidas, no deberían preocuparse por la publicación de software. Los lanzamientos pueden ser tan sencillos como presionar un botón.
+
+La mayoría de las empresas enfrentan el mismo conjunto de problemas relacionados con la ingeniería de lanzamientos, independientemente de su tamaño o de las herramientas que utilicen: ¿Cómo deben gestionar la versión de sus paquetes? ¿Deben utilizar un modelo de compilación y despliegue continuo, o realizar compilaciones periódicas? ¿Con qué frecuencia deberían lanzar versiones? ¿Qué políticas de gestión de configuración deberían emplear? ¿Qué métricas de lanzamiento son de interés?
+
+Los ingenieros de lanzamiento de Google han desarrollado nuestras propias herramientas por necesidad, ya que las herramientas de código abierto o de proveedores no funcionan a la escala que requerimos. Las herramientas personalizadas nos permiten incluir funciones para apoyar (e incluso imponer) las políticas de los procesos de lanzamiento. Sin embargo, primero deben definirse esas políticas para agregar características adecuadas a nuestras herramientas, y todas las empresas deberían hacer el esfuerzo de definir sus procesos de lanzamiento, independientemente de si los procesos pueden ser automatizados o aplicados.
+
+Comienza la ingeniería de lanzamiento desde el principio
+
+La ingeniería de lanzamientos a menudo ha sido una idea tardía, y esta forma de pensar debe cambiar a medida que las plataformas y servicios continúan creciendo en tamaño y complejidad. Los equipos deberían prever recursos de ingeniería de lanzamiento desde el comienzo del ciclo de desarrollo del producto. Es más barato implementar buenas prácticas y procesos desde el principio que tener que adaptarlos al sistema más adelante.
+
+Es esencial que los desarrolladores, SREs y los ingenieros de lanzamiento trabajen juntos. El ingeniero de lanzamiento necesita entender la intención de cómo debe construirse y desplegarse el código. Los desarrolladores no deberían simplemente construir y "arrojar los resultados" para que los manejen los ingenieros de lanzamiento.
+
+Los equipos de proyectos individuales deciden cuándo involucrar a la ingeniería de lanzamiento en un proyecto. Dado que la ingeniería de lanzamientos sigue siendo una disciplina relativamente joven, los gerentes no siempre planifican ni presupuestan para esta función en las primeras etapas de un proyecto. Por lo tanto, cuando consideres cómo incorporar prácticas de ingeniería de lanzamientos, asegúrate de tener en cuenta su papel en todo el ciclo de vida de tu producto o servicio, especialmente en las primeras etapas.
+
+Más información
+
+Para obtener más información sobre la ingeniería de lanzamientos, consulta las siguientes presentaciones, todas las cuales tienen videos disponibles en línea:
+
+Cómo abrazar el lanzamiento continuo redujo la complejidad del cambio, USENIX Release Engineering Summit West 2014, [Dic14]
+Manteniendo la consistencia en un entorno masivamente paralelo, USENIX Configuration Management Summit 2013, [McN13]
+Los 10 mandamientos de la ingeniería de lanzamientos, 2nd International Workshop on Release Engineering 2014, [McN14b]
+Distribuyendo software en un entorno masivamente paralelo, LISA 2014, [McN14c]
+Google utiliza un repositorio de código fuente unificado monolítico; ver [Pot16].
+
+Blaze ha sido liberado como código abierto bajo el nombre de Bazel. Consulta “Bazel FAQ” en el sitio web de Bazel: http://bazel.io/faq.html.
