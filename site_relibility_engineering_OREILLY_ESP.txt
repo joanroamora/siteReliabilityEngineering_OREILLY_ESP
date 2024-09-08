@@ -1511,3 +1511,40 @@ Una conclusión simple
 Este capítulo ha repetido un tema una y otra vez: la simplicidad en el software es un requisito previo para la confiabilidad. No estamos siendo perezosos cuando consideramos cómo podríamos simplificar cada paso de una tarea dada. En cambio, estamos aclarando lo que realmente queremos lograr y cómo podemos hacerlo de la manera más sencilla posible. Cada vez que decimos "no" a una característica, no estamos restringiendo la innovación; estamos manteniendo el entorno libre de distracciones para que el enfoque permanezca claramente en la innovación y el verdadero trabajo de ingeniería pueda avanzar.
 
 Este enfoque hacia la simplicidad en el desarrollo de software es crucial para evitar la complejidad accidental, optimizando tanto la fiabilidad como la capacidad de mantenimiento a largo plazo.
+
+Parte III - Prácticas
+
+En pocas palabras, los SRE (Site Reliability Engineers) gestionan servicios, es decir, un conjunto de sistemas relacionados que se operan para usuarios, ya sean internos o externos, y son, en última instancia, responsables de la salud de estos servicios. Operar un servicio con éxito implica una amplia gama de actividades: desarrollar sistemas de monitoreo, planificar la capacidad, responder a incidentes, asegurarse de que las causas raíz de las interrupciones se aborden, y más. Esta sección aborda la teoría y práctica de las actividades cotidianas de un SRE: construir y operar grandes sistemas de computación distribuidos.
+
+Podemos caracterizar la salud de un servicio, de manera similar a como Abraham Maslow categorizó las necesidades humanas [Mas43], desde los requisitos más básicos necesarios para que un sistema funcione como un servicio, hasta los niveles más altos de funcionalidad, que permiten la autoactualización y el control activo del servicio en lugar de reaccionar a incidentes. Esta comprensión es tan fundamental para cómo evaluamos los servicios en Google que no se desarrolló explícitamente hasta que varios SRE de Google, incluyendo a nuestro ex colega Mikey Dickerson,41 se unieron temporalmente a la cultura radicalmente diferente del gobierno de Estados Unidos para ayudar con el lanzamiento de healthcare.gov a finales de 2013 y principios de 2014: necesitaban una forma de explicar cómo aumentar la fiabilidad de los sistemas.
+
+Usaremos esta jerarquía, ilustrada en la Figura 3-1, para analizar los elementos que hacen que un servicio sea confiable, desde los más básicos hasta los más avanzados.
+
+Monitoreo
+Sin monitoreo, no hay manera de saber si el servicio está funcionando; sin una infraestructura de monitoreo diseñada de manera inteligente, estás operando a ciegas. Tal vez todos los que intentan usar el sitio web obtienen un error, o tal vez no, pero lo ideal es que seas consciente de los problemas antes de que tus usuarios los noten. Discutimos herramientas y filosofías en Alerta práctica basada en datos de series temporales.
+
+Respuesta a Incidentes
+Los SRE no están de guardia solo por estarlo: la guardia es una herramienta que usamos para cumplir nuestra misión principal y mantenernos en contacto con cómo funcionan (y fallan) los sistemas de computación distribuidos. Si pudiéramos encontrar una manera de liberarnos de cargar con un localizador (pager), lo haríamos. En Estar de guardia, explicamos cómo equilibramos las responsabilidades de guardia con otras obligaciones.
+
+Una vez que te das cuenta de que hay un problema, ¿cómo lo solucionas? Esto no necesariamente significa arreglarlo de una vez por todas: tal vez puedas mitigar el problema reduciendo la precisión del sistema o desactivando temporalmente algunas características, permitiendo que se degrade de forma controlada, o tal vez puedas redirigir el tráfico a otra instancia del servicio que esté funcionando correctamente. Los detalles de la solución que elijas son específicos de tu servicio y organización. Responder eficazmente a los incidentes, sin embargo, es algo aplicable a todos los equipos.
+
+Descubrir qué está mal es el primer paso; ofrecemos un enfoque estructurado en Solución de problemas efectiva.
+
+Durante un incidente, a menudo es tentador ceder a la adrenalina y empezar a responder de forma improvisada. Aconsejamos evitar esta tentación en Respuesta de emergencia, y en Gestión de incidentes explicamos que gestionar incidentes de manera efectiva debería reducir su impacto y limitar la ansiedad causada por las interrupciones.
+
+Análisis Postmortem y Causa Raíz
+Apuntamos a ser alertados y resolver manualmente solo problemas nuevos y emocionantes que nuestro servicio presente; es aburrido "arreglar" el mismo problema una y otra vez. De hecho, esta mentalidad es uno de los diferenciadores clave entre la filosofía SRE y algunos entornos operativos más tradicionales. Este tema se explora en dos capítulos.
+
+Crear una cultura de postmortem sin culpas es el primer paso para entender qué salió mal (¡y qué salió bien!), como se describe en Cultura del postmortem: Aprender del fracaso.
+
+Relacionado con esa discusión, en Seguimiento de interrupciones, describimos brevemente una herramienta interna, el rastreador de interrupciones, que permite a los equipos de SRE realizar un seguimiento de los incidentes recientes de producción, sus causas y las acciones tomadas en respuesta.
+
+Pruebas
+Una vez que entendemos lo que tiende a salir mal, nuestro próximo paso es intentar prevenirlo, ya que más vale prevenir que curar. Las pruebas ofrecen cierta garantía de que nuestro software no está cometiendo ciertos tipos de errores antes de que se lance a producción; hablamos de cómo usarlas mejor en Pruebas para la fiabilidad.
+
+Planificación de Capacidad
+En Ingeniería de software en SRE, ofrecemos un estudio de caso sobre la ingeniería de software en SRE con Auxon, una herramienta para automatizar la planificación de capacidad.
+
+De manera natural, tras la planificación de capacidad, el equilibrio de carga garantiza que estamos utilizando adecuadamente la capacidad que hemos construido. Discutimos cómo las solicitudes a nuestros servicios se envían a los centros de datos en Equilibrio de carga en el frontend. Luego continuamos la discusión en Equilibrio de carga en el centro de datos y Manejo de sobrecargas, ambos esenciales para asegurar la confiabilidad del servicio.
+
+Finalmente, en Abordando fallas en cascada, ofrecemos consejos para abordar fallas en cascada, tanto en el diseño del sistema como en caso de que tu servicio se vea atrapado en una de estas fallas.
