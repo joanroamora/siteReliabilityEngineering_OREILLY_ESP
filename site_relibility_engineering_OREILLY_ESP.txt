@@ -1778,6 +1778,49 @@ Los equipos en Google resuelven este problema de cobertura con Prober, que reali
 
 Prober se puede apuntar tanto al dominio frontend como detrás del balanceador de carga. Al usar ambos objetivos, se pueden detectar fallas localizadas y suprimir alertas. Por ejemplo, podríamos monitorear tanto el www.google.com balanceado como los servidores web en cada centro de datos detrás del balanceador de carga. Esta configuración nos permite saber si aún se está sirviendo tráfico cuando falla un centro de datos, o aislar rápidamente un punto en el gráfico de flujo de tráfico donde ha ocurrido una falla.
 
+Mantenimiento de la Configuración
+
+La configuración de Borgmon separa la definición de las reglas de los objetivos que se están monitoreando. Esto significa que el mismo conjunto de reglas se puede aplicar a muchos objetivos a la vez, en lugar de escribir configuraciones casi idénticas repetidamente. Esta separación de responsabilidades puede parecer incidental, pero reduce enormemente el costo de mantener el monitoreo al evitar mucha repetición en la descripción de los sistemas objetivo.
+
+Borgmon también admite plantillas de lenguaje. Este sistema, similar a macros, permite a los ingenieros construir bibliotecas de reglas que pueden reutilizarse. Esta funcionalidad, nuevamente, reduce la repetición y, por lo tanto, disminuye la probabilidad de errores en la configuración.
+
+Por supuesto, cualquier entorno de programación de alto nivel crea la oportunidad para la complejidad, por lo que Borgmon proporciona una forma de construir pruebas unitarias y de regresión extensas mediante la creación de datos de series temporales sintéticas para garantizar que las reglas se comporten como el autor cree que deberían. El equipo de Monitoreo de Producción ejecuta un servicio de integración continua que ejecuta un conjunto de estas pruebas, empaqueta la configuración y la distribuye a todos los Borgmon en producción, los cuales validan la configuración antes de aceptarla.
+
+En la vasta biblioteca de plantillas comunes que se ha creado, han surgido dos clases de configuraciones de monitoreo. La primera clase simplemente codifica el esquema emergente de las variables exportadas desde una biblioteca de código específica, de manera que cualquier usuario de la biblioteca pueda reutilizar la plantilla de sus varz. Existen plantillas de este tipo para la biblioteca del servidor HTTP, la asignación de memoria, la biblioteca cliente de almacenamiento y servicios RPC genéricos, entre otros. (Aunque la interfaz varz no declara un esquema, la biblioteca de reglas asociada con la biblioteca de código termina por declarar un esquema).
+
+La segunda clase de biblioteca surgió a medida que construimos plantillas para gestionar la agregación de datos desde una tarea de un solo servidor hasta la huella global del servicio. Estas bibliotecas contienen reglas genéricas de agregación para variables exportadas que los ingenieros pueden usar para modelar la topología de su servicio.
+
+Por ejemplo, un servicio puede proporcionar una única API global, pero estar ubicado en muchos centros de datos. Dentro de cada centro de datos, el servicio está compuesto por varios fragmentos (shards), y cada fragmento está compuesto por varios trabajos con diferentes cantidades de tareas. Un ingeniero puede modelar esta estructura con reglas de Borgmon para que, al depurar, se puedan aislar los subcomponentes del resto del sistema. Estos agrupamientos generalmente siguen el destino compartido de los componentes; por ejemplo, las tareas individuales comparten destino debido a los archivos de configuración, los trabajos en un fragmento comparten destino porque están ubicados en el mismo centro de datos, y los sitios físicos comparten destino debido a la red.
+
+Las convenciones de etiquetado hacen posible dicha división: un Borgmon añade etiquetas que indican el nombre de la instancia objetivo y el fragmento y centro de datos que ocupa, lo que se puede usar para agrupar y agregar esas series temporales.
+
+Así, tenemos múltiples usos para las etiquetas en una serie temporal, aunque todas son intercambiables:
+
+Etiquetas que definen desgloses de los propios datos (por ejemplo, nuestro código de respuesta HTTP en la variable http_responses)
+Etiquetas que definen la fuente de los datos (por ejemplo, el nombre de la instancia o trabajo)
+Etiquetas que indican la localización o agregación de los datos dentro del servicio en su conjunto (por ejemplo, la etiqueta zone que describe una ubicación física, o la etiqueta shard que describe un agrupamiento lógico de tareas)
+La naturaleza de plantillas de estas bibliotecas permite flexibilidad en su uso. La misma plantilla se puede usar para agregar datos de cada nivel.
+
+Diez Años Después...
+
+Borgmon trasladó el modelo de verificación y alerta por objetivo hacia la recolección masiva de variables y una evaluación de reglas centralizada a través de series temporales para alertas y diagnósticos.
+
+Este desacoplamiento permite que el tamaño del sistema monitoreado escale de manera independiente del tamaño de las reglas de alerta. Estas reglas son más fáciles de mantener porque están abstraídas sobre un formato común de series temporales. Las nuevas aplicaciones vienen preparadas con exportaciones de métricas en todos los componentes y bibliotecas a los que están vinculadas, y con plantillas de agregación y consolas bien establecidas, lo que reduce aún más la carga de implementación.
+
+Asegurarse de que el costo de mantenimiento escale de manera sublineal con el tamaño del servicio es clave para hacer que el monitoreo (y todo el trabajo operativo sostenible) sea manejable. Este tema recurrente aparece en todo el trabajo de SRE, ya que los SRE trabajan para escalar todos los aspectos de su trabajo al nivel global.
+
+Diez años es mucho tiempo, y naturalmente, hoy en día, la forma del panorama de monitoreo dentro de Google ha evolucionado con experimentos y cambios, buscando mejoras continuas a medida que la empresa crece.
+
+Aunque Borgmon sigue siendo una herramienta interna de Google, la idea de tratar los datos de series temporales como una fuente de datos para generar alertas ahora está al alcance de todos a través de herramientas de código abierto como Prometheus, Riemann, Heka y Bosun, y probablemente otras para cuando leas esto.
+
+
+
+
+
+
+
+
+
 
 
 
