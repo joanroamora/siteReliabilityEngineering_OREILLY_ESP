@@ -1236,3 +1236,28 @@ Tomemos como ejemplo la prueba mostrada en la Figura 7-2. Si TestDnsMonitoringCo
 Armados con estos scripts, un pequeño grupo de ingenieros podría garantizar que podríamos pasar de "La red funciona, y las máquinas están listadas en la base de datos" a "Sirviendo el 1% del tráfico de búsquedas web y anuncios" en una semana o dos. En ese momento, esto parecía ser la cúspide de la tecnología de automatización.
 
 Mirando hacia atrás, este enfoque estaba profundamente defectuoso; la latencia entre la prueba, la corrección y luego una segunda prueba introdujo pruebas inestables que a veces funcionaban y a veces fallaban. No todas las correcciones eran naturalmente idempotentes, por lo que una prueba inestable seguida de una corrección podría dejar el sistema en un estado inconsistente.
+La inclinación a especializar
+
+Los procesos de automatización pueden variar en tres aspectos:
+
+Competencia, es decir, su precisión.
+Latencia, qué tan rápido se ejecutan todos los pasos una vez iniciados.
+Relevancia, o la proporción del proceso del mundo real cubierto por la automatización.
+Comenzamos con un proceso que era altamente competente (mantenido y ejecutado por los dueños del servicio), de alta latencia (los dueños del servicio realizaban el proceso en su tiempo libre o lo asignaban a nuevos ingenieros) y muy relevante (los dueños del servicio sabían cuándo cambiaba el mundo real y podían corregir la automatización).
+
+Para reducir la latencia en las configuraciones de clústeres, muchos equipos encargados de los servicios instruyeron a un "equipo de configuración" sobre qué automatización debían ejecutar. El equipo de configuración usaba tickets para iniciar cada etapa, de manera que pudiéramos rastrear las tareas pendientes y a quién se les asignaban. Si las interacciones humanas sobre los módulos de automatización se daban entre personas en la misma sala, las configuraciones de clústeres podían hacerse en mucho menos tiempo. Finalmente, ¡teníamos nuestro proceso de automatización competente, preciso y a tiempo!
+
+Pero este estado no duró mucho. El mundo real es caótico: el software, la configuración, los datos, etc., cambiaban, lo que resultaba en más de mil cambios separados al día en los sistemas afectados. Las personas más afectadas por los errores de automatización ya no eran expertos en el dominio, por lo que la automatización se volvió menos relevante (lo que significaba que se omitían nuevos pasos) y menos competente (nuevas banderas podrían haber causado fallos en la automatización). Sin embargo, tomó un tiempo para que esta caída en la calidad impactara la velocidad.
+
+El código de automatización, como el código de pruebas unitarias, muere cuando el equipo de mantenimiento no es obsesivo en mantenerlo sincronizado con la base de código que cubre. El mundo cambia alrededor del código: el equipo de DNS añade nuevas opciones de configuración, el equipo de almacenamiento cambia los nombres de sus paquetes, y el equipo de redes necesita soportar nuevos dispositivos.
+
+Al liberar a los equipos que ejecutaban los servicios de la responsabilidad de mantener y ejecutar su código de automatización, creamos incentivos organizacionales poco favorables:
+
+Un equipo cuyo objetivo principal es acelerar la configuración actual no tiene incentivo para reducir la deuda técnica del equipo que maneja el servicio en producción más adelante.
+Un equipo que no ejecuta la automatización no tiene incentivo para crear sistemas que sean fáciles de automatizar.
+Un gerente de producto cuyo cronograma no se ve afectado por la automatización de baja calidad siempre priorizará las nuevas características sobre la simplicidad y la automatización.
+Las herramientas más funcionales suelen ser escritas por aquellos que las utilizan. Un argumento similar se aplica a por qué los equipos de desarrollo de productos se benefician de mantener al menos cierta conciencia operativa de sus sistemas en producción.
+
+Las configuraciones volvieron a ser de alta latencia, inexactas e incompetentes: lo peor de todos los mundos. Sin embargo, un mandato de seguridad no relacionado nos permitió salir de esta trampa.
+
+En ese momento, gran parte de la automatización distribuida dependía de SSH. Esto es problemático desde una perspectiva de seguridad, ya que las personas deben tener acceso root en muchas máquinas para ejecutar la mayoría de los comandos. Una creciente conciencia de las amenazas de seguridad avanzadas y persistentes nos impulsó a reducir los privilegios de los SREs al mínimo necesario para hacer su trabajo. Tuvimos que reemplazar nuestro uso de sshd con un Daemon de administración local basado en RPC autenticado y controlado por ACL, también conocido como Servidores de Administración, que tenía permisos para realizar esos cambios locales. Como resultado, nadie podía instalar o modificar un servidor sin dejar una pista de auditoría. Los cambios en el Daemon de Administración Local y el Repositorio de Paquetes estaban controlados por revisiones de código, lo que hacía muy difícil que alguien excediera su autoridad; dar acceso para instalar paquetes no les permitía ver los registros colocalizados. El Servidor de Administración registraba al solicitante del RPC, los parámetros y los resultados de todos los RPCs para mejorar la depuración y las auditorías de seguridad.
