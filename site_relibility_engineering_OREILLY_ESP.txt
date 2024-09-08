@@ -1570,3 +1570,41 @@ Como se discutió anteriormente, las pruebas son un tema delicado, y su ejecuci�
 Aunque a menudo se considera un arte oscuro, lleno de hojas de cálculo misteriosas que predicen el futuro, la planificación de capacidad es vital, y como muestra [Hix15a], no necesitas una bola de cristal para hacerlo bien.
 
 Finalmente, un enfoque interesante y novedoso para la seguridad de redes corporativas se detalla en [War14], una iniciativa para reemplazar las intranets privilegiadas con credenciales de dispositivos y usuarios. Impulsado por SREs a nivel de infraestructura, este es definitivamente un enfoque a tener en cuenta cuando estés creando tu próxima red.
+
+Capítulo 10 - Alertas Prácticas
+Escrito por Jamie Wilkinson
+Editado por Kavita Guliani
+
+Que las consultas fluyan y el buscapersonas permanezca en silencio.
+Bendición tradicional de SRE
+
+El monitoreo, la capa más baja de la Jerarquía de Necesidades de Producción, es fundamental para ejecutar un servicio estable. El monitoreo permite a los responsables de los servicios tomar decisiones racionales sobre el impacto de los cambios en el servicio, aplicar el método científico a la respuesta ante incidentes y, por supuesto, asegurar su razón de ser: medir la alineación del servicio con los objetivos comerciales (ver Monitoreo de Sistemas Distribuidos).
+
+Independientemente de si un servicio cuenta o no con el apoyo de SRE, debe gestionarse en una relación simbiótica con su monitoreo. Pero, al ser responsables en última instancia de la producción en Google, los SRE desarrollan un conocimiento particularmente íntimo de la infraestructura de monitoreo que respalda su servicio.
+
+Monitorear un sistema de gran escala es un desafío por varias razones:
+
+El gran número de componentes que se deben analizar.
+La necesidad de mantener una carga de mantenimiento razonablemente baja en los ingenieros responsables del sistema.
+Los sistemas de monitoreo de Google no solo miden métricas simples, como el tiempo de respuesta promedio de un servidor web en Europa, sino que también necesitamos entender la distribución de esos tiempos de respuesta entre todos los servidores web de esa región. Este conocimiento nos permite identificar los factores que contribuyen a la cola de latencia.
+
+A la escala en la que operan nuestros sistemas, ser alertados por fallas en una sola máquina es inaceptable, ya que esos datos son demasiado ruidosos para ser útiles. En lugar de eso, tratamos de construir sistemas robustos contra fallas en los sistemas de los que dependen. En lugar de requerir la gestión de muchos componentes individuales, un sistema grande debe diseñarse para agregar señales y eliminar valores atípicos. Necesitamos sistemas de monitoreo que nos permitan alertar sobre los objetivos de servicio de alto nivel, pero que mantengan la granularidad necesaria para inspeccionar componentes individuales según sea necesario.
+
+Los sistemas de monitoreo de Google evolucionaron a lo largo de 10 años desde el modelo tradicional de scripts personalizados que verifican respuestas y generan alertas, completamente separados de la visualización de tendencias, hasta un nuevo paradigma. Este nuevo modelo hizo que la recopilación de series temporales fuera una función de primer nivel del sistema de monitoreo y reemplazó esos scripts de verificación con un lenguaje rico para manipular series temporales en gráficos y alertas.
+
+El Auge de Borgmon
+Poco después de que se creara la infraestructura de programación de tareas Borg en 2003, se desarrolló un nuevo sistema de monitoreo llamado Borgmon para complementarlo.
+
+Monitoreo de Series Temporales Fuera de Google
+Este capítulo describe la arquitectura y la interfaz de programación de una herramienta de monitoreo interna que fue fundamental para el crecimiento y la confiabilidad de Google durante casi 10 años. Sin embargo, ¿cómo ayuda esto a ti, estimado lector?
+
+En los últimos años, el monitoreo ha experimentado una explosión de herramientas como Riemann, Heka, Bosun y Prometheus, que son muy similares al monitoreo basado en series temporales de Borgmon. En particular, Prometheus comparte muchas similitudes con Borgmon, especialmente en cuanto a los lenguajes de reglas. Los principios de recolección de variables y evaluación de reglas se mantienen constantes en todas estas herramientas y proporcionan un entorno con el que puedes experimentar e, idealmente, lanzar ideas inspiradas por este capítulo en producción.
+
+En lugar de ejecutar scripts personalizados para detectar fallos del sistema, Borgmon se basa en un formato común de exposición de datos. Esto permite la recolección masiva de datos con bajos costos generales y evita los costos de ejecución de subprocesos y la configuración de conexiones de red. A esto lo llamamos monitoreo de caja blanca.
+
+El sistema utiliza los datos tanto para generar gráficos como para crear alertas mediante simples operaciones aritméticas. Como la recopilación ya no ocurre en un proceso de corta duración, los datos históricos pueden ser utilizados para el cálculo de las alertas.
+
+Instrumentación de Aplicaciones
+El controlador HTTP /varz simplemente enumera todas las variables exportadas en texto sin formato. Una extensión posterior añadió una variable mapeada que permite al exportador definir varias etiquetas en un nombre de variable y luego exportar una tabla de valores o un histograma.
+
+Agregar una métrica a un programa solo requiere una declaración en el código donde se necesita la métrica. Esta interfaz de texto sin esquema hace que la barrera para agregar nuevas instrumentaciones sea muy baja, lo que es positivo tanto para los equipos de ingeniería de software como para los de SRE.
