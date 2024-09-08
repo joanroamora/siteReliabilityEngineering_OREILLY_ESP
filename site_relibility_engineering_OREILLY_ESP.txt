@@ -1656,3 +1656,45 @@ Consulta en el Tiempo
 También se pueden consultar las series temporales especificando una duración en la expresión de variable: {var=http_requests, job=webserver, service=web, zone=us-west}[10m]
 
 Esto devuelve los últimos 10 minutos de la historia de las series temporales que coinciden con la expresión, mostrando múltiples puntos de datos si se recopilan a intervalos regulares (por ejemplo, 1 minuto).
+
+Evaluación de Reglas
+Borgmon es, en esencia, una calculadora programable con algunas facilidades sintácticas que permiten generar alertas. Los componentes de recolección y almacenamiento de datos descritos anteriormente son simplemente medios necesarios para hacer que esa calculadora sea apta para monitorear sistemas.
+
+Nota
+Centralizar la evaluación de reglas en un sistema de monitoreo, en lugar de delegarla en subprocesos independientes, permite que los cálculos se ejecuten en paralelo contra muchos objetivos similares. Esto mantiene la configuración relativamente pequeña al evitar duplicación de código, y al mismo tiempo se vuelve más poderosa gracias a su expresividad.
+
+El código de Borgmon, también conocido como reglas de Borgmon, consiste en expresiones algebraicas simples que calculan series temporales a partir de otras series temporales. Estas reglas son bastante potentes porque pueden consultar el historial de una sola serie temporal (es decir, el eje de tiempo), consultar diferentes subconjuntos de etiquetas de muchas series temporales a la vez (es decir, el eje espacial), y aplicar muchas operaciones matemáticas.
+
+Las reglas se ejecutan en un threadpool en paralelo donde sea posible, pero dependen del orden cuando utilizan reglas previamente definidas como entrada. El tamaño de los vectores que devuelven sus expresiones de consulta también determina el tiempo de ejecución total de una regla. Así que, generalmente, se pueden agregar recursos de CPU a una tarea de Borgmon si está funcionando lentamente. Para ayudar con análisis detallados, se exportan métricas internas sobre el tiempo de ejecución de las reglas para depurar el rendimiento y monitorear el sistema de monitoreo.
+
+Agregación en la Evaluación de Reglas
+La agregación es fundamental en la evaluación de reglas en un entorno distribuido. Implica sumar un conjunto de series temporales de las tareas en un trabajo para tratar ese trabajo como un todo. A partir de esas sumas, se pueden calcular las tasas generales. Por ejemplo, la tasa total de consultas por segundo de un trabajo en un centro de datos es la suma de todas las tasas de cambio de todos los contadores de consultas.
+
+Consejo
+Un contador es cualquier variable que no disminuye de valor, es decir, los contadores solo aumentan. Los medidores (gauges), por otro lado, pueden tomar cualquier valor. Los contadores miden valores crecientes, como el número total de kilómetros conducidos, mientras que los medidores muestran el estado actual, como la cantidad de combustible restante o la velocidad actual. Al recopilar datos al estilo Borgmon, es mejor usar contadores, ya que no pierden su significado cuando ocurren eventos entre intervalos de muestreo.
+
+Ejemplo de Alerta de Error en un Servidor Web
+Supongamos que queremos alertar cuando nuestro clúster de servidores web comience a servir más errores de lo que consideramos normal. Esto se lograría al dividir la suma de las tasas de códigos de respuesta no HTTP 200 en todas las tareas del clúster entre la suma de las tasas de solicitudes a todas las tareas del clúster.
+
+Este proceso implica:
+
+Agregar las tasas de códigos de respuesta a través de todas las tareas, produciendo un vector de tasas en ese momento para cada código.
+Calcular la tasa total de errores sumando ese vector, excluyendo el código 200 de la suma.
+Calcular la proporción de errores a solicitudes a nivel de clúster, dividiendo la tasa total de errores entre la tasa de solicitudes que llegaron.
+Cada uno de estos pasos genera nuevas series temporales. Aquí está la regla en lenguaje de Borgmon para calcular la tasa de solicitudes:
+
+shell
+Copiar código
+rules <<<
+# Calcular la tasa de solicitudes para cada tarea a partir del contador de solicitudes
+{var=task:http_requests:rate10m,job=webserver} =
+rate({var=http_requests,job=webserver}[10m]);
+
+# Sumar las tasas para obtener la tasa agregada de consultas para el clúster;
+# 'sin instancia' elimina la etiqueta instance del lado derecho.
+{var=dc:http_requests:rate10m,job=webserver} =
+sum without instance({var=task:http_requests:rate10m,job=webserver})
+>>>
+El uso de la función rate() devuelve el delta total dividido por el tiempo total entre los valores más tempranos y más recientes.
+
+Las reglas calculadas y agregadas permiten inspeccionar las tasas de error y de solicitudes en todo el clúster a lo largo del tiempo, lo que facilita la generación de alertas efectivas y la evaluación continua del sistema.
