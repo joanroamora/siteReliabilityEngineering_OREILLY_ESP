@@ -1861,7 +1861,42 @@ Los turnos nocturnos tienen efectos perjudiciales para la salud [Dur05], y una r
 Limitar el número de ingenieros en la rotación de guardia garantiza que los ingenieros no pierdan contacto con los sistemas de producción.
 Sin embargo, los equipos de múltiples sedes generan costos adicionales de comunicación y coordinación. Por lo tanto, la decisión de optar por un equipo de múltiples sedes o de una sola sede debe basarse en los compromisos que conlleva cada opción, la importancia del sistema y la carga de trabajo que genera cada sistema.
 
+Equilibrio en la Calidad
 
+Para cada turno de guardia, un ingeniero debe tener suficiente tiempo para abordar cualquier incidente y llevar a cabo actividades de seguimiento, como escribir postmortems [Loo10]. Definimos un incidente como una secuencia de eventos y alertas relacionados con la misma causa raíz y que se discutirían como parte del mismo postmortem. Hemos descubierto que, en promedio, abordar las tareas involucradas en un incidente de guardia (análisis de la causa raíz, remediación y actividades de seguimiento como escribir un postmortem y corregir errores) lleva alrededor de 6 horas. Esto implica que el número máximo de incidentes por día es 2 por turno de guardia de 12 horas. Para mantenernos dentro de este límite, la distribución de los eventos de alerta debe ser bastante plana a lo largo del tiempo, con un valor mediano probable de 0: si un componente o problema genera alertas todos los días (mediana de incidentes/día > 1), es probable que algo más falle en algún momento, causando más incidentes de los permitidos.
+
+Si este límite se supera temporalmente, por ejemplo, durante un trimestre, se deben implementar medidas correctivas para garantizar que la carga operativa vuelva a un estado sostenible (ver Sobrecarga Operativa y Incorporar un SRE para Recuperarse de la Sobrecarga Operativa).
+
+Compensación
+
+Se debe considerar una compensación adecuada para el soporte fuera de horario. Las diferentes organizaciones manejan la compensación por guardia de diferentes maneras; Google ofrece tiempo libre compensatorio o una compensación en efectivo, con un tope en alguna proporción del salario total. En la práctica, este tope de compensación representa un límite en la cantidad de trabajo de guardia que asumirá cualquier individuo. Esta estructura de compensación asegura un incentivo para participar en las tareas de guardia según lo requiera el equipo, pero también promueve una distribución equilibrada del trabajo de guardia y limita las posibles desventajas de un exceso de trabajo de guardia, como el agotamiento o la falta de tiempo para el trabajo en proyectos.
+
+Sentirse Seguro
+
+Como se mencionó anteriormente, los equipos de SRE apoyan los sistemas más críticos de Google. Ser un SRE de guardia generalmente significa asumir la responsabilidad de sistemas críticos para los usuarios o los ingresos, o de la infraestructura necesaria para mantener estos sistemas en funcionamiento. La metodología SRE para pensar y abordar problemas es vital para la operación adecuada de los servicios.
+
+Las investigaciones modernas identifican dos formas distintas de pensamiento que un individuo puede, consciente o inconscientemente, elegir cuando enfrenta desafíos [Kah11]:
+
+Acción intuitiva, automática y rápida.
+Funciones cognitivas racionales, enfocadas y deliberadas.
+Cuando se trata de interrupciones relacionadas con sistemas complejos, la segunda opción es más probable que produzca mejores resultados y conduzca a una gestión de incidentes bien planificada.
+
+Para asegurarse de que los ingenieros estén en el estado mental adecuado para aprovechar este segundo enfoque, es importante reducir el estrés relacionado con estar de guardia. La importancia y el impacto de los servicios, así como las consecuencias de posibles interrupciones, pueden crear una presión significativa en los ingenieros de guardia, afectando el bienestar de los miembros del equipo y posiblemente haciendo que los SRE tomen decisiones incorrectas que puedan poner en peligro la disponibilidad del servicio. Se sabe que las hormonas del estrés, como el cortisol y la hormona liberadora de corticotropina (CRH), causan consecuencias conductuales, incluida la sensación de miedo, que pueden perjudicar las funciones cognitivas y provocar decisiones subóptimas [Chr09].
+
+Bajo la influencia de estas hormonas del estrés, el enfoque cognitivo más deliberado suele ser suplantado por acciones no reflexivas e inmediatas, lo que lleva a un posible abuso de heurísticas. Las heurísticas son comportamientos muy tentadores cuando uno está de guardia. Por ejemplo, cuando una misma alerta suena por cuarta vez en la semana, y las tres alertas anteriores fueron iniciadas por un sistema externo de infraestructura, es extremadamente tentador caer en el sesgo de confirmación al asociar automáticamente esta cuarta ocurrencia del problema con la causa previa.
+
+Aunque la intuición y las reacciones rápidas pueden parecer rasgos deseables en medio de la gestión de incidentes, tienen desventajas. La intuición puede ser incorrecta y a menudo tiene menos respaldo en datos evidentes. Así, seguir la intuición puede llevar a un ingeniero a perder tiempo persiguiendo una línea de razonamiento que es incorrecta desde el principio. Las reacciones rápidas están profundamente arraigadas en el hábito, y las respuestas habituales no son reflexivas, lo que significa que pueden ser desastrosas. La metodología ideal en la gestión de incidentes logra un equilibrio perfecto entre tomar medidas a un ritmo adecuado cuando se dispone de suficientes datos para tomar una decisión razonable, mientras se examinan críticamente las suposiciones.
+
+Es importante que los SRE de guardia entiendan que pueden confiar en varios recursos que hacen que la experiencia de estar de guardia sea menos intimidante de lo que parece. Los recursos más importantes durante la guardia son:
+
+Rutas de escalamiento claras.
+Procedimientos bien definidos para la gestión de incidentes.
+Una cultura de postmortem sin culpas ([Loo10], [All12]).
+Los equipos de desarrollo de los sistemas respaldados por SRE generalmente participan en una rotación de guardia 24/7, y siempre es posible escalar a estos equipos asociados cuando sea necesario. La escalación adecuada de interrupciones es generalmente una forma bien fundamentada de reaccionar ante interrupciones graves con dimensiones desconocidas.
+
+Cuando se gestionan incidentes, si el problema es lo suficientemente complejo como para involucrar a varios equipos o si, después de una investigación, aún no es posible estimar un límite superior para la duración del incidente, puede ser útil adoptar un protocolo formal de gestión de incidentes. Google SRE utiliza el protocolo descrito en Managing Incidents, que ofrece un conjunto de pasos bien definidos y fáciles de seguir que ayudan a un ingeniero de guardia a gestionar racionalmente un incidente con toda la ayuda necesaria. Este protocolo está respaldado internamente por una herramienta basada en la web que automatiza la mayoría de las acciones de gestión de incidentes, como la asignación de roles y el registro y la comunicación de actualizaciones de estado. Esta herramienta permite a los gerentes de incidentes centrarse en abordar el incidente, en lugar de gastar tiempo y esfuerzo cognitivo en acciones mundanas como formatear correos electrónicos o actualizar varios canales de comunicación a la vez.
+
+Finalmente, cuando ocurre un incidente, es importante evaluar qué salió mal, reconocer qué salió bien y tomar medidas para evitar que los mismos errores se repitan en el futuro. Los equipos de SRE deben escribir postmortems después de incidentes significativos y detallar una cronología completa de los eventos ocurridos. Al enfocarse en los eventos en lugar de en las personas, estos postmortems aportan un valor significativo. En lugar de culpar a los individuos, derivan valor de un análisis sistemático de los incidentes en producción. Los errores suceden, y el software debe asegurarse de que cometamos la menor cantidad de errores posible. Reconocer las oportunidades de automatización es una de las mejores formas de prevenir errores humanos [Loo10].
 
 
 
