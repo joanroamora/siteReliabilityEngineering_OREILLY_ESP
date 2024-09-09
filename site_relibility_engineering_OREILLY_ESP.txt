@@ -1813,6 +1813,62 @@ Diez años es mucho tiempo, y naturalmente, hoy en día, la forma del panorama d
 
 Aunque Borgmon sigue siendo una herramienta interna de Google, la idea de tratar los datos de series temporales como una fuente de datos para generar alertas ahora está al alcance de todos a través de herramientas de código abierto como Prometheus, Riemann, Heka y Bosun, y probablemente otras para cuando leas esto.
 
+Capítulo 11 - Estar de Guardia
+Escrito por Andrea Spadaccini
+Editado por Kavita Guliani
+
+Estar de guardia es una responsabilidad crítica que muchos equipos de operaciones e ingeniería deben asumir para mantener la fiabilidad y disponibilidad de sus servicios. Sin embargo, hay varias trampas en la organización de las rotaciones y responsabilidades de guardia que pueden llevar a graves consecuencias para los servicios y los equipos si no se evitan. Este capítulo describe los principios fundamentales del enfoque que los Ingenieros de Fiabilidad de Sitios (SRE) de Google han desarrollado a lo largo de los años y explica cómo ese enfoque ha llevado a servicios confiables y a una carga de trabajo sostenible con el tiempo.
+
+Introducción
+Varias profesiones requieren que los empleados realicen algún tipo de trabajo de guardia, lo que implica estar disponibles para recibir llamadas durante las horas laborales y no laborales. En el contexto de TI, históricamente, las actividades de guardia han sido realizadas por equipos de operaciones dedicados, encargados principalmente de mantener la salud de los servicios bajo su responsabilidad.
+
+Muchos servicios importantes en Google, como Búsqueda, Anuncios y Gmail, tienen equipos dedicados de SRE responsables del rendimiento y la fiabilidad de estos servicios. Por lo tanto, los SRE están de guardia para los servicios que apoyan. Los equipos de SRE son bastante diferentes de los equipos puramente operativos, ya que ponen un gran énfasis en el uso de la ingeniería para abordar problemas. Estos problemas, que típicamente pertenecen al dominio operativo, existen a una escala que sería inabordable sin soluciones de ingeniería de software.
+
+Para aplicar este tipo de resolución de problemas, Google contrata a personas con una diversa experiencia en sistemas e ingeniería de software en los equipos de SRE. Limitamos el tiempo que los SRE dedican exclusivamente al trabajo operativo al 50%; al menos el 50% del tiempo de un SRE debe estar dedicado a proyectos de ingeniería que aumenten el impacto del equipo a través de la automatización, además de mejorar el servicio.
+
+La vida de un ingeniero de guardia
+Esta sección describe las actividades típicas de un ingeniero de guardia y proporciona un contexto para el resto del capítulo.
+
+Como guardianes de los sistemas de producción, los ingenieros de guardia se encargan de sus operaciones asignadas gestionando las interrupciones que afectan al equipo y realizando y/o revisando los cambios en producción.
+
+Cuando están de guardia, se espera que los ingenieros estén disponibles para realizar operaciones en sistemas de producción en cuestión de minutos, según los tiempos de respuesta acordados por el equipo y los propietarios del sistema de negocio. Los valores típicos son 5 minutos para sistemas orientados al usuario u otros servicios muy críticos en cuanto al tiempo, y 30 minutos para sistemas menos sensibles al tiempo. La empresa proporciona el dispositivo para recibir alertas, que normalmente es un teléfono. Google cuenta con sistemas flexibles de entrega de alertas que pueden enviar páginas a través de múltiples mecanismos (correo electrónico, SMS, llamada automatizada, aplicación) en varios dispositivos.
+
+Los tiempos de respuesta están relacionados con la disponibilidad deseada del servicio, como se demuestra en el siguiente ejemplo simplista: si un sistema orientado al usuario debe obtener 4 nueves de disponibilidad en un trimestre determinado (99.99%), el tiempo de inactividad permitido trimestral es de alrededor de 13 minutos (Tabla de Disponibilidad). Esta restricción implica que el tiempo de reacción de los ingenieros de guardia debe ser del orden de minutos (estrictamente hablando, 13 minutos). Para sistemas con SLOs más relajados, el tiempo de reacción puede ser del orden de decenas de minutos.
+
+Tan pronto como se recibe y se reconoce una alerta, se espera que el ingeniero de guardia evalúe el problema y trabaje para su resolución, posiblemente involucrando a otros miembros del equipo y escalando según sea necesario.
+
+Eventos de producción que no activan alertas, como alertas de menor prioridad o lanzamientos de software, también pueden ser manejados y/o revisados por el ingeniero de guardia durante las horas laborales. Estas actividades son menos urgentes que los eventos que activan alertas, que tienen prioridad sobre casi cualquier otra tarea, incluido el trabajo de proyectos. Para obtener más información sobre las interrupciones y otros eventos no relacionados con alertas que contribuyen a la carga operativa, consulte Dealing with Interrupts.
+
+Muchos equipos tienen tanto una rotación de guardia principal como una secundaria. La distribución de tareas entre la guardia principal y la secundaria varía según el equipo. Un equipo podría usar la guardia secundaria como respaldo para las alertas que la guardia principal no responde. Otro equipo podría especificar que la guardia principal maneja solo las alertas, mientras que la guardia secundaria se encarga de todas las demás actividades de producción no urgentes.
+
+En equipos donde no se requiere estrictamente una rotación de guardia secundaria para la distribución de tareas, es común que dos equipos relacionados actúen como guardia secundaria el uno para el otro, manejando las alertas que el equipo principal no responde. Este enfoque elimina la necesidad de una rotación de guardia secundaria exclusiva.
+
+Existen muchas formas de organizar las rotaciones de guardia; para un análisis detallado, consulte el capítulo "Oncall" de [Lim14].
+
+Guardias equilibradas
+Los equipos de SRE tienen restricciones específicas sobre la cantidad y calidad de los turnos de guardia. La cantidad de tiempo de guardia se puede calcular en función del porcentaje de tiempo que los ingenieros dedican a las tareas de guardia. La calidad de los turnos de guardia se puede calcular según el número de incidentes que ocurren durante un turno de guardia.
+
+Los gerentes de SRE son responsables de mantener equilibrada y sostenible la carga de trabajo de guardia en ambos aspectos.
+
+Equilibrio en la cantidad
+Creemos firmemente que la "E" en "SRE" es una característica definitoria de nuestra organización, por lo que nos esforzamos por que al menos el 50% del tiempo de un SRE se invierta en ingeniería: del tiempo restante, no más del 25% puede dedicarse a estar de guardia, dejando hasta un 25% para otros tipos de trabajo operativo no relacionado con proyectos.
+
+Usando la regla del 25% de guardia, podemos derivar el número mínimo de SREs necesarios para mantener una rotación de guardia 24/7. Suponiendo que siempre haya dos personas de guardia (primaria y secundaria, con diferentes responsabilidades), el número mínimo de ingenieros necesarios para las tareas de guardia en un equipo de una sola sede es ocho: suponiendo turnos de una semana, cada ingeniero estaría de guardia (primaria o secundaria) durante una semana cada mes. Para los equipos de dos sedes, un tamaño razonable mínimo de cada equipo es seis, tanto para cumplir con la regla del 25% como para asegurar una masa crítica sustancial de ingenieros en el equipo.
+
+Si un servicio genera suficiente trabajo para justificar el crecimiento de un equipo de una sola sede, preferimos crear un equipo de múltiples sedes. Un equipo de múltiples sedes es ventajoso por dos razones:
+
+Los turnos nocturnos tienen efectos perjudiciales para la salud [Dur05], y una rotación de "seguir al sol" permite a los equipos evitar los turnos nocturnos por completo.
+Limitar el número de ingenieros en la rotación de guardia garantiza que los ingenieros no pierdan contacto con los sistemas de producción.
+Sin embargo, los equipos de múltiples sedes generan costos adicionales de comunicación y coordinación. Por lo tanto, la decisión de optar por un equipo de múltiples sedes o de una sola sede debe basarse en los compromisos que conlleva cada opción, la importancia del sistema y la carga de trabajo que genera cada sistema.
+
+
+
+
+
+
+
+
+
 
 
 
