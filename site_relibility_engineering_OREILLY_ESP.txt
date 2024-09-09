@@ -1954,6 +1954,41 @@ En un modelo idealizado como el que se muestra en la Figura 12-1, comenzaríamos
 
 Luego, podemos probar nuestras hipótesis de dos maneras. Podemos comparar el estado observado del sistema con nuestras teorías para encontrar evidencia confirmatoria o desconfirmatoria. O, en algunos casos, podemos "tratar" activamente el sistema, es decir, cambiar el sistema de manera controlada y observar los resultados. Este segundo enfoque refina nuestra comprensión del estado del sistema y las posibles causas del problema reportado. Usando cualquiera de estas estrategias, probamos repetidamente hasta que se identifica la causa raíz, momento en el cual podemos tomar medidas correctivas para evitar una recurrencia y redactar un informe post mortem. Por supuesto, solucionar las causas inmediatas no siempre tiene que esperar a identificar la causa raíz o a redactar el post mortem.
 
+Errores Comunes
+
+Las sesiones ineficaces de resolución de problemas están plagadas de problemas en los pasos de Triage, Examen y Diagnóstico, a menudo debido a la falta de una comprensión profunda del sistema. Los siguientes son errores comunes a evitar:
+
+Observar síntomas que no son relevantes o malinterpretar el significado de las métricas del sistema, lo que a menudo resulta en esfuerzos en vano.
+No entender cómo cambiar el sistema, sus entradas o su entorno de manera segura y efectiva para probar hipótesis.
+Proponer teorías extremadamente improbables sobre lo que está mal, o aferrarse a causas de problemas pasados, razonando que, si sucedió una vez, debe estar sucediendo de nuevo.
+Buscar correlaciones espurias que en realidad son coincidencias o están correlacionadas con causas comunes.
+Resolver los dos primeros errores comunes es cuestión de aprender sobre el sistema en cuestión y ganar experiencia con los patrones comunes utilizados en los sistemas distribuidos. El tercer error es un conjunto de falacias lógicas que pueden evitarse recordando que no todos los fallos son igualmente probables; como se les enseña a los médicos: "cuando oigas cascos, piensa en caballos, no en cebras". Además, recuerda que, en igualdad de condiciones, debemos preferir explicaciones más simples.
+
+Finalmente, debemos recordar que correlación no es causalidad: algunos eventos correlacionados, como la pérdida de paquetes dentro de un clúster y fallos en discos duros, comparten causas comunes, como un corte de energía. Sin embargo, la falla de la red claramente no causa los fallos en los discos duros ni viceversa. A medida que los sistemas crecen en tamaño y complejidad, y se monitorean más métricas, es inevitable que algunos eventos parezcan correlacionarse con otros eventos, puramente por coincidencia.
+
+Entender los fallos en nuestro proceso de razonamiento es el primer paso para evitarlos y volverse más efectivo en la resolución de problemas. Un enfoque metódico para saber qué sabemos, qué no sabemos y qué necesitamos saber hace que sea más simple y directo descubrir qué ha salido mal y cómo solucionarlo.
+
+En la Práctica
+En la práctica, por supuesto, la resolución de problemas nunca es tan clara como sugiere nuestro modelo idealizado. Hay algunos pasos que pueden hacer que el proceso sea menos doloroso y más productivo tanto para quienes experimentan problemas en el sistema como para quienes los responden.
+
+Informe del Problema
+Cada problema comienza con un informe de problema, que puede ser una alerta automatizada o uno de tus colegas diciendo: "El sistema está lento". Un informe efectivo debe indicar el comportamiento esperado, el comportamiento real y, si es posible, cómo reproducir el comportamiento. Idealmente, los informes deben tener un formato consistente y almacenarse en un lugar que se pueda buscar, como un sistema de seguimiento de errores. En Google, nuestros equipos a menudo tienen formularios personalizados o pequeñas aplicaciones web que solicitan información relevante para diagnosticar los sistemas que soportan, lo que genera automáticamente un error y lo asigna a alguien. Este también puede ser un buen momento para proporcionar herramientas a los informadores de problemas para que intenten diagnosticar o resolver problemas comunes por sí mismos.
+
+Es una práctica común en Google abrir un error para cada problema, incluso aquellos recibidos por correo electrónico o mensajería instantánea. Hacerlo crea un registro de actividades de investigación y remediación que se puede consultar en el futuro. Muchos equipos desaconsejan informar problemas directamente a una persona por varias razones: esta práctica introduce un paso adicional de transcribir el informe en un error, produce informes de menor calidad que no son visibles para otros miembros del equipo, y tiende a concentrar la carga de resolución de problemas en unos pocos miembros del equipo que los informadores conocen, en lugar de la persona de turno (ver también Manejo de Interrupciones).
+
+Shakespeare Tiene un Problema
+Estás de guardia para el servicio de búsqueda de Shakespeare y recibes una alerta, Shakespeare-BlackboxProbe_SearchFailure: tu monitor de caja negra no ha podido encontrar resultados de búsqueda para "the forms of things unknown" durante los últimos cinco minutos. El sistema de alertas ha presentado un error, con enlaces a los resultados recientes del monitor de caja negra y al manual de procedimientos para esta alerta, y te lo ha asignado. ¡Es hora de actuar!
+
+Triage
+Una vez que recibes un informe de problema, el siguiente paso es averiguar qué hacer al respecto. Los problemas pueden variar en gravedad: un problema puede afectar solo a un usuario en circunstancias muy específicas (y puede tener una solución alternativa), o puede implicar una interrupción global completa de un servicio. Tu respuesta debe ser adecuada para el impacto del problema: es apropiado declarar una emergencia general para el segundo caso, pero hacerlo para el primero sería excesivo. Evaluar la gravedad de un problema requiere buen juicio de ingeniería y, a menudo, un grado de calma bajo presión.
+
+Tu primera reacción en una interrupción importante puede ser comenzar a solucionar problemas y tratar de encontrar una causa raíz lo más rápido posible. ¡Ignora ese instinto!
+
+En su lugar, tu curso de acción debe ser hacer que el sistema funcione lo mejor posible dadas las circunstancias. Esto puede implicar opciones de emergencia, como desviar el tráfico de un clúster roto a otros que aún funcionan, descartar el tráfico por completo para evitar una falla en cascada, o deshabilitar subsistemas para aligerar la carga. Detener el problema debería ser tu primera prioridad; no ayudas a tus usuarios si el sistema muere mientras buscas la causa raíz. Por supuesto, poner énfasis en el triage rápido no impide que tomes medidas para preservar pruebas de lo que está mal, como los registros, para ayudar en el análisis posterior.
+
+A los pilotos novatos se les enseña que su primera responsabilidad en una emergencia es "volar el avión"; la resolución de problemas es secundaria a aterrizar el avión y poner a todos a salvo. Este enfoque también se aplica a los sistemas informáticos: por ejemplo, si un error está provocando una posible corrupción de datos irrecuperable, congelar el sistema para evitar más fallos puede ser mejor que permitir que este comportamiento continúe.
+
+Esta realización a menudo es bastante inquietante y contraria a la intuición para los nuevos SREs, especialmente aquellos cuya experiencia previa fue en organizaciones de desarrollo de productos.
 
 
 
