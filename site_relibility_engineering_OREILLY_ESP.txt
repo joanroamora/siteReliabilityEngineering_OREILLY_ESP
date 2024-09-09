@@ -1898,7 +1898,37 @@ Cuando se gestionan incidentes, si el problema es lo suficientemente complejo co
 
 Finalmente, cuando ocurre un incidente, es importante evaluar qué salió mal, reconocer qué salió bien y tomar medidas para evitar que los mismos errores se repitan en el futuro. Los equipos de SRE deben escribir postmortems después de incidentes significativos y detallar una cronología completa de los eventos ocurridos. Al enfocarse en los eventos en lugar de en las personas, estos postmortems aportan un valor significativo. En lugar de culpar a los individuos, derivan valor de un análisis sistemático de los incidentes en producción. Los errores suceden, y el software debe asegurarse de que cometamos la menor cantidad de errores posible. Reconocer las oportunidades de automatización es una de las mejores formas de prevenir errores humanos [Loo10].
 
+Evitando una Carga Operativa Inapropiada
 
+Como se menciona en Equilibrio en la Guardia, los SREs dedican como máximo el 50% de su tiempo a tareas operativas. ¿Qué sucede si las actividades operativas superan este límite?
+
+Sobrecarga Operativa
+
+El equipo de SRE y la gerencia son responsables de incluir objetivos concretos en la planificación trimestral del trabajo para asegurarse de que la carga de trabajo vuelva a niveles sostenibles. Prestar temporalmente a un SRE experimentado a un equipo sobrecargado, como se discute en Incorporar un SRE para Recuperarse de la Sobrecarga Operativa, puede proporcionar el respiro necesario para que el equipo avance en la resolución de problemas.
+
+Idealmente, los síntomas de la sobrecarga operativa deberían ser medibles, para que los objetivos puedan cuantificarse (por ejemplo, número de tickets diarios < 5, eventos de alerta por turno < 2).
+
+Una causa común de sobrecarga operativa es la configuración incorrecta del monitoreo. Las alertas de paginación deben alinearse con los síntomas que amenazan los SLOs del servicio. Todas las alertas de paginación también deben ser procesables. Las alertas de baja prioridad que molestan al ingeniero de guardia cada hora (o con más frecuencia) interrumpen la productividad, y la fatiga que generan puede hacer que las alertas graves reciban menos atención de la necesaria. Consulta Cómo manejar las interrupciones para obtener más detalles.
+
+También es importante controlar el número de alertas que reciben los ingenieros de guardia por un solo incidente. A veces, una sola condición anormal puede generar varias alertas, por lo que es importante regular la expansión de alertas, asegurando que las alertas relacionadas se agrupen mediante el sistema de monitoreo o alertas. Si, por alguna razón, se generan alertas duplicadas o no informativas durante un incidente, silenciarlas puede proporcionar el silencio necesario para que el ingeniero de guardia se concentre en el incidente en sí. Las alertas ruidosas que sistemáticamente generan más de una alerta por incidente deben ajustarse para aproximarse a una relación 1:1 entre alerta e incidente. Hacer esto permite que el ingeniero de guardia se concentre en el incidente en lugar de clasificar alertas duplicadas.
+
+A veces, los cambios que causan una sobrecarga operativa no están bajo el control de los equipos de SRE. Por ejemplo, los desarrolladores de aplicaciones pueden introducir cambios que hagan que el sistema sea más ruidoso, menos confiable o ambos. En este caso, es apropiado trabajar en conjunto con los desarrolladores de aplicaciones para establecer objetivos comunes que mejoren el sistema.
+
+En casos extremos, los equipos de SRE pueden tener la opción de "devolver el buscapersonas": los SRE pueden pedir al equipo de desarrollo que asuma la responsabilidad total de estar de guardia para el sistema hasta que cumpla con los estándares del equipo de SRE en cuestión. Devolver el buscapersonas no ocurre con mucha frecuencia, ya que casi siempre es posible trabajar con el equipo de desarrollo para reducir la carga operativa y hacer que un sistema sea más confiable. Sin embargo, en algunos casos, se pueden requerir cambios complejos o arquitectónicos que abarcan varios trimestres para que un sistema sea sostenible desde el punto de vista operativo. En tales casos, el equipo de SRE no debe estar sujeto a una carga operativa excesiva. En su lugar, es apropiado negociar la reorganización de las responsabilidades de guardia con el equipo de desarrollo, posiblemente redirigiendo algunas o todas las alertas al desarrollador de guardia. Esta solución suele ser una medida temporal, durante la cual los equipos de SRE y desarrollo trabajan juntos para mejorar el servicio y que pueda ser administrado nuevamente por el equipo de SRE.
+
+La posibilidad de renegociar las responsabilidades de guardia entre los equipos de SRE y de desarrollo de productos refleja el equilibrio de poder entre los equipos. Esta relación de trabajo también ejemplifica cómo la tensión saludable entre estos dos equipos y los valores que representan —confiabilidad frente a la velocidad de desarrollo— suele resolverse en un gran beneficio tanto para el servicio como para la empresa en general.
+
+Un Enemigo Traicionero: Subcarga Operativa
+
+Estar de guardia para un sistema tranquilo es placentero, pero ¿qué sucede si el sistema está demasiado tranquilo o si los SREs no están de guardia con la frecuencia suficiente? Una subcarga operativa es indeseable para un equipo de SRE. Estar desconectado de la producción durante largos períodos de tiempo puede generar problemas de confianza, tanto en términos de exceso de confianza como de falta de confianza, mientras que las lagunas de conocimiento solo se descubren cuando ocurre un incidente.
+
+Para contrarrestar esta eventualidad, los equipos de SRE deben tener el tamaño adecuado para que cada ingeniero esté de guardia al menos una o dos veces por trimestre, asegurando así que cada miembro del equipo esté suficientemente expuesto a la producción. Los ejercicios de "Rueda de la Desgracia" (discutidos en Acelerando a los SRE hacia la Guardia y Más Allá) también son actividades de equipo útiles que pueden ayudar a perfeccionar y mejorar las habilidades de solución de problemas y el conocimiento del servicio. Google también organiza un evento anual de recuperación ante desastres llamado DiRT (Disaster Recovery Training) que combina simulacros teóricos y prácticos para realizar pruebas de varios días de los sistemas de infraestructura y servicios individuales; ver [Kri12].
+
+Conclusiones
+
+El enfoque de guardia descrito en este capítulo sirve como una guía para todos los equipos de SRE en Google y es clave para fomentar un entorno de trabajo sostenible y manejable. El enfoque de Google para la guardia nos ha permitido utilizar el trabajo de ingeniería como el principal medio para escalar las responsabilidades de producción y mantener una alta confiabilidad y disponibilidad a pesar del creciente número y complejidad de los sistemas y servicios de los que son responsables los SREs.
+
+Si bien este enfoque puede no ser inmediatamente aplicable a todos los contextos en los que los ingenieros necesitan estar de guardia para servicios de TI, creemos que representa un modelo sólido que las organizaciones pueden adoptar al escalar para enfrentar un volumen creciente de trabajo de guardia.
 
 
 
