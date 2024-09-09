@@ -2073,6 +2073,57 @@ Las pruebas activas pueden tener efectos secundarios que alteren los resultados 
 Algunas pruebas pueden no ser definitivas, solo sugerentes. Puede ser muy difícil hacer que las condiciones de carrera o los bloqueos ocurran de manera oportuna y reproducible, por lo que puede que tengas que conformarte con evidencia menos certera de que estas son las causas.
 Toma notas claras de las ideas que tuviste, las pruebas que realizaste y los resultados que observaste. Esto es especialmente importante cuando te enfrentas a casos más complicados y prolongados, ya que esta documentación puede ser crucial para ayudarte a recordar exactamente lo que sucedió y evitar tener que repetir esos pasos. Si realizaste pruebas activas cambiando un sistema, como asignar más recursos a un proceso, hacer estos cambios de manera sistemática y documentada te ayudará a devolver el sistema a su configuración original previa a la prueba, en lugar de dejarlo en una configuración confusa e indefinida.
 
+Los resultados negativos son magia
+Escrito por Randall Bosetti. Editado por Joan Wendt.
+
+Un resultado "negativo" es un resultado experimental en el que el efecto esperado está ausente, es decir, cualquier experimento que no funcione como se había planeado. Esto incluye nuevos diseños, heurísticas o procesos humanos que no logran mejorar los sistemas que reemplazan.
+
+Los resultados negativos no deben ser ignorados o subestimados. Darse cuenta de que estás equivocado tiene un gran valor: un resultado negativo claro puede resolver algunas de las preguntas de diseño más difíciles. A menudo, un equipo tiene dos diseños aparentemente razonables, pero el progreso en una dirección debe abordar preguntas vagas y especulativas sobre si la otra dirección podría ser mejor.
+
+Los experimentos con resultados negativos son concluyentes. Nos dicen algo concreto sobre la producción, el espacio de diseño o los límites de rendimiento de un sistema existente. Pueden ayudar a otros a determinar si sus propios experimentos o diseños son útiles. Por ejemplo, un equipo de desarrollo podría decidir no usar un servidor web en particular porque solo puede manejar ~800 conexiones de las 8,000 necesarias antes de fallar debido a la contención de bloqueos. Cuando un equipo de desarrollo posterior decida evaluar servidores web, en lugar de comenzar desde cero, pueden usar este resultado negativo bien documentado como punto de partida para decidir rápidamente si (a) necesitan menos de 800 conexiones o (b) los problemas de contención de bloqueos han sido resueltos.
+
+Incluso cuando los resultados negativos no se aplican directamente al experimento de otra persona, los datos complementarios recopilados pueden ayudar a otros a elegir nuevos experimentos o evitar errores en diseños anteriores. Microbenchmarks, patrones antiprácticas documentadas y postmortems de proyectos encajan en esta categoría. Deberías considerar el alcance del resultado negativo al diseñar un experimento, porque un resultado negativo amplio o especialmente robusto ayudará aún más a tus compañeros.
+
+Las herramientas y métodos pueden sobrevivir al experimento e informar trabajos futuros.
+Por ejemplo, las herramientas de benchmarking y los generadores de carga pueden resultar tan fácilmente de un experimento que no confirme la hipótesis como de uno que la respalde. Muchos webmasters se han beneficiado del trabajo arduo y orientado a los detalles que produjo Apache Bench, una prueba de carga de servidores web, aunque probablemente sus primeros resultados fueron decepcionantes.
+
+Construir herramientas para experimentos repetibles puede tener beneficios indirectos: aunque una aplicación que desarrolles no se beneficie de tener su base de datos en SSD o de crear índices para claves densas, la siguiente aplicación podría beneficiarse. Escribir un script que te permita probar fácilmente estos cambios de configuración garantiza que no olvides u omitas optimizaciones en tu próximo proyecto.
+
+Publicar resultados negativos mejora la cultura de datos en nuestra industria.
+Tener en cuenta los resultados negativos y la insignificancia estadística reduce el sesgo en nuestras métricas y proporciona un ejemplo para que otros acepten la incertidumbre de manera madura. Al publicar todo, fomentas que otros hagan lo mismo, y todos en la industria aprenden colectivamente mucho más rápido. SRE ya ha aprendido esta lección con postmortems de alta calidad, que han tenido un gran efecto positivo en la estabilidad de la producción.
+
+Publica tus resultados.
+Si te interesan los resultados de un experimento, es probable que otras personas también estén interesadas. Cuando publicas los resultados, esas personas no tienen que diseñar y ejecutar un experimento similar por sí mismas. Es tentador y común evitar reportar resultados negativos porque es fácil percibir que el experimento "fracasó". Algunos experimentos están condenados desde el principio y suelen ser atrapados en la revisión. Muchos más experimentos simplemente no se informan porque las personas creen erróneamente que los resultados negativos no son progreso.
+
+Haz tu parte contando a todos sobre los diseños, algoritmos y flujos de trabajo de equipos que has descartado. Alienta a tus compañeros reconociendo que los resultados negativos son parte de asumir riesgos con reflexión y que cada experimento bien diseñado tiene mérito. Sé escéptico de cualquier documento de diseño, revisión de rendimiento o ensayo que no mencione fallos. Un documento así puede estar demasiado filtrado o su autor no fue riguroso en sus métodos.
+
+Sobre todo, publica los resultados que encuentres sorprendentes para que otros, incluyéndote a ti en el futuro, no se sorprendan.
+
+Solución
+Idealmente, ahora has reducido el conjunto de posibles causas a una. A continuación, queremos probar que es la causa real. Probar de manera definitiva que un factor dado causó un problema—reproduciéndolo a voluntad—puede ser difícil en los sistemas de producción; a menudo, solo podemos encontrar factores causales probables, por las siguientes razones:
+
+Los sistemas son complejos. Es muy probable que haya múltiples factores, cada uno de los cuales individualmente no es la causa, pero que tomados en conjunto lo son.
+Los sistemas reales también suelen depender de la trayectoria, por lo que deben estar en un estado específico antes de que ocurra una falla.
+Reproducir el problema en un sistema de producción en vivo puede no ser una opción, ya sea por la complejidad de llevar el sistema a un estado donde se pueda desencadenar la falla o porque más tiempo de inactividad puede ser inaceptable.
+Tener un entorno de no producción puede mitigar estos desafíos, aunque a costa de tener otra copia del sistema para ejecutar.
+
+Una vez que hayas encontrado los factores que causaron el problema, es hora de escribir notas sobre qué falló en el sistema, cómo localizaste el problema, cómo lo solucionaste y cómo evitar que vuelva a suceder. En otras palabras, necesitas escribir un postmortem (aunque idealmente, ¡el sistema esté vivo en este punto!).
+
+Estudio de caso
+App Engine, parte de Google Cloud Platform, es un producto de plataforma como servicio que permite a los desarrolladores construir servicios sobre la infraestructura de Google.
+
+Uno de nuestros clientes internos presentó un informe de problema indicando que recientemente había visto un aumento dramático en la latencia, el uso de CPU y el número de procesos en ejecución necesarios para atender el tráfico de su aplicación, un sistema de gestión de contenidos utilizado para crear documentación para desarrolladores. El cliente no pudo encontrar cambios recientes en su código que se correlacionaran con el aumento de recursos, y no había habido un aumento en el tráfico de su aplicación, por lo que se preguntaban si un cambio en el servicio App Engine era responsable.
+
+Nuestra investigación descubrió que la latencia había aumentado casi un orden de magnitud. Simultáneamente, la cantidad de tiempo de CPU y el número de procesos de servicio se habían cuadruplicado. Claramente, algo estaba mal. Era hora de comenzar la resolución de problemas.
+
+
+
+
+
+
+
+
+
 
 
 
