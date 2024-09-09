@@ -2032,6 +2032,31 @@ Usando curl, envías manualmente solicitudes al endpoint de búsqueda y obtienes
 Diagnóstico
 Un entendimiento profundo del diseño del sistema es decididamente útil para desarrollar hipótesis plausibles sobre lo que ha fallado, pero también existen algunas prácticas genéricas que te ayudarán incluso sin conocimiento profundo del dominio.
 
+Simplificar y reducir
+Idealmente, los componentes de un sistema tienen interfaces bien definidas y realizan transformaciones conocidas desde su entrada hasta su salida (en nuestro ejemplo, dado un texto de búsqueda como entrada, un componente podría devolver una salida que contenga posibles coincidencias). Es entonces posible observar las conexiones entre componentes o, de manera equivalente, los datos que fluyen entre ellos para determinar si un componente está funcionando correctamente. Inyectar datos de prueba conocidos para verificar que la salida resultante sea la esperada (una forma de prueba de caja negra) en cada paso puede ser especialmente efectivo, al igual que inyectar datos destinados a probar posibles causas de errores. Tener un caso de prueba reproducible y sólido hace que la depuración sea mucho más rápida, y es posible que se pueda usar el caso en un entorno no productivo donde se puedan emplear técnicas más invasivas o arriesgadas que no serían viables en producción.
+
+Dividir y conquistar es una técnica de solución muy útil y de propósito general. En un sistema de múltiples capas donde el trabajo ocurre a lo largo de una pila de componentes, a menudo es mejor comenzar sistemáticamente desde un extremo de la pila y avanzar hacia el otro, examinando cada componente por turno. Esta estrategia también es adecuada para usar con tuberías de procesamiento de datos. En sistemas excepcionalmente grandes, proceder de manera lineal puede ser demasiado lento; una alternativa, la bisección, divide el sistema por la mitad y examina las rutas de comunicación entre los componentes de un lado y del otro. Después de determinar si una mitad parece estar funcionando correctamente, repite el proceso hasta que te quedes con un componente posiblemente defectuoso.
+
+Pregunta "qué", "dónde" y "por qué"
+Un sistema que funciona mal a menudo todavía está tratando de hacer algo, solo que no está haciendo lo que deseas que haga. Descubrir qué está haciendo, luego preguntar por qué lo está haciendo y dónde se están utilizando sus recursos o hacia dónde va su salida puede ayudarte a entender cómo se ha producido el fallo.
+
+Desglosar las causas de un síntoma
+Síntoma: Un clúster de Spanner tiene alta latencia y las RPC a sus servidores están expirando.
+
+¿Por qué? Las tareas del servidor de Spanner están utilizando todo su tiempo de CPU y no pueden procesar todas las solicitudes que envían los clientes.
+
+¿Dónde en el servidor se está utilizando el tiempo de CPU? Perfilar el servidor muestra que está ordenando entradas en registros almacenados en disco.
+
+¿Dónde en el código de ordenación de registros se está utilizando? Al evaluar una expresión regular contra las rutas de archivos de registro.
+
+Soluciones: Reescribir la expresión regular para evitar retrocesos. Buscar patrones similares en la base de código. Considerar el uso de RE2, que no realiza retrocesos y garantiza un crecimiento lineal del tiempo de ejecución con el tamaño de la entrada.
+
+¿Qué lo tocó por última vez?
+Los sistemas tienen inercia: hemos descubierto que un sistema informático que funciona tiende a permanecer en funcionamiento hasta que es afectado por una fuerza externa, como un cambio en la configuración o una variación en el tipo de carga procesada. Los cambios recientes en un sistema pueden ser un lugar productivo para comenzar a identificar lo que está fallando.
+
+Los sistemas bien diseñados deben tener un registro extenso de producción para rastrear nuevas versiones implementadas y cambios de configuración en todas las capas de la pila, desde los binarios del servidor que manejan el tráfico de usuarios hasta los paquetes instalados en nodos individuales del clúster. Correlacionar los cambios en el rendimiento y comportamiento de un sistema con otros eventos en el sistema y su entorno también puede ser útil al construir paneles de monitoreo; por ejemplo, podrías anotar un gráfico que muestre las tasas de errores del sistema con las horas de inicio y finalización de la implementación de una nueva versión, como se ve en la Figura 12-2.
+
+Manualmente enviando una solicitud al endpoint /api/search (ver Depurando Shakespeare) y viendo el fallo que lista los servidores de backend que manejaron la respuesta, te permite descartar la probabilidad de que el problema esté en el servidor frontend de la API o en los equilibradores de carga: probablemente la respuesta no habría incluido esa información si la solicitud no hubiera llegado al menos a los backends de búsqueda y fallado allí. Ahora puedes centrar tus esfuerzos en los backends—analizando sus registros, enviando consultas de prueba para ver qué respuestas devuelven y examinando sus métricas exportadas.
 
 
 
