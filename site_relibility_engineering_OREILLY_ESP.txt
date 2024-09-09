@@ -1990,7 +1990,47 @@ A los pilotos novatos se les enseña que su primera responsabilidad en una emerg
 
 Esta realización a menudo es bastante inquietante y contraria a la intuición para los nuevos SREs, especialmente aquellos cuya experiencia previa fue en organizaciones de desarrollo de productos.
 
+Examen
+Es necesario poder examinar lo que cada componente del sistema está haciendo para entender si está funcionando correctamente o no. Idealmente, un sistema de monitoreo está registrando métricas para tu sistema, como se discute en Alerta práctica a partir de datos de series temporales. Estas métricas son un buen punto de partida para entender qué está fallando. Graficar series temporales y realizar operaciones con ellas puede ser una forma efectiva de comprender el comportamiento de partes específicas de un sistema y encontrar correlaciones que puedan sugerir dónde comenzaron los problemas.
 
+El logging (registro) es otra herramienta invaluable. Exportar información sobre cada operación y sobre el estado del sistema permite comprender exactamente qué estaba haciendo un proceso en un momento determinado. Es posible que necesites analizar los registros del sistema a lo largo de uno o varios procesos. Trazar solicitudes a través de toda la pila usando herramientas como Dapper proporciona una manera muy poderosa de entender cómo funciona un sistema distribuido, aunque los diferentes casos de uso implican diseños de trazado significativamente distintos.
+
+Registro de eventos (Logging)
+Los registros de texto son muy útiles para la depuración reactiva en tiempo real, mientras que almacenar registros en un formato binario estructurado puede hacer posible construir herramientas para realizar análisis retrospectivos con mucha más información.
+
+Es realmente útil tener disponibles múltiples niveles de verbosidad, junto con una forma de aumentarlos en tiempo real. Esta funcionalidad te permite examinar cualquier o todas las operaciones en detalle sin tener que reiniciar tu proceso, y también te permite reducir los niveles de verbosidad cuando tu servicio está operando normalmente. Dependiendo del volumen de tráfico que reciba tu servicio, podría ser mejor usar muestreo estadístico; por ejemplo, podrías mostrar una de cada 1,000 operaciones.
+
+El siguiente paso es incluir un lenguaje de selección para que puedas decir: “muéstrame las operaciones que coincidan con X”, para una amplia gama de X—por ejemplo, RPCs de Set con un tamaño de carga útil por debajo de 1,024 bytes, o operaciones que tardaron más de 10 ms en responder, o que llamaron a doSomethingInteresting() en rpc_handler.py. Incluso podrías diseñar tu infraestructura de registro para que puedas activarla según sea necesario, de manera rápida y selectiva.
+
+Exponer el estado actual es el tercer truco en nuestro conjunto de herramientas. Por ejemplo, los servidores de Google tienen endpoints que muestran una muestra de los RPCs enviados o recibidos recientemente, por lo que es posible entender cómo un servidor se comunica con otros sin consultar un diagrama de arquitectura. Estos endpoints también muestran histogramas de tasas de error y latencia para cada tipo de RPC, de modo que es posible detectar rápidamente qué está fallando. Algunos sistemas tienen endpoints que muestran su configuración actual o permiten examinar sus datos; por ejemplo, los servidores de Borgmon de Google (discutidos en Alerta práctica a partir de datos de series temporales) pueden mostrar las reglas de monitoreo que están usando e incluso permiten rastrear un cálculo particular paso a paso hasta las métricas de origen de las que se deriva un valor.
+
+Finalmente, es posible que incluso necesites instrumentar un cliente para experimentar y descubrir qué está devolviendo un componente en respuesta a las solicitudes.
+
+Depuración de Shakespeare
+Usando el enlace a los resultados del monitoreo de caja negra en el informe del error, descubres que el prober envía una solicitud HTTP GET al endpoint /api/search:
+
+json
+Copiar código
+{
+  "search_text": "the forms of things unknown"
+}
+Espera recibir una respuesta con un código de respuesta HTTP 200 y una carga útil JSON que coincida exactamente con:
+
+json
+Copiar código
+[{
+  "work": "A Midsummer Night's Dream",
+  "act": 5,
+  "scene": 1,
+  "line": 2526,
+  "speaker": "Theseus"
+}]
+El sistema está configurado para enviar una sonda una vez por minuto; en los últimos 10 minutos, aproximadamente la mitad de las sondas han tenido éxito, aunque sin un patrón discernible. Desafortunadamente, el prober no te muestra lo que se devolvió cuando falló; tomas nota de arreglar eso en el futuro.
+
+Usando curl, envías manualmente solicitudes al endpoint de búsqueda y obtienes una respuesta fallida con el código de respuesta HTTP 502 (Bad Gateway) y sin carga útil. Tiene un encabezado HTTP, X-Request-Trace, que enumera las direcciones de los servidores backend responsables de responder a esa solicitud. Con esta información, ahora puedes examinar esos backends para probar si están respondiendo adecuadamente.
+
+Diagnóstico
+Un entendimiento profundo del diseño del sistema es decididamente útil para desarrollar hipótesis plausibles sobre lo que ha fallado, pero también existen algunas prácticas genéricas que te ayudarán incluso sin conocimiento profundo del dominio.
 
 
 
