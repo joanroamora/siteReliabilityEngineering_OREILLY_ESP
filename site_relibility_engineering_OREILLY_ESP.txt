@@ -1930,7 +1930,29 @@ El enfoque de guardia descrito en este capítulo sirve como una guía para todos
 
 Si bien este enfoque puede no ser inmediatamente aplicable a todos los contextos en los que los ingenieros necesitan estar de guardia para servicios de TI, creemos que representa un modelo sólido que las organizaciones pueden adoptar al escalar para enfrentar un volumen creciente de trabajo de guardia.
 
+Capítulo 12 - Resolución de Problemas Efectiva
+Escrito por Chris Jones
 
+Se advierte que ser un experto implica más que entender cómo se supone que un sistema debe funcionar. La experiencia se adquiere investigando por qué un sistema no funciona.
+—Brian Redman
+
+Las formas en que las cosas salen bien son casos especiales de las formas en que salen mal.
+—John Allspaw
+
+La resolución de problemas es una habilidad crítica para cualquiera que opere sistemas informáticos distribuidos, especialmente los SREs (Ingenieros de Confiabilidad de Sitios), pero a menudo se ve como una habilidad innata que algunas personas poseen y otras no. Una razón de esta suposición es que, para aquellos que resuelven problemas con frecuencia, es un proceso tan internalizado que explicarlo resulta difícil, como explicar cómo montar una bicicleta. Sin embargo, creemos que la resolución de problemas se puede aprender y enseñar.
+
+Los principiantes a menudo se ven frustrados al intentar resolver problemas porque este ejercicio depende idealmente de dos factores: una comprensión de cómo resolver problemas en términos generales (es decir, sin conocimiento específico de un sistema en particular) y un conocimiento sólido del sistema en cuestión. Si bien se puede investigar un problema utilizando solo el proceso genérico y derivar conclusiones desde principios básicos, encontramos que este enfoque es menos eficiente y menos efectivo que comprender cómo se supone que debe funcionar el sistema. El conocimiento del sistema generalmente limita la eficacia de un SRE nuevo en un sistema; no hay mucho que sustituya al aprendizaje de cómo está diseñado y construido.
+
+Veamos un modelo general del proceso de resolución de problemas. Los lectores con experiencia en la resolución de problemas pueden cuestionar nuestras definiciones y proceso; si su método es efectivo para usted, no hay razón para cambiarlo.
+
+Teoría
+Formalmente, podemos pensar en el proceso de resolución de problemas como una aplicación del método hipotético-deductivo: dado un conjunto de observaciones sobre un sistema y una base teórica para comprender su comportamiento, formulamos hipótesis sobre las posibles causas del fallo y las probamos de forma iterativa.
+
+En un modelo idealizado como el que se muestra en la Figura 12-1, comenzaríamos con un informe de problemas que nos dice que algo anda mal en el sistema. Luego podemos observar la telemetría y los registros del sistema para comprender su estado actual. Esta información, combinada con nuestro conocimiento de cómo está construido el sistema, cómo debería operar y sus modos de fallo, nos permite identificar algunas posibles causas.
+
+
+
+Luego, podemos probar nuestras hipótesis de dos maneras. Podemos comparar el estado observado del sistema con nuestras teorías para encontrar evidencia confirmatoria o desconfirmatoria. O, en algunos casos, podemos "tratar" activamente el sistema, es decir, cambiar el sistema de manera controlada y observar los resultados. Este segundo enfoque refina nuestra comprensión del estado del sistema y las posibles causas del problema reportado. Usando cualquiera de estas estrategias, probamos repetidamente hasta que se identifica la causa raíz, momento en el cual podemos tomar medidas correctivas para evitar una recurrencia y redactar un informe post mortem. Por supuesto, solucionar las causas inmediatas no siempre tiene que esperar a identificar la causa raíz o a redactar el post mortem.
 
 
 
