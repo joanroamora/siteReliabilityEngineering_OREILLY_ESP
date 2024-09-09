@@ -2134,7 +2134,57 @@ No pudimos probar que este comportamiento fuera la raíz del problema, pero es u
 
 Tiempo después, se encontró la causa raíz: debido a un error antiguo en el sistema de control de acceso de la aplicación, cada vez que se accedía a una ruta específica, se creaba y almacenaba un objeto de la lista blanca en el almacén de datos. En la preparación para el lanzamiento, un escáner de seguridad automatizado había estado probando la aplicación en busca de vulnerabilidades, y como efecto secundario, su análisis produjo miles de objetos de lista blanca durante el transcurso de media hora. Estos objetos superfluos de la lista blanca luego tenían que ser verificados en cada solicitud a la aplicación, lo que llevaba a respuestas patológicamente lentas, sin causar llamadas RPC desde la aplicación a otros servicios. Arreglar el error y eliminar esos objetos devolvió el rendimiento de la aplicación a los niveles esperados.
 
+Hacer más fácil la resolución de problemas
+Existen muchas formas de simplificar y acelerar la resolución de problemas. Quizás las más fundamentales son:
 
+Incluir observabilidad—tanto con métricas de caja blanca como con registros estructurados—en cada componente desde el principio.
+Diseñar sistemas con interfaces bien entendidas y observables entre los componentes.
+Asegurarse de que la información esté disponible de manera consistente en todo el sistema—por ejemplo, usando un identificador único de solicitud a lo largo de la cadena de RPCs generados por varios componentes—reduce la necesidad de averiguar qué entrada de registro en un componente aguas arriba coincide con una entrada de registro en un componente aguas abajo, acelerando el tiempo de diagnóstico y recuperación.
+
+Los problemas para representar correctamente el estado de la realidad en un cambio de código o en un cambio de entorno a menudo conducen a la necesidad de solucionar problemas. Simplificar, controlar y registrar estos cambios puede reducir la necesidad de resolución de problemas, y hacer que sea más fácil cuando suceda.
+
+Conclusión
+Hemos revisado algunos pasos que puedes seguir para hacer que el proceso de resolución de problemas sea claro y comprensible para los principiantes, de modo que ellos también puedan volverse efectivos en la resolución de problemas. Adoptar un enfoque sistemático para la resolución de problemas—en lugar de depender de la suerte o la experiencia—puede ayudar a reducir el tiempo de recuperación de tus servicios, lo que lleva a una mejor experiencia para tus usuarios.
+
+Referencias:
+
+De hecho, usar solo principios fundamentales y habilidades de resolución de problemas es a menudo una forma efectiva de aprender cómo funciona un sistema; ver Accelerating SREs to On-Call and Beyond.
+
+Ver https://es.wikipedia.org/wiki/M%C3%A9todo_hipot%C3%A9tico-deductivo.
+
+Por ejemplo, variables exportadas como se describe en Practical Alerting from Time-Series Data.
+
+Atribuido a Theodore Woodward, de la Escuela de Medicina de la Universidad de Maryland, en la década de 1940. Ver https://es.wikipedia.org/wiki/Zebra_(medicina). Esto funciona en algunos dominios, pero en algunos sistemas, se pueden eliminar clases enteras de fallas: por ejemplo, usar un sistema de archivos en clúster bien diseñado significa que es poco probable que un problema de latencia sea causado por un solo disco dañado.
+
+Occam's Razor; ver https://es.wikipedia.org/wiki/Nav%C3%ADo_de_Occam. Pero recuerda que puede seguir siendo el caso que haya múltiples problemas; en particular, puede ser más probable que un sistema tenga una serie de problemas comunes de bajo nivel que, tomados en conjunto, expliquen todos los síntomas en lugar de un solo problema raro que los cause todos. Cf. https://es.wikipedia.org/wiki/Dictum_de_Hickam.
+
+Por supuesto, ver https://xkcd.com/552.
+
+Al menos, no tenemos una teoría plausible para explicar por qué el número de doctorados otorgados en Informática en los EE. UU. debería estar extremadamente bien correlacionado (r² = 0.9416) con el consumo per cápita de queso entre 2000 y 2009: http://tylervigen.com/view_correlation?id=1099.
+
+Puede ser útil referir a los posibles reporteros de errores a [Tat99] para ayudarles a proporcionar informes de problemas de alta calidad.
+
+¡Pero ten cuidado con las falsas correlaciones que pueden llevarte por caminos equivocados!
+
+En muchos aspectos, esto es similar a la técnica de los "Cinco Porqués" [Ohn88] introducida por Taiichi Ohno para comprender las causas raíz de los errores en la manufactura.
+
+A diferencia de RE2, PCRE puede requerir tiempo exponencial para evaluar algunas expresiones regulares. RE2 está disponible en https://github.com/google/re2.
+
+[All15] observa que este es un heurístico frecuentemente usado para resolver fallos.
+
+Usar un documento compartido o chat en tiempo real para tomar notas proporciona una marca de tiempo de cuándo hiciste algo, lo cual es útil para las autopsias. También comparte esa información con otros, para que estén al tanto del estado actual del mundo y no necesiten interrumpir tu solución de problemas.
+
+Ver también Negative Results Are Magic para más sobre este punto.
+
+Ver [Mea08] sobre cómo pensar en sistemas, y también [Coo00] y [Dek14] sobre las limitaciones de encontrar una única causa raíz en lugar de examinar el sistema y su entorno en busca de factores causales.
+
+Ver https://cloud.google.com/appengine.
+
+Hemos comprimido y simplificado este estudio de caso para facilitar la comprensión.
+
+Aunque lanzar con un error no identificado no es ideal, a menudo es impracticable eliminar todos los errores conocidos. En cambio, a veces tenemos que conformarnos con medidas secundarias y mitigar el riesgo lo mejor posible, utilizando un buen juicio de ingeniería.
+
+La búsqueda en el almacén de datos puede usar un índice para acelerar la comparación, pero una implementación común en memoria es una simple comparación de bucle for en todos los objetos en caché. Si solo hay unos pocos objetos, no importará que esto tome tiempo lineal, pero puede causar un aumento significativo en la latencia y el uso de recursos a medida que crece el número de objetos en caché.
 
 
 
